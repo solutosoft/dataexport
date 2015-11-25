@@ -172,7 +172,7 @@ type
   TexSession = class(TexElement)
   private
     FColumns: TexColumnList;
-    FProvider: String;
+    FPipeline: String;
     FRowCount: Integer;
     FSessions: TexSessionList;
     FVisible: Boolean;
@@ -183,7 +183,7 @@ type
     destructor Destroy; override;
     property RowCount: Integer read FRowCount write FRowCount;
   published
-    property Provider: String read FProvider write FProvider;
+    property Pipeline: String read FPipeline write FPipeline;
     property Visible: Boolean read FVisible write FVisible;
     property Columns: TexColumnList read FColumns write SeTexColumns;
     property Sessions: TexSessionList read FSessions write SeTexSessions;

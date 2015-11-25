@@ -16,8 +16,8 @@
         <Filename Value="exexportertest.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="exExporterTest"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="-1"/>
+        <WindowIndex Value="-1"/>
         <CursorPos X="17" Y="96"/>
         <UsageCount Value="24"/>
       </Unit1>
@@ -67,10 +67,11 @@
       <Unit8>
         <Filename Value="..\exdefinition.pas"/>
         <UnitName Value="exDefinition"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="198"/>
-        <CursorPos X="15" Y="210"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="166"/>
+        <CursorPos X="61" Y="186"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit8>
       <Unit9>
         <Filename Value="..\access\exzeos.pas"/>
@@ -89,9 +90,14 @@
         <UsageCount Value="10"/>
       </Unit10>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="-1"/>
-    </General>
-    <JumpHistory HistoryIndex="-1"/>
+    <JumpHistory Count="2" HistoryIndex="1">
+      <Position1>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="186" Column="22" TopLine="168"/>
+      </Position1>
+      <Position2>
+        <Filename Value="..\exdefinition.pas"/>
+      </Position2>
+    </JumpHistory>
   </ProjectSession>
 </CONFIG>
