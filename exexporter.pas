@@ -13,7 +13,7 @@ type
 
   TexProvider = class(TComponent)
   public
-    function CreateQuery(APipeline: TexPipeline; AMaster: TDataSet): TDataSet; virtual; abstract;
+    function CreateQuery(ASQL: String; AParameters: TexParameterList; AMaster: TDataSet): TDataSet; virtual; abstract;
     procedure OpenConnection; virtual; abstract;
     procedure CloseConnection; virtual; abstract;
   end;
@@ -46,7 +46,7 @@ type
     procedure LoadFromFile(const AFileName: String);
     procedure SaveToStream(const AStream: TStream);
     procedure SaveToFile(const AFileName: string);
-    function Execute: TexResutMap;
+    function Execute: TStrings;
   published
     property Description: String read FDescription write FDescription;
     property Sessions: TexSessionList read FSessions write SetSessions;
@@ -69,7 +69,7 @@ begin
   FSessions := TexSessionList.Create(nil);
   FDictionaries := TexDictionaryList.Create;
   FEvents := TexVariableList.Create;
-  FPipelines := TexPipelineList.Create;
+  FPipelines := TexPipelineList.Create();
   FParameters := TexParameterList.Create;
   FFiles := TexFileList.Create;
 end;
@@ -167,9 +167,14 @@ begin
   end;
 end;
 
-function TexExporter.Execute: TexResutMap;
+function TexExporter.Execute: TStrings;
 begin
-
+  FProvider.OpenConnection;
+  try
+    Result := Serializer.Serialize(Sessions, nil);
+  finally
+    FProvider.CloseConnection;
+  end;
 end;
 
 end.

@@ -5,7 +5,8 @@ unit exExporterTest;
 interface
 
 uses
-  Classes, SysUtils, Forms, fpcunit, testutils, testregistry, exExporter, exDefinition;
+  Classes, SysUtils, Forms, fpcunit, testutils, testregistry, exExporter, exDefinition, exZeosProvider, exSerializer,
+  ZConnection, ZSqlProcessor, ZScriptParser;
 
 type
 
@@ -14,92 +15,85 @@ type
   TexExporterTest = class(TTestCase)
   private
     FFixtureDir: String;
+    FProvider: TexZeosProvider;
+    FConnection: TZConnection;
+    procedure PrepareDatabase;
+    function CreateExporter(AFileName: String; ASerializer: TexSerializer): TexExporter;
   protected
-    procedure SetUp; override;
-    function CreateExporter(AFileName: String): TexExporter;
+    constructor Create; override;
+    destructor Destroy; override;
   published
-    procedure TestStorage;
     procedure TestColumnSerializer;
   end;
 
 implementation
 
-procedure TexExporterTest.TestStorage;
-var
-  AFileName: String;
-  AExporter: TexExporter;
-  ASession: TexSession;
-begin
-  AExporter := TexExporter.Create(nil);
-  try
-    with AExporter.Dictionaries.Add do
-    begin
-      Align := altRight;
-      Name := 'money';
-      Complete := '0';
-      Size := 10;
-      Expression := 'Result := RemoveMask(AValue);';
-    end;
-
-    with AExporter.Events.Add do
-    begin
-      Name := 'onSerializeData';
-      Expression := 'Result := | + AValue + |';
-    end;
-
-    with AExporter.Parameters.Add do
-    begin
-      Name := 'param1';
-    end;
-
-    ASession := AExporter.Sessions.Add;
-    with ASession.Columns.Add do
-    begin
-      Dictionary := 'money';
-      Name := 'salary';
-    end;
-
-    AFileName := ConcatPaths([FFixtureDir, 'storage.def']);
-
-    AExporter.SaveToFile(AFileName);
-    AssertTrue(FileExists(AFileName));
-
-    AExporter := TexExporter.Create(nil);
-    AExporter.LoadFromFile(AFileName);
-
-    AssertEquals(1, AExporter.Dictionaries.Count);
-    AssertEquals(1, AExporter.Events.Count);
-    AssertEquals(1, AExporter.Parameters.Count);
-    AssertEquals(1, AExporter.Sessions.Count);
-    AssertEquals(1, AExporter.Sessions[0].Columns.Count);
- finally
-   AExporter.Free;
- end;
-end;
-
-procedure TexExporterTest.TestColumnSerializer;
-var
-  AExporter: TexExporter;
-begin
- AExporter := CreateExporter('column.def');
- try
-
- finally
-   AExporter.Free;
- end;
-end;
-
-procedure TexExporterTest.SetUp;
+constructor TexExporterTest.Create;
 begin
   FFixtureDir := ConcatPaths([ExtractFilePath(Application.ExeName), '../../fixtures']);
   if (not DirectoryExists(FFixtureDir)) then
     CreateDir(FFixtureDir);
+
+  FConnection := TZConnection.Create(nil);
+  FConnection.Protocol := 'sqlite-3';
+  FConnection.Database := ConcatPaths([ExtractFilePath(Application.ExeName), 'export-test.db']);
+
+  FProvider := TexZeosProvider.Create(nil);
+  FProvider.Connection := FConnection;
+
+  PrepareDatabase;
 end;
 
-function TexExporterTest.CreateExporter(AFileName: String): TexExporter;
+destructor TexExporterTest.Destroy;
+begin
+  FConnection.Free;
+  FProvider.Free;
+  inherited Destroy;
+end;
+
+procedure TexExporterTest.PrepareDatabase;
+var
+  ASQLProcessor: TZSQLProcessor;
+begin
+  if (FileExists(FConnection.Database)) then
+     DeleteFile(FConnection.Database);
+
+  FConnection.Connected := True;
+  ASQLProcessor := TZSQLProcessor.Create(nil);
+  try
+    ASQLProcessor.DelimiterType := dtDelimiter;
+    ASQLProcessor.Connection := FConnection;
+    ASQLProcessor.LoadFromFile(ConcatPaths([FFixtureDir, 'database-win.sql']));
+    ASQLProcessor.Execute;
+  finally
+    ASQLProcessor.Free;
+    FConnection.Connected := False;
+  end;
+end;
+
+function TexExporterTest.CreateExporter(AFileName: String; ASerializer: TexSerializer): TexExporter;
 begin
   Result := TexExporter.Create(nil);
   Result.LoadFromFile(ConcatPaths([FFixtureDir, AFileName]));
+  Result.Provider := FProvider;
+  Result.Serializer := ASerializer;
+end;
+
+procedure TexExporterTest.TestColumnSerializer;
+var
+  ASerializer: TexColumnSerializer;
+  AExporter: TexExporter;
+  AResult: TStrings;
+begin
+  ASerializer := TexColumnSerializer.Create(nil);
+  AExporter := CreateExporter('column-size.def', ASerializer);
+  try
+     AResult := AExporter.Execute;
+     AssertEquals(3, AResult.Count);
+  finally
+    AExporter.Free;
+    ASerializer.Free;
+  end;
 end;
 
 initialization

@@ -46,28 +46,22 @@ function TexColumnSerializer.Serialize(ASessions: TexSessionList; AMaster: TData
 var
   I: Integer;
   ASession: TexSession;
+  APipeline: TexPipeline;
   AQuery: TDataSet;
   AExporter: TexExporter;
 begin
   Result := TStringList.Create;
   AExporter := GetOwner as TexExporter;
 
-  {AClass := TexDriverAccess.Instance.FindRegisteredClass(AExporter.Properties.Driver);
-  ADataAccess := AClass.Create(AExporter) as IexDataAccess;
-
-  try
-    for I := 0 to ASessions.Count -1 do
+  for I := 0 to ASessions.Count -1 do
+  begin
+    if (ASession.Visible) then
     begin
-      if (ASession.Visible) then
-      begin
-        AProvider := AExporter.Providers.FindByName(ASession.Provider);
-        AQuery := ADataAccess.CreateQuery(AExporter, AProvider, AMaster);
+      APipeline := AExporter.Pipelines.FindByName(ASession.Pipeline);
+      AQuery := AExporter.Provider.CreateQuery(APipeline.SQL.Text, AExporter.Parameters, AMaster);
 
-      end;
     end;
-  finally
-    ADataAccess.Free;
-  end;     }
+  end;
 end;
 
 function TexColumnSerializer.FormatData(AData: TStrings): TStrings;

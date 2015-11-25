@@ -15,7 +15,7 @@ type
   private
     FConnection: TZConnection;
   public
-    function CreateQuery(APipeline: TexPipeline; AMaster: TDataSet): TDataSet; override;
+    function CreateQuery(ASQL: String; AParameters: TexParameterList; AMaster: TDataSet): TDataSet; override;
     procedure OpenConnection; override;
     procedure CloseConnection; override;
   published
@@ -28,15 +28,16 @@ implementation
 
 { TexZeosProvider }
 
-function TexZeosProvider.CreateQuery(APipeline: TexPipeline; AMaster: TDataSet): TDataSet;
+function TexZeosProvider.CreateQuery(ASQL: String; AParameters: TexParameterList; AMaster: TDataSet): TDataSet;
 var
   I: Integer;
   AQuery: TZQuery;
   AField: TField;
   AParam: TParam;
+  AParameter: TexParameter;
 begin
   AQuery := TZQuery.Create(Self);
-  AQuery.SQL.AddStrings(APipeline.SQL);
+  AQuery.SQL.Text := ASQL;
 
   if (AMaster <> nil) then
   begin
@@ -44,10 +45,13 @@ begin
     begin
       AParam := AQuery.Params[I];
       AField := AMaster.FindField(AParam.Name);
-      if (AField = nil) then
-      begin
-
-      end;
+      if (AField <> nil) then
+        AParam.Value := AField.Value;
+      {else begin
+         AParameter := AParameters.FindByName(AParam.Name);
+         if (AParameter <> nil) then
+            AParam.Value := EvaluateExpression(AParameter.Expression;
+      end;}
     end;
   end;
 

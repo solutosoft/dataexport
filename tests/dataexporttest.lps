@@ -4,22 +4,23 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="11">
+    <Units Count="21">
       <Unit0>
         <Filename Value="dataexporttest.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="70" Y="6"/>
-        <UsageCount Value="24"/>
+        <EditorIndex Value="5"/>
+        <CursorPos X="59" Y="12"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="exexportertest.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="exExporterTest"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="-1"/>
-        <CursorPos X="17" Y="96"/>
-        <UsageCount Value="24"/>
+        <TopLine Value="10"/>
+        <CursorPos X="34" Y="91"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="unit1.pas"/>
@@ -39,10 +40,11 @@
       <Unit4>
         <Filename Value="..\exexporter.pas"/>
         <UnitName Value="exExporter"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="83"/>
-        <CursorPos X="23" Y="97"/>
-        <UsageCount Value="11"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="4"/>
+        <CursorPos X="88" Y="16"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\objpas\classes\classesh.inc"/>
@@ -54,9 +56,11 @@
       <Unit6>
         <Filename Value="..\exserializer.pas"/>
         <UnitName Value="exSerializer"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="7"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="49"/>
+        <CursorPos X="38" Y="59"/>
         <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\db\exzeos.pas"/>
@@ -67,9 +71,9 @@
       <Unit8>
         <Filename Value="..\exdefinition.pas"/>
         <UnitName Value="exDefinition"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="166"/>
-        <CursorPos X="61" Y="186"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="142"/>
+        <CursorPos X="23" Y="148"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit8>
@@ -89,15 +93,213 @@
         <CursorPos X="68" Y="22"/>
         <UsageCount Value="10"/>
       </Unit10>
+      <Unit11>
+        <Filename Value="..\..\..\fpc\2.6.4\source\packages\fcl-fpcunit\src\fpcunit.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="296"/>
+        <CursorPos X="3" Y="174"/>
+        <UsageCount Value="11"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="..\..\..\fpc\2.6.4\source\rtl\inc\objpash.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="181"/>
+        <CursorPos X="11" Y="194"/>
+        <UsageCount Value="11"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\..\zeosdb\src\component\ZSqlProcessor.pas"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="121"/>
+        <CursorPos X="12" Y="87"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\..\zeosdb\src\parsesql\ZScriptParser.pas"/>
+        <EditorIndex Value="10"/>
+        <TopLine Value="51"/>
+        <CursorPos X="19" Y="52"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="..\..\zeosdb\src\dbc\ZDbcSqLiteUtils.pas"/>
+        <EditorIndex Value="9"/>
+        <TopLine Value="253"/>
+        <CursorPos X="47" Y="263"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\..\zeosdb\src\component\ZSqlStrings.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="256"/>
+        <CursorPos Y="269"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\..\zeosdb\src\dbc\ZDbcConnection.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="849"/>
+        <CursorPos Y="869"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="..\..\zeosdb\src\dbc\ZDbcSqLiteStatement.pas"/>
+        <EditorIndex Value="7"/>
+        <TopLine Value="610"/>
+        <CursorPos Y="619"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="..\..\zeosdb\src\plain\ZPlainSqLiteDriver.pas"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="1008"/>
+        <CursorPos Y="1021"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="..\providers\exzeosprovider.pas"/>
+        <UnitName Value="exZeosProvider"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="31"/>
+        <CursorPos X="100" Y="31"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit20>
     </Units>
-    <JumpHistory Count="2" HistoryIndex="1">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="..\exdefinition.pas"/>
-        <Caret Line="186" Column="22" TopLine="168"/>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="64" TopLine="53"/>
       </Position1>
       <Position2>
-        <Filename Value="..\exdefinition.pas"/>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="65" TopLine="53"/>
       </Position2>
+      <Position3>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="66" TopLine="53"/>
+      </Position3>
+      <Position4>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="67" TopLine="53"/>
+      </Position4>
+      <Position5>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="69" TopLine="53"/>
+      </Position5>
+      <Position6>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="70" TopLine="53"/>
+      </Position6>
+      <Position7>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="72" TopLine="53"/>
+      </Position7>
+      <Position8>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="76" Column="76" TopLine="76"/>
+      </Position8>
+      <Position9>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="41" Column="43" TopLine="33"/>
+      </Position9>
+      <Position10>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="58" TopLine="46"/>
+      </Position10>
+      <Position11>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="52" Column="5"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\exexporter.pas"/>
+        <Caret Line="170" Column="39" TopLine="152"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\exexporter.pas"/>
+        <Caret Line="172" Column="44" TopLine="152"/>
+      </Position13>
+      <Position14>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="52" Column="5"/>
+      </Position14>
+      <Position15>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="91" Column="34" TopLine="79"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\exexporter.pas"/>
+        <Caret Line="172" Column="3" TopLine="152"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\exserializer.pas"/>
+        <Caret Line="64" Column="44" TopLine="53"/>
+      </Position17>
+      <Position18>
+        <Filename Value="..\exserializer.pas"/>
+        <Caret Line="62" Column="70" TopLine="49"/>
+      </Position18>
+      <Position19>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="91" Column="34"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\providers\exzeosprovider.pas"/>
+        <Caret Line="50" Column="10" TopLine="22"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="130" Column="3" TopLine="127"/>
+      </Position21>
+      <Position22>
+        <Filename Value="..\exexporter.pas"/>
+        <Caret Line="72" Column="40" TopLine="65"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="148" Column="42" TopLine="136"/>
+      </Position23>
+      <Position24>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="307" Column="35" TopLine="305"/>
+      </Position24>
+      <Position25>
+        <Filename Value="..\providers\exzeosprovider.pas"/>
+        <Caret Line="18" Column="14" TopLine="6"/>
+      </Position25>
+      <Position26>
+        <Filename Value="..\exserializer.pas"/>
+        <Caret Line="62" Column="70" TopLine="49"/>
+      </Position26>
+      <Position27>
+        <Filename Value="..\exserializer.pas"/>
+        <Caret Line="61" Column="70" TopLine="49"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\exserializer.pas"/>
+        <Caret Line="64" Column="7" TopLine="45"/>
+      </Position28>
+      <Position29>
+        <Filename Value="..\exserializer.pas"/>
+        <Caret Line="61" Column="61" TopLine="49"/>
+      </Position29>
+      <Position30>
+        <Filename Value="..\providers\exzeosprovider.pas"/>
+        <Caret Line="18" Column="26" TopLine="6"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>
