@@ -48,7 +48,6 @@ var
   ASession: TexSession;
   AQuery: TDataSet;
   AExporter: TexExporter;
-  AProvider: TexProvider;
 begin
   Result := TStringList.Create;
   AExporter := GetOwner as TexExporter;
@@ -69,31 +68,6 @@ begin
   finally
     ADataAccess.Free;
   end;     }
-
-
-{   $data = [];
-        foreach ($sessions as $session) {
-            if ($session->visible) {
-                $i = 0;
-                $provider = $this->exporter->findProvider($session->provider);
-                $rows = $this->executeProvider($provider, $master);
-                foreach ($rows as $row) {
-                    $record = [];
-                    foreach ($session->columns as $column) {
-                        $value = $this->extractValue($column, $row);
-                        $record[] = $value;
-                    }
-                    $record = implode($this->delimiter, $record);
-                    $data[] = $this->beforeSerializeRow($record, $session);
-                    $children = $this->serialize($session->sessions, $row);
-                    foreach ($children as $item) {
-                        $data[] = $item;
-                    }
-                    $session->rows = $i++;
-                }
-            }
-        }
-        return $data;    }
 end;
 
 function TexColumnSerializer.FormatData(AData: TStrings): TStrings;

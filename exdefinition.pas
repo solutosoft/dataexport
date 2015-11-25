@@ -125,9 +125,9 @@ type
     property Items[Index: Integer]: TexParameter read GetItem write SetItem; default;
   end;
 
-  { TexProvider }
+  { TexPipeline }
 
-  TexProvider = class(TexElement)
+  TexPipeline = class(TexElement)
   private
     FSQL: TStrings;
     procedure SetSQL(AValue: TStrings);
@@ -138,17 +138,17 @@ type
     property SQL: TStrings read FSQL write SetSQL;
   end;
 
-  { TexProviderList }
+  { TexPipelineList }
 
-  TexProviderList = class(TexElementList)
+  TexPipelineList = class(TexElementList)
   private
-    function GetItem(Index: Integer): TexProvider;
-    procedure SetItem(Index: Integer; AValue: TexProvider);
+    function GetItem(Index: Integer): TexPipeline;
+    procedure SetItem(Index: Integer; AValue: TexPipeline);
   public
     constructor Create;
-    function FindByName(AName: String): TexProvider; reintroduce;
-    function Add: TexProvider;
-    property Items[Index: Integer]: TexProvider read GetItem write SetItem; default;
+    function FindByName(AName: String): TexPipeline; reintroduce;
+    function Add: TexPipeline;
+    property Items[Index: Integer]: TexPipeline read GetItem write SetItem; default;
   end;
 
   { TexSessionList }
@@ -300,29 +300,29 @@ begin
   inherited SetItem(Index, AValue);
 end;
 
-{ TexProviderList }
+{ TexPipelineList }
 
-constructor TexProviderList.Create;
+constructor TexPipelineList.Create;
 begin
-  inherited Create(TexProvider);
+  inherited Create(TexPipeline);
 end;
 
-function TexProviderList.FindByName(AName: String): TexProvider;
+function TexPipelineList.FindByName(AName: String): TexPipeline;
 begin
-  Result := TexProvider(inherited FindByName(AName));
+  Result := TexPipeline(inherited FindByName(AName));
 end;
 
-function TexProviderList.Add: TexProvider;
+function TexPipelineList.Add: TexPipeline;
 begin
-  Result := TexProvider(inherited Add);
+  Result := TexPipeline(inherited Add);
 end;
 
-function TexProviderList.GetItem(Index: Integer): TexProvider;
+function TexPipelineList.GetItem(Index: Integer): TexPipeline;
 begin
-  Result := TexProvider(GetItem(Index));
+  Result := TexPipeline(GetItem(Index));
 end;
 
-procedure TexProviderList.SetItem(Index: Integer; AValue: TexProvider);
+procedure TexPipelineList.SetItem(Index: Integer; AValue: TexPipeline);
 begin
   inherited SetItem(Index, AValue);
 end;
@@ -440,21 +440,21 @@ begin
   FColumns.Assign(AValue);
 end;
 
-{ TexProvider }
+{ TexPipeline }
 
-constructor TexProvider.Create(ACollection: TCollection);
+constructor TexPipeline.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FSQL := TStringList.Create;
 end;
 
-destructor TexProvider.Destroy;
+destructor TexPipeline.Destroy;
 begin
   FSQL.Free;
   inherited Destroy;
 end;
 
-procedure TexProvider.SetSQL(AValue: TStrings);
+procedure TexPipeline.SetSQL(AValue: TStrings);
 begin
   FSQL.Assign(AValue);
 end;

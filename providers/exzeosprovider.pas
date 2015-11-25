@@ -9,39 +9,26 @@ uses
 
 type
 
-  { TexZeosDataProvider }
+  { TexZeosProvider }
 
-  TexZeosDataProvider = class(TexDataProvider)
+  TexZeosProvider = class(TexProvider)
   private
     FConnection: TZConnection;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    function CreateQuery(AProvider: TexProvider; AMaster: TDataSet): TDataSet; override;
+    function CreateQuery(APipeline: TexPipeline; AMaster: TDataSet): TDataSet; override;
     procedure OpenConnection; override;
     procedure CloseConnection; override;
+  published
+    property Connection: TZConnection read FConnection write FConnection;
   end;
 
 procedure Register;
 
 implementation
 
-{ TexZeosDataProvider }
+{ TexZeosProvider }
 
-constructor TexZeosDataProvider.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-  FConnection := TZConnection.Create(nil);
-  FConnection.LoginPrompt := False;
-end;
-
-destructor TexZeosDataProvider.Destroy;
-begin
-  FConnection.Free;
-  inherited Destroy;
-end;
-
-function TexZeosDataProvider.CreateQuery(AProvider: TexProvider; AMaster: TDataSet): TDataSet;
+function TexZeosProvider.CreateQuery(APipeline: TexPipeline; AMaster: TDataSet): TDataSet;
 var
   I: Integer;
   AQuery: TZQuery;
@@ -49,7 +36,7 @@ var
   AParam: TParam;
 begin
   AQuery := TZQuery.Create(Self);
-  AQuery.SQL.AddStrings(AProvider.SQL);
+  AQuery.SQL.AddStrings(APipeline.SQL);
 
   if (AMaster <> nil) then
   begin
@@ -67,28 +54,19 @@ begin
   Result := AQuery;
 end;
 
-procedure TexZeosDataProvider.OpenConnection;
+procedure TexZeosProvider.OpenConnection;
 begin
-  with TexExporter(GetOwner).DataProvider do
-  begin
-    FConnection.HostName := HostName;
-    FConnection.Database := Database;
-    FConnection.User := UserName;
-    FConnection.Password := Password;
-    FConnection.Port := Port;
-    FConnection.Catalog := Catalog;
-  end;
   FConnection.Connected := True;
 end;
 
-procedure TexZeosDataProvider.CloseConnection;
+procedure TexZeosProvider.CloseConnection;
 begin
   FConnection.Connected := False;
 end;
 
 procedure Register;
 begin
-  RegisterComponents('Data Export', [TexZeosDataProvider]);
+  RegisterComponents('Data Export', [TexZeosProvider]);
 end;
 
 end.

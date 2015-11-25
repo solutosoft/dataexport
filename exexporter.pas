@@ -9,34 +9,13 @@ uses
 
 type
 
-  { TexDataProvider }
+  { TexProvider }
 
-  TexDataProvider = class(TComponent)
-  private
-    FCatalog: string;
-    FDatabase: String;
-    FHostName: String;
-    FParams: TStrings;
-    FPassword: String;
-    FPort: Integer;
-    FProtocol: String;
-    FUserName: String;
-    procedure SetParams(AValue: TStrings);
+  TexProvider = class(TComponent)
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    function CreateQuery(AProvider: TexProvider; AMaster: TDataSet): TDataSet; virtual; abstract;
+    function CreateQuery(APipeline: TexPipeline; AMaster: TDataSet): TDataSet; virtual; abstract;
     procedure OpenConnection; virtual; abstract;
     procedure CloseConnection; virtual; abstract;
-  published
-    property Database: String read FDatabase write FDatabase;
-    property HostName: String read FHostName write FHostName;
-    property Port: Integer read FPort write FPort;
-    property Password: String read FPassword write FPassword;
-    property UserName: String read FUserName write FUserName;
-    property Catalog: string read FCatalog write FCatalog;
-    property Protocol: String read FProtocol write FProtocol;
-    property Params: TStrings read FParams write SetParams;
   end;
 
   { TexExporter }
@@ -45,12 +24,12 @@ type
 
   TexExporter = class(TComponent)
   private
-    FDataProvider: TexDataProvider;
+    FProvider: TexProvider;
     FFiles: TexFileList;
     FDescription: String;
     FEvents: TexVariableList;
     FParameters: TexParameterList;
-    FProviders: TexProviderList;
+    FPipelines: TexPipelineList;
     FSerializer: TexSerializer;
     FSessions: TexSessionList;
     FDictionaries: TexDictionaryList;
@@ -58,7 +37,7 @@ type
     procedure SetDictionaries(AValue: TexDictionaryList);
     procedure SetEvents(AValue: TexVariableList);
     procedure SetParameters(AValue: TexParameterList);
-    procedure SetProviders(AValue: TexProviderList);
+    procedure SetPipelines(AValue: TexPipelineList);
     procedure SetSessions(AValue: TexSessionList);
   public
     constructor Create(AOwner: TComponent); override;
@@ -71,35 +50,16 @@ type
   published
     property Description: String read FDescription write FDescription;
     property Sessions: TexSessionList read FSessions write SetSessions;
-    property DataProvider: TexDataProvider read FDataProvider write FDataProvider;
+    property Provider: TexProvider read FProvider write FProvider;
     property Dictionaries: TexDictionaryList read FDictionaries write SetDictionaries;
     property Events: TexVariableList read FEvents write SetEvents;
-    property Providers: TexProviderList read FProviders write SetProviders;
+    property Pipelines: TexPipelineList read FPipelines write SetPipelines;
     property Parameters: TexParameterList read FParameters write SetParameters;
     property Serializer: TexSerializer read FSerializer write FSerializer;
     property Files: TexFileList read FFiles write SetFiles;
   end;
 
 implementation
-
-{ TexDataProvider }
-
-constructor TexDataProvider.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-  FParams := TStringList.Create;
-end;
-
-destructor TexDataProvider.Destroy;
-begin
-  FParams.Free;
-  inherited Destroy;
-end;
-
-procedure TexDataProvider.SetParams(AValue: TStrings);
-begin
-  FParams.Assign(AValue);
-end;
 
 { TexExporter }
 
@@ -109,7 +69,7 @@ begin
   FSessions := TexSessionList.Create(nil);
   FDictionaries := TexDictionaryList.Create;
   FEvents := TexVariableList.Create;
-  FProviders := TexProviderList.Create;
+  FPipelines := TexPipelineList.Create;
   FParameters := TexParameterList.Create;
   FFiles := TexFileList.Create;
 end;
@@ -119,7 +79,7 @@ begin
   FSessions.Free;
   FDictionaries.Free;
   FEvents.Free;
-  FProviders.Free;
+  FPipelines.Free;
   FParameters.Free;
   FFiles.Free;;
   inherited Destroy;
@@ -150,9 +110,9 @@ begin
   FParameters.Assign(AValue);
 end;
 
-procedure TexExporter.SetProviders(AValue: TexProviderList);
+procedure TexExporter.SetPipelines(AValue: TexPipelineList);
 begin
-  FProviders.Assign(AValue);
+  FPipelines.Assign(AValue);
 end;
 
 procedure TexExporter.LoadFromStream(const AStream: TStream);
