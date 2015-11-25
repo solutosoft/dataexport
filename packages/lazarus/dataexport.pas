@@ -7,7 +7,7 @@ unit dataexport;
 interface
 
 uses
-  exDefinition, exExporter, exSerializer, exComponentReg, LazarusPackageIntf;
+  exComponentReg, exDefinition, exExporter, exSerializer, LazarusPackageIntf;
 
 implementation
 

@@ -9,27 +9,28 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+        <OtherUnitFiles Value="..\.."/>
+        <UnitOutputDirectory Value="..\..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Version Major="1"/>
     <Files Count="4">
       <Item1>
-        <Filename Value="exdefinition.pas"/>
-        <UnitName Value="exDefinition"/>
-      </Item1>
-      <Item2>
-        <Filename Value="exexporter.pas"/>
-        <UnitName Value="exExporter"/>
-      </Item2>
-      <Item3>
-        <Filename Value="exserializer.pas"/>
-        <UnitName Value="exSerializer"/>
-      </Item3>
-      <Item4>
-        <Filename Value="excomponentreg.pas"/>
+        <Filename Value="..\..\excomponentreg.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="exComponentReg"/>
+      </Item1>
+      <Item2>
+        <Filename Value="..\..\exdefinition.pas"/>
+        <UnitName Value="exDefinition"/>
+      </Item2>
+      <Item3>
+        <Filename Value="..\..\exexporter.pas"/>
+        <UnitName Value="exExporter"/>
+      </Item3>
+      <Item4>
+        <Filename Value="..\..\exserializer.pas"/>
+        <UnitName Value="exSerializer"/>
       </Item4>
     </Files>
     <RequiredPkgs Count="2">

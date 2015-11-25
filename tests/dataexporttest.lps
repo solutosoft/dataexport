@@ -16,11 +16,10 @@
         <Filename Value="exexportertest.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="exExporterTest"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="70"/>
-        <CursorPos X="3" Y="82"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="17" Y="96"/>
         <UsageCount Value="24"/>
-        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="unit1.pas"/>
@@ -40,11 +39,10 @@
       <Unit4>
         <Filename Value="..\exexporter.pas"/>
         <UnitName Value="exExporter"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="96"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="83"/>
         <CursorPos X="23" Y="97"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\objpas\classes\classesh.inc"/>
@@ -56,10 +54,9 @@
       <Unit6>
         <Filename Value="..\exserializer.pas"/>
         <UnitName Value="exSerializer"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="7"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\db\exzeos.pas"/>
@@ -70,11 +67,10 @@
       <Unit8>
         <Filename Value="..\exdefinition.pas"/>
         <UnitName Value="exDefinition"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="198"/>
         <CursorPos X="15" Y="210"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit8>
       <Unit9>
         <Filename Value="..\access\exzeos.pas"/>
@@ -87,112 +83,15 @@
       <Unit10>
         <Filename Value="..\excomponentreg.pas"/>
         <UnitName Value="exComponentReg"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="23"/>
         <CursorPos X="68" Y="22"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit10>
     </Units>
-    <JumpHistory Count="25" HistoryIndex="24">
-      <Position1>
-        <Filename Value="..\exexporter.pas"/>
-      </Position1>
-      <Position2>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="8" Column="48" TopLine="4"/>
-      </Position2>
-      <Position3>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="10"/>
-      </Position3>
-      <Position4>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="29" Column="7" TopLine="9"/>
-      </Position4>
-      <Position5>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="24" Column="24" TopLine="11"/>
-      </Position5>
-      <Position6>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="25" Column="34" TopLine="10"/>
-      </Position6>
-      <Position7>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="68" Column="17" TopLine="48"/>
-      </Position7>
-      <Position8>
-        <Filename Value="exexportertest.pas"/>
-        <Caret Line="24" Column="36" TopLine="14"/>
-      </Position8>
-      <Position9>
-        <Filename Value="exexportertest.pas"/>
-        <Caret Line="19" Column="13" TopLine="7"/>
-      </Position9>
-      <Position10>
-        <Filename Value="..\exdefinition.pas"/>
-        <Caret Line="199" Column="60" TopLine="185"/>
-      </Position10>
-      <Position11>
-        <Filename Value="..\exdefinition.pas"/>
-        <Caret Line="200" Column="34" TopLine="187"/>
-      </Position11>
-      <Position12>
-        <Filename Value="..\exdefinition.pas"/>
-        <Caret Line="215" Column="44" TopLine="191"/>
-      </Position12>
-      <Position13>
-        <Filename Value="..\exdefinition.pas"/>
-        <Caret Line="219" Column="15" TopLine="211"/>
-      </Position13>
-      <Position14>
-        <Filename Value="..\exdefinition.pas"/>
-        <Caret Line="214" Column="26" TopLine="202"/>
-      </Position14>
-      <Position15>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="101" Column="60" TopLine="88"/>
-      </Position15>
-      <Position16>
-        <Filename Value="exexportertest.pas"/>
-        <Caret Line="85" Column="6" TopLine="75"/>
-      </Position16>
-      <Position17>
-        <Filename Value="exexportertest.pas"/>
-        <Caret Line="74" Column="30" TopLine="63"/>
-      </Position17>
-      <Position18>
-        <Filename Value="exexportertest.pas"/>
-        <Caret Line="102" Column="59" TopLine="85"/>
-      </Position18>
-      <Position19>
-        <Filename Value="exexportertest.pas"/>
-        <Caret Line="107" Column="42" TopLine="70"/>
-      </Position19>
-      <Position20>
-        <Filename Value="exexportertest.pas"/>
-        <Caret Line="82" Column="3" TopLine="70"/>
-      </Position20>
-      <Position21>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="93" Column="22" TopLine="81"/>
-      </Position21>
-      <Position22>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="95" Column="35" TopLine="77"/>
-      </Position22>
-      <Position23>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="96" Column="37" TopLine="83"/>
-      </Position23>
-      <Position24>
-        <Filename Value="..\exexporter.pas"/>
-      </Position24>
-      <Position25>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="106" Column="95" TopLine="83"/>
-      </Position25>
-    </JumpHistory>
+    <General>
+      <ActiveWindowIndexAtStart Value="-1"/>
+    </General>
+    <JumpHistory HistoryIndex="-1"/>
   </ProjectSession>
 </CONFIG>

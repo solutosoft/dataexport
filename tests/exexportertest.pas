@@ -91,7 +91,7 @@ end;
 
 procedure TexExporterTest.SetUp;
 begin
-  FFixtureDir := ConcatPaths([ExtractFilePath(Application.ExeName), 'fixtures']);
+  FFixtureDir := ConcatPaths([ExtractFilePath(Application.ExeName), '../../fixtures']);
   if (not DirectoryExists(FFixtureDir)) then
     CreateDir(FFixtureDir);
 end;

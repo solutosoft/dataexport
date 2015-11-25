@@ -5,7 +5,7 @@ unit exExporter;
 interface
 
 uses
-  Classes, SysUtils, DB, fgl, exDefinition, exSerializer, exClasses;
+  Classes, SysUtils, DB, fgl, exDefinition, exSerializer;
 
 type
 

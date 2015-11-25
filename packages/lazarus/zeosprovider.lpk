@@ -8,15 +8,16 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
+        <OtherUnitFiles Value="..\..\providers"/>
+        <UnitOutputDirectory Value="..\..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Version Major="1"/>
     <Files Count="1">
       <Item1>
-        <Filename Value="exzeosprovider.pas"/>
+        <Filename Value="..\..\providers\exzeosprovider.pas"/>
         <HasRegisterProc Value="True"/>
-        <UnitName Value="exzeosprovider"/>
+        <UnitName Value="exZeosProvider"/>
       </Item1>
     </Files>
     <RequiredPkgs Count="3">
