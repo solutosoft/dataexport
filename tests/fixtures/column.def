@@ -1,0 +1,54 @@
+object TexExporter
+  Description = 'Persons data export'
+  Sessions = <  
+    item
+      Name = 'persons'
+      Provider = 'person-provider'      
+      Columns = <      
+        item
+          Name = 'type'
+          Complete = #0
+          Size = 3          
+        end
+        item
+          Name = 'firstName'
+          Complete = #32
+          Size = 10          
+        end
+        item
+          Name = 'lastName'
+          Complete = #32
+          Size = 5          
+        end
+        item
+          Name = 'birthDate'
+          Complete = #0
+          Size = 10          
+        end
+        item
+          Name = 'salary'
+          Complete = #0
+          Dictionary = 'money'
+          Size = 0          
+        end
+        item
+          Name = 'active'
+          Complete = #0
+          Dictionary = 'boolean'
+          Size = 0          
+        end>
+      Sessions = <>
+    end>
+  Dictionaries = <  
+    item
+      Name = 'money'      
+      Align = altRight
+      Complete = '0'
+      Size = 8     
+    end>  
+  Providers = <
+    item
+      Name = 'person-provider'
+      SQL.Strings = ('select * from person')      
+    end> 
+end
