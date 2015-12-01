@@ -5,7 +5,7 @@ unit exExporterTest;
 interface
 
 uses
-  Classes, SysUtils, Forms, fpcunit, testutils, testregistry, exExporter, exDefinition, exZeosProvider, exSerializer,
+  Classes, SysUtils, Forms, fpcunit, testutils, testregistry, exExporter, exZeosProvider, exSerializer,
   ZConnection, ZSqlProcessor, ZScriptParser;
 
 type
@@ -19,7 +19,7 @@ type
     FConnection: TZConnection;
     procedure PrepareDatabase;
     function CreateExporter(AFileName: String; ASerializer: TexSerializer): TexExporter;
-  protected
+  public
     constructor Create; override;
     destructor Destroy; override;
   published

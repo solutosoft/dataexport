@@ -5,9 +5,23 @@ unit exExporter;
 interface
 
 uses
-  Classes, SysUtils, DB, fgl, exDefinition, exSerializer;
+  Classes, SysUtils, DB, fgl, exDefinition;
 
 type
+
+  TexExporter = class;
+  TexResutMap = specialize TFPGMap<String, TStrings>;
+
+  { TexSerializer }
+
+  TexSerializer = class(TComponent)
+  private
+    FExporter: TexExporter;
+  public
+    function Serialize(ASessions: TexSessionList; AMaster: TDataSet): TStrings; virtual; abstract;
+    function FormatData(AData: TStrings): TStrings; virtual; abstract;
+    property Exporter: TexExporter read FExporter write FExporter;
+  end;
 
   { TexProvider }
 
@@ -19,8 +33,6 @@ type
   end;
 
   { TexExporter }
-
-  TexResutMap = specialize TFPGMap<String, TStrings>;
 
   TexExporter = class(TComponent)
   private
@@ -38,6 +50,7 @@ type
     procedure SetEvents(AValue: TexVariableList);
     procedure SetParameters(AValue: TexParameterList);
     procedure SetPipelines(AValue: TexPipelineList);
+    procedure SetSerializer(AValue: TexSerializer);
     procedure SetSessions(AValue: TexSessionList);
   public
     constructor Create(AOwner: TComponent); override;
@@ -46,6 +59,7 @@ type
     procedure LoadFromFile(const AFileName: String);
     procedure SaveToStream(const AStream: TStream);
     procedure SaveToFile(const AFileName: string);
+    function ExecuteScript(AScript: String; AArgs: TexScriptArgs = nil): Variant;
     function Execute: TStrings;
   published
     property Description: String read FDescription write FDescription;
@@ -55,7 +69,7 @@ type
     property Events: TexVariableList read FEvents write SetEvents;
     property Pipelines: TexPipelineList read FPipelines write SetPipelines;
     property Parameters: TexParameterList read FParameters write SetParameters;
-    property Serializer: TexSerializer read FSerializer write FSerializer;
+    property Serializer: TexSerializer read FSerializer write SetSerializer;
     property Files: TexFileList read FFiles write SetFiles;
   end;
 
@@ -69,7 +83,7 @@ begin
   FSessions := TexSessionList.Create(nil);
   FDictionaries := TexDictionaryList.Create;
   FEvents := TexVariableList.Create;
-  FPipelines := TexPipelineList.Create();
+  FPipelines := TexPipelineList.Create;
   FParameters := TexParameterList.Create;
   FFiles := TexFileList.Create;
 end;
@@ -113,6 +127,13 @@ end;
 procedure TexExporter.SetPipelines(AValue: TexPipelineList);
 begin
   FPipelines.Assign(AValue);
+end;
+
+procedure TexExporter.SetSerializer(AValue: TexSerializer);
+begin
+  FSerializer := AValue;
+  if (FSerializer <> nil) then
+    FSerializer.Exporter := Self;
 end;
 
 procedure TexExporter.LoadFromStream(const AStream: TStream);
@@ -165,6 +186,11 @@ begin
   finally
     AStream.Free;
   end;
+end;
+
+function TexExporter.ExecuteScript(AScript: String; AArgs: TexScriptArgs): Variant;
+begin
+
 end;
 
 function TexExporter.Execute: TStrings;

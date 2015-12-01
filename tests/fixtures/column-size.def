@@ -49,6 +49,6 @@ object TexExporter
   Pipelines = <
     item
       Name = 'person-pipeline'
-      SQL.Strings = ('select * from person')      
+      SQL.Strings = ('select * from persons')      
     end> 
 end

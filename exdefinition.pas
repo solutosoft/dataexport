@@ -5,13 +5,14 @@ unit exDefinition;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, fgl;
 
 type
+  TexScriptArgs = specialize TFPGMap<String, Variant>;
+
   { Text alignment types }
 
-  TexAlignment = (altNone, altRight, altLeft, altCenter);
-
+  TexAlignment = (altNone, altRight, altLeft);
 
   { TexElement }
 
@@ -184,7 +185,7 @@ type
     property RowCount: Integer read FRowCount write FRowCount;
   published
     property Pipeline: String read FPipeline write FPipeline;
-    property Visible: Boolean read FVisible write FVisible;
+    property Visible: Boolean read FVisible write FVisible default True;
     property Columns: TexColumnList read FColumns write SeTexColumns;
     property Sessions: TexSessionList read FSessions write SeTexSessions;
   end;
@@ -419,6 +420,7 @@ end;
 constructor TexSession.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
+  FVisible := True;
   FColumns := TexColumnList.Create;
   FSessions := TexSessionList.Create(Self);
 end;

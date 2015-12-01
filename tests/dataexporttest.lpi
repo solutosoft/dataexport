@@ -28,25 +28,22 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="6">
+    <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="zcomponent"/>
+        <PackageName Value="FPCUnitTestRunner"/>
       </Item1>
       <Item2>
-        <PackageName Value="FPCUnitTestRunner"/>
+        <PackageName Value="LCL"/>
       </Item2>
       <Item3>
-        <PackageName Value="LCL"/>
+        <PackageName Value="FCL"/>
       </Item3>
       <Item4>
-        <PackageName Value="FCL"/>
+        <PackageName Value="dataexport"/>
       </Item4>
       <Item5>
-        <PackageName Value="dataexport"/>
-      </Item5>
-      <Item6>
         <PackageName Value="zeosprovider"/>
-      </Item6>
+      </Item5>
     </RequiredPackages>
     <Units Count="2">
       <Unit0>

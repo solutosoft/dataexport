@@ -3,7 +3,7 @@ program dataexporttest;
 {$mode objfpc}{$H+}
 
 uses
-  Interfaces, Forms, GuiTestRunner, zcomponent, exExporterTest;
+  Interfaces, Forms, GuiTestRunner, exExporterTest;
 
 {$R *.res}
 

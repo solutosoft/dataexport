@@ -38,6 +38,7 @@ var
 begin
   AQuery := TZQuery.Create(Self);
   AQuery.SQL.Text := ASQL;
+  AQuery.Connection := FConnection;
 
   if (AMaster <> nil) then
   begin

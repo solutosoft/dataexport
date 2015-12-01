@@ -5,25 +5,22 @@ unit exSerializer;
 interface
 
 uses
-  Classes, SysUtils, DB, StrUtils, Variants, exDefinition;
+  Classes, SysUtils, DB, StrUtils, Variants, exDefinition, exExporter;
 
 type
 
-  { TexSerializer }
+  { TexSerializerBase }
 
-  TexSerializer = class(TComponent)
+  TexSerializerBase = class(TexSerializer)
   protected
     function ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
-  public
-    function Serialize(ASessions: TexSessionList; AMaster: TDataSet): TStrings; virtual; abstract;
-    function FormatData(AData: TStrings): TStrings; virtual; abstract;
   end;
 
-  TexSerializerClass = class of TexSerializer;
+  TexSerializerBaseClass = class of TexSerializerBase;
 
   { TexColumnSerializer }
 
-  TexColumnSerializer = class(TexSerializer)
+  TexColumnSerializer = class(TexSerializerBase)
   private
     FDelimiter: String;
   public
@@ -37,61 +34,82 @@ type
 
 implementation
 
-uses
-  exExporter;
-
 { TexColumnSerializer }
 
 function TexColumnSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet): TStrings;
 var
-  I: Integer;
+  I, J,
+  ALength: Integer;
+  ARow,
+  AValue: String;
+  AQuery: TDataSet;
   ASession: TexSession;
   APipeline: TexPipeline;
-  AQuery: TDataSet;
-  AExporter: TexExporter;
 begin
   Result := TStringList.Create;
-  AExporter := GetOwner as TexExporter;
 
   for I := 0 to ASessions.Count -1 do
   begin
+    ASession := ASessions[I];
     if (ASession.Visible) then
     begin
-      APipeline := AExporter.Pipelines.FindByName(ASession.Pipeline);
-      AQuery := AExporter.Provider.CreateQuery(APipeline.SQL.Text, AExporter.Parameters, AMaster);
+      APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
+      AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, Exporter.Parameters, AMaster);
+      try
+        AQuery.Open;
+        while (not AQuery.EOF) do
+        begin
+          ARow := '';
+          for J := 0 to ASession.Columns.Count - 1 do
+          begin
+            AValue := ExtractValue(ASession.Columns[J], AQuery);
+            ARow := ARow + AValue + FDelimiter;
+          end;
 
+          ALength := Length(ARow);
+          if (FDelimiter <> '') and (ALength > 0) then
+             Delete(ARow, ALength, 1);
+
+          Result.Add(ARow);
+          Result.AddStrings(Serialize(ASession.Sessions, AQuery));
+          AQuery.Next;
+        end;
+      finally
+        AQuery.Free;
+      end;
     end;
   end;
 end;
 
 function TexColumnSerializer.FormatData(AData: TStrings): TStrings;
 begin
-
+  Result := AData;
 end;
 
-{ TexSerializer }
+{ TexSerializerBase }
 
-function TexSerializer.ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
+function TexSerializerBase.ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
 var
   ASize: Integer;
   AComplete: Char;
   AExpression: String;
-  AAlign: TAlignment;
+  AAlign: TexAlignment;
   AField: TField;
-  AValue: Variant;
   ADictionary: TexDictionary;
-  AExporter: TexExporter;
 begin
-  AExporter := GetOwner as TexExporter;
   AField := ADataSet.FindField(AColumn.Name);
 
-  if (AField <> nil) then
-    AValue := AField.Value;
+  AComplete := AColumn.Complete;
+  ASize := AColumn.Size;
+  AAlign := AColumn.Align;
+  AExpression := AColumn.Expression;
 
+  if (AField <> nil) then
+    Result := AField.AsString;
 
   if (AColumn.Dictionary <> '') then
   begin
-    ADictionary := AExporter.Dictionaries.FindByName(AColumn.Dictionary);
+    ADictionary := Exporter.Dictionaries.FindByName(AColumn.Dictionary);
     if (ADictionary <> nil) then
     begin
       if (AComplete = '') then
@@ -99,11 +117,25 @@ begin
 
       if (ASize = 0) then
         ASize := ADictionary.Size;
+
+      if (AAlign = altNone) then
+         AAlign := ADictionary.Align;
     end;
   end;
 
-  if (VarIsClear(AValue)) then
-    Result := '';
+  if (ASize <> 0) then
+  begin
+    if (ASize < Length(Result)) then
+       Result := Copy(Result, 1, ASize)
+    else begin
+      case AAlign of
+        altLeft:
+          Result := AddCharR(AComplete, Result, ASize);
+        altRight:
+          Result := AddChar(AComplete, Result, ASize);
+      end;
+    end;
+  end;
 
 end;
 
