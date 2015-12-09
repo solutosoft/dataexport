@@ -184,16 +184,17 @@ type
     destructor Destroy; override;
     property RowCount: Integer read FRowCount write FRowCount;
   published
-    property Pipeline: String read FPipeline write FPipeline;
-    property Visible: Boolean read FVisible write FVisible default True;
     property Columns: TexColumnList read FColumns write SeTexColumns;
+    property Pipeline: String read FPipeline write FPipeline;
     property Sessions: TexSessionList read FSessions write SeTexSessions;
+    property Visible: Boolean read FVisible write FVisible default True;
   end;
 
-  { TexFile }
+  { TexPackage }
 
-  TexFile = class(TexElement)
+  TexPackage = class(TexElement)
   private
+    FPath: String;
     FSessions: TStrings;
     procedure SetSessions(AValue: TStrings);
   public
@@ -203,21 +204,42 @@ type
     property Sessions: TStrings read FSessions write SetSessions;
   end;
 
-  { TexFileList }
+  { TexPackageList }
 
-  TexFileList = class(TexElementList)
+  TexPackageList = class(TexElementList)
   private
-    function GetItem(Index: Integer): TexFile;
-    procedure SetItem(Index: Integer; AValue: TexFile);
+    function GetItem(Index: Integer): TexPackage;
+    procedure SetItem(Index: Integer; AValue: TexPackage);
   public
     constructor Create;
-    function FindByName(AName: String): TexFile; reintroduce;
-    function Add: TexFile;
-    property Items[Index: Integer]: TexFile read GetItem write SetItem; default;
+    function FindByName(AName: String): TexPackage; reintroduce;
+    function FindBySession(AName: String): TexPackage;
+    function Add: TexPackage;
+    property Items[Index: Integer]: TexPackage read GetItem write SetItem; default;
   end;
 
 
 implementation
+
+{ TexPackage }
+
+constructor TexPackage.Create(ACollection: TCollection);
+begin
+  inherited Create(ACollection);
+  FSessions := TStringList.Create;
+end;
+
+destructor TexPackage.Destroy;
+begin
+  FSessions.Free;
+  inherited Destroy;
+end;
+
+
+procedure TexPackage.SetSessions(AValue: TStrings);
+begin
+  FSessions.Assign(AValue);
+end;
 
 { TexDictionary }
 
@@ -461,48 +483,46 @@ begin
   FSQL.Assign(AValue);
 end;
 
-{ TexFile }
+{ TexPackageList }
 
-constructor TexFile.Create(ACollection: TCollection);
+constructor TexPackageList.Create;
 begin
-  inherited Create(ACollection);
-  FSessions := TStringList.Create;
+  inherited Create(TexPackage);
 end;
 
-destructor TexFile.Destroy;
+function TexPackageList.FindByName(AName: String): TexPackage;
 begin
-  FSessions.Free;
-  inherited Destroy;
+  Result := TexPackage(inherited FindByName(AName));
 end;
 
-procedure TexFile.SetSessions(AValue: TStrings);
+function TexPackageList.FindBySession(AName: String): TexPackage;
+var
+  AItem: TCollectionItem;
+  AFile: TexPackage;
 begin
-  FSessions.Assign(AValue);
+  Result := nil;
+  for AItem in Self do
+  begin
+    AFile := AItem as TexPackage;
+    if (AFile.Sessions.IndexOf(AName) <> -1) then
+    begin
+      Result := AFile;
+      Exit;
+    end;
+  end;
 end;
 
-{ TexFileList }
-
-constructor TexFileList.Create;
+function TexPackageList.Add: TexPackage;
 begin
-  inherited Create(TexFile);
+  Result := TexPackage(inherited Add);
 end;
 
-function TexFileList.FindByName(AName: String): TexFile;
+function TexPackageList.GetItem(Index: Integer): TexPackage;
 begin
-  Result := TexFile(inherited FindByName(AName));
+  Result := TexPackage(inherited GetItem(Index));
 end;
 
-function TexFileList.Add: TexFile;
-begin
-  Result := TexFile(inherited Add);
-end;
-
-function TexFileList.GetItem(Index: Integer): TexFile;
-begin
-  Result := TexFile(inherited GetItem(Index));
-end;
-
-procedure TexFileList.SetItem(Index: Integer; AValue: TexFile);
+procedure TexPackageList.SetItem(Index: Integer; AValue: TexPackage);
 begin
   inherited SetItem(Index, AValue);
 end;

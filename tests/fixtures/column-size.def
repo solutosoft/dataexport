@@ -46,9 +46,18 @@ object TexExporter
       Complete = '0'
       Size = 8     
     end>  
+  Packages = <    
+    item
+      Name = 'test.txt'
+      Sessions.Strings = (
+        'persons'          
+      )
+    end> 
   Pipelines = <
     item
       Name = 'person-pipeline'
-      SQL.Strings = ('select * from persons')      
+      SQL.Strings = (
+	    'select * from persons'
+	  )
     end> 
 end

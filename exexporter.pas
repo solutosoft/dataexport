@@ -18,8 +18,7 @@ type
   private
     FExporter: TexExporter;
   public
-    function Serialize(ASessions: TexSessionList; AMaster: TDataSet): TStrings; virtual; abstract;
-    function FormatData(AData: TStrings): TStrings; virtual; abstract;
+    procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap) virtual; abstract;
     property Exporter: TexExporter read FExporter write FExporter;
   end;
 
@@ -37,7 +36,7 @@ type
   TexExporter = class(TComponent)
   private
     FProvider: TexProvider;
-    FFiles: TexFileList;
+    FPackages: TexPackageList;
     FDescription: String;
     FEvents: TexVariableList;
     FParameters: TexParameterList;
@@ -45,7 +44,7 @@ type
     FSerializer: TexSerializer;
     FSessions: TexSessionList;
     FDictionaries: TexDictionaryList;
-    procedure SetFiles(AValue: TexFileList);
+    procedure SetPackages(AValue: TexPackageList);
     procedure SetDictionaries(AValue: TexDictionaryList);
     procedure SetEvents(AValue: TexVariableList);
     procedure SetParameters(AValue: TexParameterList);
@@ -60,7 +59,7 @@ type
     procedure SaveToStream(const AStream: TStream);
     procedure SaveToFile(const AFileName: string);
     function ExecuteScript(AScript: String; AArgs: TexScriptArgs = nil): Variant;
-    function Execute: TStrings;
+    function Execute: TexResutMap;
   published
     property Description: String read FDescription write FDescription;
     property Sessions: TexSessionList read FSessions write SetSessions;
@@ -70,7 +69,7 @@ type
     property Pipelines: TexPipelineList read FPipelines write SetPipelines;
     property Parameters: TexParameterList read FParameters write SetParameters;
     property Serializer: TexSerializer read FSerializer write SetSerializer;
-    property Files: TexFileList read FFiles write SetFiles;
+    property Packages: TexPackageList read FPackages write SetPackages;
   end;
 
 implementation
@@ -85,7 +84,7 @@ begin
   FEvents := TexVariableList.Create;
   FPipelines := TexPipelineList.Create;
   FParameters := TexParameterList.Create;
-  FFiles := TexFileList.Create;
+  FPackages := TexPackageList.Create;
 end;
 
 destructor TexExporter.Destroy;
@@ -95,13 +94,13 @@ begin
   FEvents.Free;
   FPipelines.Free;
   FParameters.Free;
-  FFiles.Free;;
+  FPackages.Free;;
   inherited Destroy;
 end;
 
-procedure TexExporter.SetFiles(AValue: TexFileList);
+procedure TexExporter.SetPackages(AValue: TexPackageList);
 begin
-  FFiles.Assign(AValue);
+  FPackages.Assign(AValue);
 end;
 
 procedure TexExporter.SetSessions(AValue: TexSessionList);
@@ -193,11 +192,12 @@ begin
 
 end;
 
-function TexExporter.Execute: TStrings;
+function TexExporter.Execute: TexResutMap;
 begin
+  Result := TexResutMap.Create;
   FProvider.OpenConnection;
   try
-    Result := Serializer.Serialize(Sessions, nil);
+    Serializer.Serialize(Sessions, nil, Result);
   finally
     FProvider.CloseConnection;
   end;

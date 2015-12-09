@@ -13,6 +13,7 @@ type
 
   TexSerializerBase = class(TexSerializer)
   protected
+    function FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
     function ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
   end;
 
@@ -24,8 +25,7 @@ type
   private
     FDelimiter: String;
   public
-    function Serialize(ASessions: TexSessionList; AMaster: TDataSet): TStrings; override;
-    function FormatData(AData: TStrings): TStrings; override;
+    procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap); override;
   published
     property Delimiter: String read FDelimiter write FDelimiter;
   end;
@@ -36,24 +36,25 @@ implementation
 
 { TexColumnSerializer }
 
-function TexColumnSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet): TStrings;
+procedure TexColumnSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap);
 var
   I, J,
   ALength: Integer;
   ARow,
   AValue: String;
+  AData: TStrings;
   AQuery: TDataSet;
   ASession: TexSession;
   APipeline: TexPipeline;
 begin
-  Result := TStringList.Create;
-
   for I := 0 to ASessions.Count -1 do
   begin
     ASession := ASessions[I];
     if (ASession.Visible) then
     begin
+      AData := FindData(ASession, AResult);
       APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
+
       AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, Exporter.Parameters, AMaster);
       try
         AQuery.Open;
@@ -70,8 +71,8 @@ begin
           if (FDelimiter <> '') and (ALength > 0) then
              Delete(ARow, ALength, 1);
 
-          Result.Add(ARow);
-          Result.AddStrings(Serialize(ASession.Sessions, AQuery));
+          AData.Add(ARow);
+          Serialize(ASession.Sessions, AQuery, AResult);
           AQuery.Next;
         end;
       finally
@@ -81,12 +82,33 @@ begin
   end;
 end;
 
-function TexColumnSerializer.FormatData(AData: TStrings): TStrings;
-begin
-  Result := AData;
-end;
-
 { TexSerializerBase }
+
+function TexSerializerBase.FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
+var
+  APackage: TexPackage;
+  AOwner: TexSession;
+  ASessionName: String;
+begin
+  AOwner := TexSessionList(ASession.Collection).GetOwner as TexSession;
+
+  if(AOwner <> nil) then
+    ASessionName := AOwner.Name
+  else
+    ASessionName := ASession.Name;
+
+  APackage := Exporter.Packages.FindBySession(ASessionName);
+  if (APackage = nil) and (AOwner = nil) then
+     raise Exception.CreateFmt('The session "%s" does not have a file associated', [ASession.Name])
+  else begin
+    if (AResultMap.IndexOf(APackage.Name) <> -1) then
+      Result := AResultMap[APackage.Name]
+    else begin
+      Result := TStringList.Create;
+      AResultMap.Add(APackage.Name, Result);
+    end;
+  end;
+end;
 
 function TexSerializerBase.ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
 var

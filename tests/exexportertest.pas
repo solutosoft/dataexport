@@ -83,13 +83,18 @@ procedure TexExporterTest.TestColumnSerializer;
 var
   ASerializer: TexColumnSerializer;
   AExporter: TexExporter;
-  AResult: TStrings;
+  AResult: TexResutMap;
+  AData: TStrings;
 begin
   ASerializer := TexColumnSerializer.Create(nil);
   AExporter := CreateExporter('column-size.def', ASerializer);
   try
      AResult := AExporter.Execute;
-     AssertEquals(3, AResult.Count);
+     AssertEquals(1, AResult.Count);
+     AssertTrue(AResult.IndexOf('test.txt') <> -1);
+
+     AData := AResult['test.txt'];
+     AssertEquals(3, AData.Count);
   finally
     AExporter.Free;
     ASerializer.Free;
