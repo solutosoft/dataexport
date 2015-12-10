@@ -31,56 +31,10 @@ type
   end;
 
 
-
 implementation
 
-{ TexColumnSerializer }
-
-procedure TexColumnSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap);
-var
-  I, J,
-  ALength: Integer;
-  ARow,
-  AValue: String;
-  AData: TStrings;
-  AQuery: TDataSet;
-  ASession: TexSession;
-  APipeline: TexPipeline;
-begin
-  for I := 0 to ASessions.Count -1 do
-  begin
-    ASession := ASessions[I];
-    if (ASession.Visible) then
-    begin
-      AData := FindData(ASession, AResult);
-      APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
-
-      AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, Exporter.Parameters, AMaster);
-      try
-        AQuery.Open;
-        while (not AQuery.EOF) do
-        begin
-          ARow := '';
-          for J := 0 to ASession.Columns.Count - 1 do
-          begin
-            AValue := ExtractValue(ASession.Columns[J], AQuery);
-            ARow := ARow + AValue + FDelimiter;
-          end;
-
-          ALength := Length(ARow);
-          if (FDelimiter <> '') and (ALength > 0) then
-             Delete(ARow, ALength, 1);
-
-          AData.Add(ARow);
-          Serialize(ASession.Sessions, AQuery, AResult);
-          AQuery.Next;
-        end;
-      finally
-        AQuery.Free;
-      end;
-    end;
-  end;
-end;
+uses
+   uPSC_dateutils;
 
 { TexSerializerBase }
 
@@ -118,7 +72,10 @@ var
   AAlign: TexAlignment;
   AField: TField;
   ADictionary: TexDictionary;
+  AArgs: TexScriptArgs;
+  AValue: Variant;
 begin
+  AValue := Null;
   AField := ADataSet.FindField(AColumn.Name);
 
   AComplete := AColumn.Complete;
@@ -127,14 +84,14 @@ begin
   AExpression := AColumn.Expression;
 
   if (AField <> nil) then
-    Result := AField.AsString;
+    AValue := AField.AsVariant;
 
   if (AColumn.Dictionary <> '') then
   begin
     ADictionary := Exporter.Dictionaries.FindByName(AColumn.Dictionary);
     if (ADictionary <> nil) then
     begin
-      if (AComplete = '') then
+      if (AComplete = VK_CHAR_SPACE) then
         AComplete := ADictionary.Complete;
 
       if (ASize = 0) then
@@ -142,23 +99,85 @@ begin
 
       if (AAlign = altNone) then
          AAlign := ADictionary.Align;
+
+      if (AExpression = '') then
+         AExpression := ADictionary.Expression;
     end;
   end;
 
+  if (AExpression <> '') then
+  begin
+    AArgs := TexScriptArgs.Create;
+    try
+      AArgs['value'] := AValue;
+      AValue := Exporter.ExecuteExpression(AExpression, AArgs);
+    finally
+      AArgs.Free;
+    end;
+  end;
+
+  Result := VarToStrDef(AValue, '');
   if (ASize <> 0) then
   begin
     if (ASize < Length(Result)) then
        Result := Copy(Result, 1, ASize)
     else begin
       case AAlign of
-        altLeft:
+        altLeft, altNone:
           Result := AddCharR(AComplete, Result, ASize);
         altRight:
           Result := AddChar(AComplete, Result, ASize);
       end;
     end;
   end;
+end;
 
+{ TexColumnSerializer }
+
+procedure TexColumnSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap);
+var
+  I, J,
+  ALength: Integer;
+  ARow,
+  AValue: String;
+  AData: TStrings;
+  AQuery: TDataSet;
+  ASession: TexSession;
+  APipeline: TexPipeline;
+begin
+  for I := 0 to ASessions.Count -1 do
+  begin
+    ASession := ASessions[I];
+    if (ASession.Visible) then
+    begin
+      AData := FindData(ASession, AResult);
+      APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
+
+      AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, Exporter.Parameters, AMaster);
+      try
+        AQuery.Open;
+        while (not AQuery.EOF) do
+        begin
+          ARow := '';
+          for J := 0 to ASession.Columns.Count -1 do
+          begin
+            AValue := ExtractValue(ASession.Columns[J], AQuery);
+            ARow := ARow + AValue + FDelimiter;
+          end;
+
+          ALength := Length(ARow);
+          if (FDelimiter <> '') and (ALength > 0) then
+             Delete(ARow, ALength, 1);
+
+          AData.Add(ARow);
+          Serialize(ASession.Sessions, AQuery, AResult);
+          AQuery.Next;
+        end;
+      finally
+        AQuery.Free;
+      end;
+    end;
+  end;
 end;
 
 end.

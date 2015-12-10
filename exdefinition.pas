@@ -5,11 +5,12 @@ unit exDefinition;
 interface
 
 uses
-  Classes, SysUtils, fgl;
+  Classes, SysUtils;
+
+const
+  VK_CHAR_SPACE = #32;
 
 type
-  TexScriptArgs = specialize TFPGMap<String, Variant>;
-
   { Text alignment types }
 
   TexAlignment = (altNone, altRight, altLeft);
@@ -63,8 +64,8 @@ type
     constructor Create(ACollection: TCollection); override;
   published
     property Align: TexAlignment read FAlign write FAlign default altNone;
-    property Complete: Char read FComplete write FComplete;
-    property Size: Integer read FSize write FSize;
+    property Complete: Char read FComplete write FComplete default VK_CHAR_SPACE;
+    property Size: Integer read FSize write FSize default 0;
   end;
 
   { TexDictionaryList }
@@ -194,7 +195,6 @@ type
 
   TexPackage = class(TexElement)
   private
-    FPath: String;
     FSessions: TStrings;
     procedure SetSessions(AValue: TStrings);
   public
@@ -247,6 +247,8 @@ constructor TexDictionary.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FAlign := altNone;
+  FComplete := VK_CHAR_SPACE;
+  FSize := 0;
 end;
 
 { TexElementList }

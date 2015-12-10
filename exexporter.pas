@@ -5,12 +5,12 @@ unit exExporter;
 interface
 
 uses
-  Classes, SysUtils, DB, fgl, exDefinition;
+  Classes, SysUtils, Variants, DB, fgl, uPSComponent, uPSCompiler, uPSRuntime, exDefinition, exParser;
 
 type
-
   TexExporter = class;
   TexResutMap = specialize TFPGMap<String, TStrings>;
+  TexScriptArgs = specialize TFPGMap<String, Variant>;
 
   { TexSerializer }
 
@@ -44,6 +44,8 @@ type
     FSerializer: TexSerializer;
     FSessions: TexSessionList;
     FDictionaries: TexDictionaryList;
+    FScript: TPSScript;
+    FScriptArgs: TexScriptArgs;
     procedure SetPackages(AValue: TexPackageList);
     procedure SetDictionaries(AValue: TexDictionaryList);
     procedure SetEvents(AValue: TexVariableList);
@@ -51,6 +53,10 @@ type
     procedure SetPipelines(AValue: TexPipelineList);
     procedure SetSerializer(AValue: TexSerializer);
     procedure SetSessions(AValue: TexSessionList);
+    procedure ScriptCompile(Sender: TPSScript);
+    procedure ScriptExecute(Sender: TPSScript);
+    procedure ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
+    procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -58,7 +64,7 @@ type
     procedure LoadFromFile(const AFileName: String);
     procedure SaveToStream(const AStream: TStream);
     procedure SaveToFile(const AFileName: string);
-    function ExecuteScript(AScript: String; AArgs: TexScriptArgs = nil): Variant;
+    function ExecuteExpression(AScript: String; AArgs: TexScriptArgs = nil): Variant;
     function Execute: TexResutMap;
   published
     property Description: String read FDescription write FDescription;
@@ -72,13 +78,27 @@ type
     property Packages: TexPackageList read FPackages write SetPackages;
   end;
 
+
 implementation
+
+uses
+  uPSC_dateutils,
+  uPSR_dateutils,
+  uPSC_SysUtils,
+  uPSR_SysUtils;
 
 { TexExporter }
 
 constructor TexExporter.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FScript := TPSScript.Create(nil);
+  FScript.CompilerOptions := [icAllowNoBegin, icAllowNoEnd];
+  FScript.OnCompile := @ScriptCompile;
+  FScript.OnExecute := @ScriptExecute;
+  FScript.OnCompImport := @ScriptEngineCompImport;
+  FScript.OnExecImport := @ScriptEngineExecImport;
+
   FSessions := TexSessionList.Create(nil);
   FDictionaries := TexDictionaryList.Create;
   FEvents := TexVariableList.Create;
@@ -89,6 +109,7 @@ end;
 
 destructor TexExporter.Destroy;
 begin
+  FScript.Free;
   FSessions.Free;
   FDictionaries.Free;
   FEvents.Free;
@@ -107,6 +128,39 @@ procedure TexExporter.SetSessions(AValue: TexSessionList);
 begin
   FSessions.Assign(AValue);
 end;
+
+procedure TexExporter.ScriptCompile(Sender: TPSScript);
+var
+  I: Integer;
+begin
+  for I := 0 to FScriptArgs.Count -1 do
+    Sender.AddRegisteredVariable(FScriptArgs.Keys[I], 'Variant');
+end;
+
+procedure TexExporter.ScriptExecute(Sender: TPSScript);
+var
+  I: Integer;
+  AKey: String;
+begin
+  for I := 0 to FScriptArgs.Count -1 do
+  begin
+    AKey := FScriptArgs.Keys[I];
+    PPSVariantVariant(FScript.GetVariable(AKey))^.Data := FScriptArgs[AKey];
+  end;
+end;
+
+procedure TexExporter.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
+begin
+  RegisterDatetimeLibrary_C(x);
+  RegisterSysUtilsLibrary_C(x);
+end;
+
+procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
+begin
+  RegisterDateTimeLibrary_R(se);
+  RegisterSysUtilsLibrary_R(se);
+end;
+
 
 procedure TexExporter.SetDictionaries(AValue: TexDictionaryList);
 begin
@@ -187,9 +241,14 @@ begin
   end;
 end;
 
-function TexExporter.ExecuteScript(AScript: String; AArgs: TexScriptArgs): Variant;
+function TexExporter.ExecuteExpression(AScript: String; AArgs: TexScriptArgs): Variant;
 begin
-
+  FScriptArgs := AArgs;
+  FScript.Script.Assign(GetScript(AScript));
+  if (FScript.Compile) then
+    Result := FScript.ExecuteFunction([], 'exEvaluate')
+  else
+    raise Exception.Create(FScript.CompilerErrorToStr(0));
 end;
 
 function TexExporter.Execute: TexResutMap;

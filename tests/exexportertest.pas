@@ -85,6 +85,7 @@ var
   AExporter: TexExporter;
   AResult: TexResutMap;
   AData: TStrings;
+  AFirst: String;
 begin
   ASerializer := TexColumnSerializer.Create(nil);
   AExporter := CreateExporter('column-size.def', ASerializer);
@@ -95,6 +96,15 @@ begin
 
      AData := AResult['test.txt'];
      AssertEquals(3, AData.Count);
+
+     AFirst := AData[0];
+     AssertEquals(39, Length(AFirst));
+     AssertEquals('010', Copy(AFirst, 1, 3));
+     AssertEquals('Administra', Copy(AFirst, 4, 10));
+     AssertEquals('Root ', Copy(AFirst, 14, 5));
+     AssertEquals('20/04/1983', Copy(AFirst, 19, 10));
+     AssertEquals('00153000', Copy(AFirst, 29, 8));
+     AssertEquals('Yes', Copy(AFirst, 37, 3));
   finally
     AExporter.Free;
     ASerializer.Free;

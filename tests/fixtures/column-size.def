@@ -6,13 +6,12 @@ object TexExporter
       Pipeline = 'person-pipeline'      
       Columns = <      
         item
-          Name = 'type'
-          Complete = #0
+          Name = 'id'
+		  Expression = 'Result := ''010'';'          
           Size = 3          
         end
         item
-          Name = 'firstName'
-          Complete = #32
+          Name = 'firstName'          
           Size = 10          
         end
         item
@@ -21,21 +20,16 @@ object TexExporter
           Size = 5          
         end
         item
-          Name = 'birthDate'
-          Complete = #0
+          Name = 'birthDate'          
           Size = 10          
         end
         item
-          Name = 'salary'
-          Complete = #0
-          Dictionary = 'money'
-          Size = 0          
+          Name = 'salary'          
+          Dictionary = 'money'          
         end
         item
-          Name = 'active'
-          Complete = #0
-          Dictionary = 'boolean'
-          Size = 0          
+          Name = 'active'          
+          Dictionary = 'boolean'          
         end>
       Sessions = <>
     end>
@@ -44,7 +38,14 @@ object TexExporter
       Name = 'money'      
       Align = altRight
       Complete = '0'
+	  Expression = 'Result := RemoveMask(FormatFloat(''#.00'', Value));'
       Size = 8     
+    end
+	item
+      Name = 'boolean'      
+      Align = altRight     
+	  Expression = 'if (Value = 1) then Result := ''Yes'' else Result := ''No'';'
+      Size = 3
     end>  
   Packages = <    
     item

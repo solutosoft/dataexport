@@ -9,12 +9,12 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\.."/>
+        <OtherUnitFiles Value="..\..;..\..\scripts"/>
         <UnitOutputDirectory Value="..\..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Version Major="1"/>
-    <Files Count="4">
+    <Files Count="7">
       <Item1>
         <Filename Value="..\..\excomponentreg.pas"/>
         <HasRegisterProc Value="True"/>
@@ -32,14 +32,29 @@
         <Filename Value="..\..\exserializer.pas"/>
         <UnitName Value="exSerializer"/>
       </Item4>
+      <Item5>
+        <Filename Value="..\..\exparser.pas"/>
+        <UnitName Value="exParser"/>
+      </Item5>
+      <Item6>
+        <Filename Value="..\..\scripts\upsr_sysutils.pas"/>
+        <UnitName Value="uPSR_SysUtils"/>
+      </Item6>
+      <Item7>
+        <Filename Value="..\..\scripts\upsc_sysutils.pas"/>
+        <UnitName Value="upsc_sysutils"/>
+      </Item7>
     </Files>
-    <RequiredPkgs Count="2">
+    <RequiredPkgs Count="3">
       <Item1>
         <PackageName Value="FCL"/>
       </Item1>
       <Item2>
         <PackageName Value="IDEIntf"/>
       </Item2>
+      <Item3>
+        <PackageName Value="pascalscript"/>
+      </Item3>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
