@@ -5,7 +5,13 @@ unit exExporter;
 interface
 
 uses
-  Classes, SysUtils, Variants, DB, fgl, uPSComponent, uPSCompiler, uPSRuntime, exDefinition, exParser;
+  Classes, SysUtils, Variants, DB, fgl, RegExpr, uPSComponent, uPSCompiler, uPSRuntime, exDefinition;
+
+const
+  SCRIPT_PROGRAM = 'program exEvalutator;';
+  SCRIPT_FUNCEVAL_DECL = 'function exEvaluate: Variant;';
+  SCRIPT_FUNCEVAL_EXEC = 'exEvaluate';
+  SCRIPT_VAR_REGEX = '^\s*var\s+';
 
 type
   TexExporter = class;
@@ -86,6 +92,25 @@ uses
   uPSR_dateutils,
   uPSC_SysUtils,
   uPSR_SysUtils;
+
+
+function PrepareScript(AExpression: String): TStrings;
+var
+  AVar: Boolean;
+begin
+  Result := TStringList.Create;
+  AVar := ExecRegExpr(SCRIPT_VAR_REGEX, AExpression);
+  Result.Add(SCRIPT_PROGRAM);
+  Result.Add(SCRIPT_FUNCEVAL_DECL);
+
+  if (not AVar) then
+    Result.Add('begin');
+
+  Result.Add(AExpression);
+
+  if (not AVar) then
+    Result.Add('end;');
+end;
 
 { TexExporter }
 
@@ -244,9 +269,9 @@ end;
 function TexExporter.ExecuteExpression(AScript: String; AArgs: TexScriptArgs): Variant;
 begin
   FScriptArgs := AArgs;
-  FScript.Script.Assign(GetScript(AScript));
+  FScript.Script.Assign(PrepareScript(AScript));
   if (FScript.Compile) then
-    Result := FScript.ExecuteFunction([], 'exEvaluate')
+    Result := FScript.ExecuteFunction([], SCRIPT_FUNCEVAL_EXEC)
   else
     raise Exception.Create(FScript.CompilerErrorToStr(0));
 end;
