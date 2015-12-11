@@ -7,7 +7,7 @@ object TexExporter
       Columns = <      
         item
           Name = 'id'
-		  Expression = 'Result := ''010'';'          
+          Expression = 'Result := ''010'';'          
           Size = 3          
         end
         item
@@ -38,13 +38,13 @@ object TexExporter
       Name = 'money'      
       Align = altRight
       Complete = '0'
-	  Expression = 'Result := RemoveMask(FormatFloat(''#.00'', Value));'
+      Expression = 'Result := RemoveMask(FormatFloat(''#.00'', Value));'
       Size = 8     
     end
-	item
+    item
       Name = 'boolean'      
       Align = altRight     
-	  Expression = 'if (Value = 1) then Result := ''Yes'' else Result := ''No'';'
+      Expression = 'if (Value = 1) then Result := ''Yes'' else Result := ''No'';'
       Size = 3
     end>  
   Packages = <    

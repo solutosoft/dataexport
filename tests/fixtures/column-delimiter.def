@@ -7,7 +7,7 @@ object TexExporter
       Columns = <      
         item
           Name = 'type'
-		  Expression = 'Result := ''010'';'          
+          Expression = 'Result := ''010'';'          
         end
         item
           Name = 'number'                    
@@ -21,16 +21,16 @@ object TexExporter
         end
         item
           Name = 'description'
-		  Expression = 'Result := Value + '' - '' + FormatFloat(''#0.00'',FindField(''salary'').AsFloat);'
+          Expression = 'Result := Value + '' - '' + FormatFloat(''#0.00'',FindField(''salary'').AsFloat);'
         end>
       Sessions = <
-	    item
-	      name = 'details'
-		  Pipeline = 'detail-pipeline'
-	      Columns = <      
+        item
+          name = 'details'
+          Pipeline = 'detail-pipeline'
+          Columns = <      
             item
               Name = 'type'
-		      Expression = 'Result := ''020'';'                   
+              Expression = 'Result := ''020'';'                   
             end
             item
               Name = 'product_id'                    
@@ -44,7 +44,7 @@ object TexExporter
             item
               Name = 'total'                        
             end>
-		end>	
+        end>	
     end>
   Dictionaries = <>
   Packages = <
@@ -59,14 +59,14 @@ object TexExporter
       Name = 'order-pipeline'
       SQL.Strings = (
         'select invoices.*,'
-		'persons.firstName,'
-		'persons.salary'
-		'from invoices'
-		'join persons on (persons.id = invoices.person_id)'
-		'where invoices.created_at = :created_at'		
+        'persons.firstName,'
+        'persons.salary'
+        'from invoices'
+        'join persons on (persons.id = invoices.person_id)'
+        'where invoices.created_at = :created_at'		
       )
     end
-	item
+    item
       Name = 'detail-pipeline'
       SQL.Strings = (
         'select * from invoice_details where invoice_id = :id'
@@ -75,7 +75,7 @@ object TexExporter
   Parameters = <
     item
       Name = 'created_at'
-	  DataType = datDateTime
+      DataType = datDateTime
       Value = 42318
     end>	
 end
