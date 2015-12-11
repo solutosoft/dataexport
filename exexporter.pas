@@ -18,8 +18,6 @@ type
   TexResutMap = specialize TFPGMap<String, TStrings>;
   TexScriptArgs = specialize TFPGMap<String, Variant>;
 
-  TexScriptFindField = function (AFieldName: String): TField;
-
   { TexSerializer }
 
   TexSerializer = class(TComponent)

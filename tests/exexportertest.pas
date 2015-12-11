@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, RegExpr, fpcunit, testutils, testregistry, exExporter, exZeosProvider, exSerializer,
-  ZConnection, ZSqlProcessor, ZScriptParser, Dialogs;
+  ZConnection, ZSqlProcessor, ZScriptParser;
 
 type
 

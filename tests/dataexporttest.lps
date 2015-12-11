@@ -8,8 +8,7 @@
       <Unit0>
         <Filename Value="dataexporttest.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="3"/>
         <CursorPos X="65" Y="6"/>
         <UsageCount Value="65"/>
         <Loaded Value="True"/>
@@ -18,13 +17,13 @@
         <Filename Value="exexportertest.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="exExporterTest"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="138"/>
-        <CursorPos X="15" Y="155"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="44" Y="9"/>
         <UsageCount Value="65"/>
         <Bookmarks Count="1">
           <Item0 X="42" Y="136" ID="1"/>
         </Bookmarks>
+        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="unit1.pas"/>
@@ -44,10 +43,11 @@
       <Unit4>
         <Filename Value="..\exexporter.pas"/>
         <UnitName Value="exExporter"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="68"/>
-        <CursorPos X="14" Y="81"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <CursorPos X="55" Y="19"/>
         <UsageCount Value="30"/>
+        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\objpas\classes\classesh.inc"/>
@@ -73,8 +73,8 @@
       <Unit8>
         <Filename Value="..\exdefinition.pas"/>
         <UnitName Value="exDefinition"/>
-        <TopLine Value="180"/>
-        <CursorPos X="31" Y="191"/>
+        <TopLine Value="13"/>
+        <CursorPos X="20" Y="112"/>
         <UsageCount Value="22"/>
         <Loaded Value="True"/>
       </Unit8>
@@ -406,7 +406,7 @@
         <UsageCount Value="10"/>
       </Unit53>
     </Units>
-    <JumpHistory Count="2" HistoryIndex="1">
+    <JumpHistory Count="4" HistoryIndex="3">
       <Position1>
         <Filename Value="..\exdefinition.pas"/>
       </Position1>
@@ -414,6 +414,14 @@
         <Filename Value="dataexporttest.lpr"/>
         <Caret Line="12" Column="59"/>
       </Position2>
+      <Position3>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="155" Column="15" TopLine="135"/>
+      </Position3>
+      <Position4>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="9" Column="44"/>
+      </Position4>
     </JumpHistory>
   </ProjectSession>
   <Debugging>

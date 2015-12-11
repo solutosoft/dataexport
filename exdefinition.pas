@@ -109,11 +109,11 @@ type
   private
     FCaption: String;
     FRequired: Boolean;
-    FValue: TDate;
+    FValue: Variant;
   published
     property Caption: String read FCaption write FCaption;
     property Required: Boolean read FRequired write FRequired;
-    property Value: TDate read FValue write FValue;
+    property Value: Variant read FValue write FValue;
   end;
 
   { TexParameterList }
