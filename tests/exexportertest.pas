@@ -86,26 +86,34 @@ var
   AExporter: TexExporter;
   AResult: TexResutMap;
   AData: TStrings;
-  AFirst: String;
+  ALine: String;
 begin
   ASerializer := TexColumnSerializer.Create(nil);
   AExporter := CreateExporter('column-size.def', ASerializer);
   try
      AResult := AExporter.Execute;
-     AssertEquals(1, AResult.Count);
-     AssertTrue(AResult.IndexOf('test.txt') <> -1);
+     AssertEquals(2, AResult.Count);
+     AssertTrue(AResult.IndexOf('persons.txt') <> -1);
 
-     AData := AResult['test.txt'];
+     AData := AResult['persons.txt'];
      AssertEquals(3, AData.Count);
 
-     AFirst := AData[0];
-     AssertEquals(39, Length(AFirst));
-     AssertEquals('010', Copy(AFirst, 1, 3));
-     AssertEquals('Administra', Copy(AFirst, 4, 10));
-     AssertEquals('Root ', Copy(AFirst, 14, 5));
-     AssertEquals('20/04/1983', Copy(AFirst, 19, 10));
-     AssertEquals('00153000', Copy(AFirst, 29, 8));
-     AssertEquals('Yes', Copy(AFirst, 37, 3));
+     ALine := AData[0];
+     AssertEquals(39, Length(ALine));
+     AssertEquals('010', Copy(ALine, 1, 3));
+     AssertEquals('Administra', Copy(ALine, 4, 10));
+     AssertEquals('Root ', Copy(ALine, 14, 5));
+     AssertEquals('20/04/1983', Copy(ALine, 19, 10));
+     AssertEquals('00153000', Copy(ALine, 29, 8));
+     AssertEquals('Yes', Copy(ALine, 37, 3));
+
+     AssertTrue(AResult.IndexOf('products.txt') <> -1);
+     AData := AResult['products.txt'];
+     AssertEquals(2, AData.Count);
+
+     ALine := AData[0];
+     AssertEquals('0000000001', Copy(ALine, 1, 10));
+     AssertEquals('Data export extension    ', Copy(ALine, 11, 25));
   finally
     AExporter.Free;
     ASerializer.Free;

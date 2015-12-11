@@ -32,6 +32,22 @@ object TexExporter
           Dictionary = 'boolean'          
         end>
       Sessions = <>
+    end
+    item
+      Name = 'products'
+      Pipeline = 'product-pipeline'      
+      Columns = <      
+        item
+          Align = altRight
+          Name = 'id'          
+          Complete = '0'
+          Size = 10          
+        end
+        item
+          Name = 'name'          
+          Size = 25          
+        end>
+      Sessions = <>
     end>
   Dictionaries = <  
     item
@@ -49,16 +65,28 @@ object TexExporter
     end>  
   Packages = <    
     item
-      Name = 'test.txt'
+      Name = 'persons.txt'
       Sessions.Strings = (
         'persons'          
+      )
+    end
+    item
+      Name = 'products.txt'
+      Sessions.Strings = (
+        'products'          
       )
     end> 
   Pipelines = <
     item
       Name = 'person-pipeline'
       SQL.Strings = (
-	    'select * from persons'
-	  )
+	      'select * from persons'
+	    )
+    end
+    item
+      Name = 'product-pipeline'
+      SQL.Strings = (
+	      'select * from products'
+	    )
     end> 
 end
