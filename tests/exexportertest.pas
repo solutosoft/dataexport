@@ -5,7 +5,7 @@ unit exExporterTest;
 interface
 
 uses
-  Classes, SysUtils, Forms, RegExpr, fpcunit, testutils, testregistry, exExporter, exZeosProvider, exSerializer,
+  Classes, SysUtils, Forms, RegExpr, fpcunit, testregistry, exExporter, exZeosProvider, exSerializer,
   ZConnection, ZSqlProcessor, ZScriptParser;
 
 type

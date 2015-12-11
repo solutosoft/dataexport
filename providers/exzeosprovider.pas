@@ -54,6 +54,7 @@ begin
         AParam.Value := AField.Value
       else begin
         AValue := Exporter.ExtractParamValue(AParam.Name);
+
         if (AValue <> Unassigned) then
         begin
           case (VarType(AValue)) of

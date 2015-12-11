@@ -300,6 +300,21 @@ begin
       Result := AParameter.Value
    else
      Result := ExecuteExpression(AParameter.Expression);
+
+    case AParameter.DataType of
+      datText:
+        Result := VarAsType(Result, varstring);
+      datInteger:
+        Result := VarAsType(Result, varinteger);
+      datDateTime:
+        Result := VarAsType(Result, vardate);
+      datBoolean:
+        Result := VarAsType(Result, varboolean);
+      datFloat:
+        Result := VarAsType(Result, vardouble);
+      datCurrency:
+        Result := VarAsType(Result, varcurrency);
+    end;
   end;
 end;
 

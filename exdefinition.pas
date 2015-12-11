@@ -11,9 +11,9 @@ const
   VK_CHAR_SPACE = #32;
 
 type
-  { Text alignment types }
 
   TexAlignment = (altNone, altRight, altLeft);
+  TexDataType = (datNone, datText, datInteger, datDateTime, datBoolean, datFloat, datCurrency);
 
   { TexElement }
 
@@ -108,10 +108,14 @@ type
   TexParameter = class(TexVariable)
   private
     FCaption: String;
+    FDataType: TexDataType;
     FRequired: Boolean;
     FValue: Variant;
+  public
+    constructor Create(ACollection: TCollection); override;
   published
     property Caption: String read FCaption write FCaption;
+    property DataType: TexDataType read FDataType write FDataType default datNone;
     property Required: Boolean read FRequired write FRequired;
     property Value: Variant read FValue write FValue;
   end;
@@ -297,6 +301,14 @@ end;
 procedure TexColumnList.SetItem(Index: Integer; AValue: TexColumn);
 begin
   inherited SetItem(Index, AValue);
+end;
+
+{ TexParameter }
+
+constructor TexParameter.Create(ACollection: TCollection);
+begin
+  inherited Create(ACollection);
+  FDataType := datNone;
 end;
 
 { TexParameterList }

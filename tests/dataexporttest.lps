@@ -8,18 +8,19 @@
       <Unit0>
         <Filename Value="dataexporttest.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="5"/>
         <CursorPos X="65" Y="6"/>
-        <UsageCount Value="65"/>
+        <UsageCount Value="67"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="exexportertest.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="exExporterTest"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <CursorPos X="44" Y="9"/>
-        <UsageCount Value="65"/>
+        <CursorPos X="47" Y="8"/>
+        <UsageCount Value="67"/>
         <Bookmarks Count="1">
           <Item0 X="42" Y="136" ID="1"/>
         </Bookmarks>
@@ -36,17 +37,18 @@
       </Unit2>
       <Unit3>
         <Filename Value="..\..\..\fpc\2.6.4\source\packages\fcl-fpcunit\src\testutils.pp"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="69"/>
-        <UsageCount Value="8"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="90"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\exexporter.pas"/>
         <UnitName Value="exExporter"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
-        <CursorPos X="55" Y="19"/>
-        <UsageCount Value="30"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="297"/>
+        <CursorPos Y="319"/>
+        <UsageCount Value="31"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
@@ -73,9 +75,9 @@
       <Unit8>
         <Filename Value="..\exdefinition.pas"/>
         <UnitName Value="exDefinition"/>
-        <TopLine Value="13"/>
-        <CursorPos X="20" Y="112"/>
-        <UsageCount Value="22"/>
+        <TopLine Value="43"/>
+        <CursorPos X="39" Y="14"/>
+        <UsageCount Value="23"/>
         <Loaded Value="True"/>
       </Unit8>
       <Unit9>
@@ -167,10 +169,11 @@
       <Unit20>
         <Filename Value="..\providers\exzeosprovider.pas"/>
         <UnitName Value="exZeosProvider"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="48"/>
-        <CursorPos Y="59"/>
-        <UsageCount Value="12"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="52"/>
+        <CursorPos Y="68"/>
+        <UsageCount Value="13"/>
+        <Loaded Value="True"/>
       </Unit20>
       <Unit21>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\objpas\strutils.pp"/>
@@ -406,7 +409,7 @@
         <UsageCount Value="10"/>
       </Unit53>
     </Units>
-    <JumpHistory Count="4" HistoryIndex="3">
+    <JumpHistory Count="28" HistoryIndex="27">
       <Position1>
         <Filename Value="..\exdefinition.pas"/>
       </Position1>
@@ -422,24 +425,112 @@
         <Filename Value="exexportertest.pas"/>
         <Caret Line="9" Column="44"/>
       </Position4>
+      <Position5>
+        <Filename Value="..\exexporter.pas"/>
+        <Caret Line="3" Column="21"/>
+      </Position5>
+      <Position6>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="9" Column="44"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="18" Column="113" TopLine="193"/>
+      </Position7>
+      <Position8>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="115" Column="67" TopLine="95"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="16" Column="27"/>
+      </Position9>
+      <Position10>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="136" Column="42" TopLine="110"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="16" Column="27" TopLine="148"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="106" Column="17" TopLine="92"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="108" Column="15" TopLine="92"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="120" Column="17" TopLine="97"/>
+      </Position14>
+      <Position15>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="122" Column="15" TopLine="99"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="124" Column="51" TopLine="101"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="115" Column="60" TopLine="99"/>
+      </Position17>
+      <Position18>
+        <Filename Value="..\providers\exzeosprovider.pas"/>
+        <Caret Line="57" Column="9" TopLine="44"/>
+      </Position18>
+      <Position19>
+        <Filename Value="..\exdefinition.pas"/>
+        <Caret Line="115" Column="17" TopLine="101"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\exexporter.pas"/>
+        <Caret Line="317" Column="50" TopLine="293"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\exexporter.pas"/>
+        <Caret Line="304" TopLine="297"/>
+      </Position21>
+      <Position22>
+        <Filename Value="..\exexporter.pas"/>
+        <Caret Line="310" TopLine="297"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\exexporter.pas"/>
+        <Caret Line="319" TopLine="297"/>
+      </Position23>
+      <Position24>
+        <Filename Value="..\providers\exzeosprovider.pas"/>
+        <Caret Line="58" TopLine="44"/>
+      </Position24>
+      <Position25>
+        <Filename Value="..\providers\exzeosprovider.pas"/>
+        <Caret Line="60" TopLine="44"/>
+      </Position25>
+      <Position26>
+        <Filename Value="..\providers\exzeosprovider.pas"/>
+        <Caret Line="68" TopLine="52"/>
+      </Position26>
+      <Position27>
+        <Filename Value="exexportertest.pas"/>
+        <Caret Line="44" Column="17" TopLine="28"/>
+      </Position27>
+      <Position28>
+        <Filename Value="exexportertest.pas"/>
+      </Position28>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="2">
+    <BreakPoints Count="1">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
-        <Source Value="..\providers\exzeosprovider.pas"/>
-        <Line Value="67"/>
+        <Source Value="..\exexporter.pas"/>
+        <Line Value="304"/>
       </Item1>
-      <Item2>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="..\providers\exzeosprovider.pas"/>
-        <Line Value="59"/>
-      </Item2>
     </BreakPoints>
   </Debugging>
 </CONFIG>

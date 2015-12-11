@@ -62,7 +62,8 @@ object TexExporter
 		'persons.firstName,'
 		'persons.salary'
 		'from invoices'
-		'join persons on (persons.id = invoices.person_id)'        
+		'join persons on (persons.id = invoices.person_id)'
+		'where invoices.created_at = :created_at'		
       )
     end
 	item
@@ -71,5 +72,10 @@ object TexExporter
         'select * from invoice_details where invoice_id = :id'
       )
     end>
-  Parameters = <>	
+  Parameters = <
+    item
+      Name = 'created_at'
+	  DataType = datDateTime
+      Value = 42318
+    end>	
 end
