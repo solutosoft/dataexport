@@ -5,8 +5,8 @@ unit exExporterTest;
 interface
 
 uses
-  Classes, SysUtils, Forms, fpcunit, testutils, testregistry, exExporter, exZeosProvider, exSerializer,
-  ZConnection, ZSqlProcessor, ZScriptParser;
+  Classes, SysUtils, Forms, RegExpr, fpcunit, testutils, testregistry, exExporter, exZeosProvider, exSerializer,
+  ZConnection, ZSqlProcessor, ZScriptParser, Dialogs;
 
 type
 
@@ -23,7 +23,8 @@ type
     constructor Create; override;
     destructor Destroy; override;
   published
-    procedure TestColumnSerializer;
+    procedure TestColumnSize;
+    procedure TestColumnDelimiter;
   end;
 
 implementation
@@ -79,7 +80,7 @@ begin
   Result.Serializer := ASerializer;
 end;
 
-procedure TexExporterTest.TestColumnSerializer;
+procedure TexExporterTest.TestColumnSize;
 var
   ASerializer: TexColumnSerializer;
   AExporter: TexExporter;
@@ -106,6 +107,51 @@ begin
      AssertEquals('00153000', Copy(AFirst, 29, 8));
      AssertEquals('Yes', Copy(AFirst, 37, 3));
   finally
+    AExporter.Free;
+    ASerializer.Free;
+  end;
+end;
+
+procedure TexExporterTest.TestColumnDelimiter;
+var
+  ASerializer: TexColumnSerializer;
+  AExporter: TexExporter;
+  AResult: TexResutMap;
+  AParts,
+  AData: TStrings;
+begin
+  AParts := TStringList.Create;
+  ASerializer := TexColumnSerializer.Create(nil);
+  AExporter := CreateExporter('column-delimiter.def', ASerializer);
+  try
+    ASerializer.Delimiter := '|';
+    AResult := AExporter.Execute;
+
+    AssertEquals(1, AResult.Count);
+    AssertTrue(AResult.IndexOf('orders.txt') <> -1);
+
+    AData := AResult['orders.txt'];
+    AssertEquals(5, AData.Count);
+
+    SplitRegExpr('\|', AData[0], AParts);
+    AssertEquals(5, AParts.Count);
+
+    AssertEquals('010', AParts[0]);
+    AssertEquals('001', AParts[1]);
+    AssertEquals('2015-11-10', AParts[2]);
+    AssertEquals('Administrator', AParts[3]);
+    AssertEquals('The first order - 1530,00', AParts[4]);
+
+    SplitRegExpr('\|', AData[1], AParts);
+    AssertEquals(5, AParts.Count);
+
+    AssertEquals('020', AParts[0]);
+    AssertEquals('1', AParts[1]);
+    AssertEquals('2', AParts[2]);
+    AssertEquals('10', AParts[3]);
+    AssertEquals('20', AParts[4]);
+  finally
+    AParts.Free;
     AExporter.Free;
     ASerializer.Free;
   end;

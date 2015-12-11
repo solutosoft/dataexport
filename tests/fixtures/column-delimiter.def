@@ -1,0 +1,75 @@
+object TexExporter
+  Description = 'Orders data export'
+  Sessions = <  
+    item
+      Name = 'orders'
+      Pipeline = 'order-pipeline'      
+      Columns = <      
+        item
+          Name = 'type'
+		  Expression = 'Result := ''010'';'          
+        end
+        item
+          Name = 'number'                    
+        end
+        item
+          Name = 'created_at'
+          Expression = 'Result := FormatDateTime(''yyyy-mm-dd'', Value);'
+        end
+        item
+          Name = 'firstName'                    
+        end
+        item
+          Name = 'description'
+		  Expression = 'Result := Value + '' - '' + FormatFloat(''#0.00'',FindField(''salary'').AsFloat);'
+        end>
+      Sessions = <
+	    item
+	      name = 'details'
+		  Pipeline = 'detail-pipeline'
+	      Columns = <      
+            item
+              Name = 'type'
+		      Expression = 'Result := ''020'';'                   
+            end
+            item
+              Name = 'product_id'                    
+            end
+            item
+              Name = 'quantity'              
+            end
+            item
+              Name = 'price'                    
+            end
+            item
+              Name = 'total'                        
+            end>
+		end>	
+    end>
+  Dictionaries = <>
+  Packages = <
+    item
+      Name = 'orders.txt'
+      Sessions.Strings = (
+        'orders'          
+      )
+    end>
+  Pipelines = <
+    item
+      Name = 'order-pipeline'
+      SQL.Strings = (
+        'select invoices.*,'
+		'persons.firstName,'
+		'persons.salary'
+		'from invoices'
+		'join persons on (persons.id = invoices.person_id)'        
+      )
+    end
+	item
+      Name = 'detail-pipeline'
+      SQL.Strings = (
+        'select * from invoice_details where invoice_id = :id'
+      )
+    end>
+  Parameters = <>	
+end

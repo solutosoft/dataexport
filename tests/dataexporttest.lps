@@ -4,23 +4,27 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="51">
+    <Units Count="54">
       <Unit0>
         <Filename Value="dataexporttest.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="59" Y="12"/>
-        <UsageCount Value="56"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="65" Y="6"/>
+        <UsageCount Value="65"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="exexportertest.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="exExporterTest"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="80"/>
-        <CursorPos Y="101"/>
-        <UsageCount Value="56"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="138"/>
+        <CursorPos X="15" Y="155"/>
+        <UsageCount Value="65"/>
+        <Bookmarks Count="1">
+          <Item0 X="42" Y="136" ID="1"/>
+        </Bookmarks>
       </Unit1>
       <Unit2>
         <Filename Value="unit1.pas"/>
@@ -40,15 +44,10 @@
       <Unit4>
         <Filename Value="..\exexporter.pas"/>
         <UnitName Value="exExporter"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="93"/>
-        <CursorPos X="14" Y="104"/>
-        <UsageCount Value="26"/>
-        <Bookmarks Count="1">
-          <Item0 X="14" Y="104" ID="1"/>
-        </Bookmarks>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="68"/>
+        <CursorPos X="14" Y="81"/>
+        <UsageCount Value="30"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\objpas\classes\classesh.inc"/>
@@ -60,11 +59,10 @@
       <Unit6>
         <Filename Value="..\exserializer.pas"/>
         <UnitName Value="exSerializer"/>
-        <EditorIndex Value="5"/>
-        <TopLine Value="98"/>
-        <CursorPos X="27" Y="114"/>
-        <UsageCount Value="24"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="4"/>
+        <CursorPos X="7" Y="18"/>
+        <UsageCount Value="27"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\db\exzeos.pas"/>
@@ -75,10 +73,10 @@
       <Unit8>
         <Filename Value="..\exdefinition.pas"/>
         <UnitName Value="exDefinition"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="246"/>
-        <CursorPos X="22" Y="263"/>
+        <TopLine Value="180"/>
+        <CursorPos X="31" Y="191"/>
         <UsageCount Value="22"/>
+        <Loaded Value="True"/>
       </Unit8>
       <Unit9>
         <Filename Value="..\access\exzeos.pas"/>
@@ -130,8 +128,8 @@
         <Filename Value="..\..\zeosdb\src\dbc\ZDbcSqLiteUtils.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="253"/>
-        <CursorPos X="47" Y="263"/>
-        <UsageCount Value="9"/>
+        <CursorPos X="46" Y="266"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
@@ -170,16 +168,16 @@
         <Filename Value="..\providers\exzeosprovider.pas"/>
         <UnitName Value="exZeosProvider"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="41"/>
-        <CursorPos X="9" Y="48"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="48"/>
+        <CursorPos Y="59"/>
+        <UsageCount Value="12"/>
       </Unit20>
       <Unit21>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\objpas\strutils.pp"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="145"/>
-        <CursorPos X="10" Y="155"/>
-        <UsageCount Value="15"/>
+        <TopLine Value="351"/>
+        <CursorPos X="9" Y="370"/>
+        <UsageCount Value="17"/>
       </Unit21>
       <Unit22>
         <Filename Value="..\..\zeosdb\src\plain\ZPlainLoader.pas"/>
@@ -213,11 +211,10 @@
       </Unit25>
       <Unit26>
         <Filename Value="..\..\PascalScript\Source\uPSComponent.pas"/>
-        <EditorIndex Value="6"/>
-        <TopLine Value="74"/>
-        <CursorPos X="3" Y="90"/>
-        <UsageCount Value="14"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="848"/>
+        <CursorPos X="3" Y="853"/>
+        <UsageCount Value="15"/>
       </Unit26>
       <Unit27>
         <Filename Value="..\..\PascalScript\Source\uPSRuntime.pas"/>
@@ -229,19 +226,17 @@
       <Unit28>
         <Filename Value="..\exparser.pas"/>
         <UnitName Value="exParser"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="16"/>
         <CursorPos X="23" Y="27"/>
         <UsageCount Value="15"/>
-        <Loaded Value="True"/>
       </Unit28>
       <Unit29>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\win\sysutils.pp"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="460"/>
         <CursorPos X="20" Y="468"/>
         <UsageCount Value="14"/>
-        <Loaded Value="True"/>
       </Unit29>
       <Unit30>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\objpas\classes\stringl.inc"/>
@@ -252,24 +247,23 @@
       </Unit30>
       <Unit31>
         <Filename Value="..\..\PascalScript\Source\uPSCompiler.pas"/>
-        <EditorIndex Value="10"/>
-        <TopLine Value="1098"/>
-        <CursorPos X="14" Y="1107"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="13398"/>
+        <CursorPos X="47" Y="13413"/>
+        <UsageCount Value="11"/>
       </Unit31>
       <Unit32>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\inc\variants.pp"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="2845"/>
-        <CursorPos X="3" Y="2848"/>
+        <TopLine Value="53"/>
+        <CursorPos X="10" Y="66"/>
         <UsageCount Value="12"/>
       </Unit32>
       <Unit33>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\inc\varianth.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="95"/>
-        <CursorPos X="7" Y="96"/>
+        <TopLine Value="12"/>
+        <CursorPos X="4" Y="25"/>
         <UsageCount Value="10"/>
       </Unit33>
       <Unit34>
@@ -297,10 +291,9 @@
       </Unit36>
       <Unit37>
         <Filename Value="..\..\PascalScript\Source\uPSC_dateutils.pas"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="3" Y="16"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit37>
       <Unit38>
         <Filename Value="..\..\PascalScript\Source\uPSUtils.pas"/>
@@ -343,27 +336,25 @@
       </Unit43>
       <Unit44>
         <Filename Value="..\..\PascalScript\Source\uPSR_dateutils.pas"/>
-        <EditorIndex Value="13"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="35"/>
         <CursorPos X="26" Y="15"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit44>
       <Unit45>
         <Filename Value="..\..\PascalScript\Source\uPSComponent_Default.pas"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="17"/>
         <CursorPos X="23" Y="23"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit45>
       <Unit46>
         <Filename Value="..\scripts\upsr_sysutils.pas"/>
         <UnitName Value="uPSR_SysUtils"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="11"/>
         <CursorPos X="63" Y="12"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit46>
       <Unit47>
         <Filename Value="..\packages\lazarus\dataexport.pas"/>
@@ -374,148 +365,73 @@
       <Unit48>
         <Filename Value="..\scripts\upsc_sysutils.pas"/>
         <UnitName Value="uPSC_SysUtils"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="-1"/>
         <CursorPos X="57" Y="11"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit48>
       <Unit49>
         <Filename Value="..\..\..\fpc\2.6.4\source\rtl\objpas\sysutils\filutilh.inc"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="86"/>
         <CursorPos Y="105"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit49>
       <Unit50>
         <Filename Value="..\..\..\fpc\2.6.4\source\packages\regexpr\src\regexpr.pas"/>
         <UnitName Value="RegExpr"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="595"/>
-        <CursorPos X="21" Y="604"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="610"/>
+        <CursorPos X="23" Y="608"/>
+        <UsageCount Value="13"/>
       </Unit50>
+      <Unit51>
+        <Filename Value="..\..\PascalScript\Source\uPSR_DB.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="34"/>
+        <CursorPos X="27" Y="52"/>
+        <UsageCount Value="11"/>
+      </Unit51>
+      <Unit52>
+        <Filename Value="..\..\PascalScript\Source\uPSC_DB.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="48"/>
+        <CursorPos X="27" Y="71"/>
+        <UsageCount Value="11"/>
+      </Unit52>
+      <Unit53>
+        <Filename Value="..\..\..\fpc\2.6.4\source\packages\fcl-db\src\base\db.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="96"/>
+        <CursorPos X="3" Y="110"/>
+        <UsageCount Value="10"/>
+      </Unit53>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="2" HistoryIndex="1">
       <Position1>
-        <Filename Value="..\exparser.pas"/>
-        <Caret Line="88" Column="41" TopLine="81"/>
+        <Filename Value="..\exdefinition.pas"/>
       </Position1>
       <Position2>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="91" Column="23" TopLine="85"/>
+        <Filename Value="dataexporttest.lpr"/>
+        <Caret Line="12" Column="59"/>
       </Position2>
-      <Position3>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="269" Column="30" TopLine="257"/>
-      </Position3>
-      <Position4>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="95" TopLine="80"/>
-      </Position4>
-      <Position5>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="96" Column="26" TopLine="80"/>
-      </Position5>
-      <Position6>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="268" TopLine="257"/>
-      </Position6>
-      <Position7>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="95" TopLine="84"/>
-      </Position7>
-      <Position8>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="268" TopLine="257"/>
-      </Position8>
-      <Position9>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="95" TopLine="84"/>
-      </Position9>
-      <Position10>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="96" TopLine="84"/>
-      </Position10>
-      <Position11>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="97" TopLine="84"/>
-      </Position11>
-      <Position12>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="98" TopLine="84"/>
-      </Position12>
-      <Position13>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="100" TopLine="84"/>
-      </Position13>
-      <Position14>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="103" TopLine="94"/>
-      </Position14>
-      <Position15>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="105" Column="52" TopLine="94"/>
-      </Position15>
-      <Position16>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="109" TopLine="94"/>
-      </Position16>
-      <Position17>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="269" TopLine="257"/>
-      </Position17>
-      <Position18>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="270" TopLine="257"/>
-      </Position18>
-      <Position19>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="273" TopLine="257"/>
-      </Position19>
-      <Position20>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="99" Column="23" TopLine="94"/>
-      </Position20>
-      <Position21>
-        <Filename Value="..\scripts\upsc_sysutils.pas"/>
-        <Caret Line="11" Column="57"/>
-      </Position21>
-      <Position22>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="104" Column="17" TopLine="91"/>
-      </Position22>
-      <Position23>
-        <Filename Value="..\exexporter.pas"/>
-      </Position23>
-      <Position24>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="104" Column="17" TopLine="93"/>
-      </Position24>
-      <Position25>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="12" Column="23"/>
-      </Position25>
-      <Position26>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="108" Column="33" TopLine="93"/>
-      </Position26>
-      <Position27>
-        <Filename Value="..\exexporter.pas"/>
-      </Position27>
-      <Position28>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="13" Column="23"/>
-      </Position28>
-      <Position29>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="276" Column="8" TopLine="270"/>
-      </Position29>
-      <Position30>
-        <Filename Value="..\exexporter.pas"/>
-        <Caret Line="13" Column="23"/>
-      </Position30>
     </JumpHistory>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="2">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\providers\exzeosprovider.pas"/>
+        <Line Value="67"/>
+      </Item1>
+      <Item2>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\providers\exzeosprovider.pas"/>
+        <Line Value="59"/>
+      </Item2>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

@@ -17,8 +17,6 @@ type
     function ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
   end;
 
-  TexSerializerBaseClass = class of TexSerializerBase;
-
   { TexColumnSerializer }
 
   TexColumnSerializer = class(TexSerializerBase)
@@ -32,9 +30,6 @@ type
 
 
 implementation
-
-uses
-   uPSC_dateutils;
 
 { TexSerializerBase }
 
@@ -153,7 +148,8 @@ begin
       AData := FindData(ASession, AResult);
       APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
 
-      AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, Exporter.Parameters, AMaster);
+      AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+      Exporter.CurrentDataSet := AQuery;
       try
         AQuery.Open;
         while (not AQuery.EOF) do
@@ -171,6 +167,8 @@ begin
 
           AData.Add(ARow);
           Serialize(ASession.Sessions, AQuery, AResult);
+
+          Exporter.CurrentDataSet := AQuery;
           AQuery.Next;
         end;
       finally

@@ -18,6 +18,8 @@ type
   TexResutMap = specialize TFPGMap<String, TStrings>;
   TexScriptArgs = specialize TFPGMap<String, Variant>;
 
+  TexScriptFindField = function (AFieldName: String): TField;
+
   { TexSerializer }
 
   TexSerializer = class(TComponent)
@@ -31,16 +33,20 @@ type
   { TexProvider }
 
   TexProvider = class(TComponent)
+  private
+    FExporter: TexExporter;
   public
-    function CreateQuery(ASQL: String; AParameters: TexParameterList; AMaster: TDataSet): TDataSet; virtual; abstract;
     procedure OpenConnection; virtual; abstract;
     procedure CloseConnection; virtual; abstract;
+    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; virtual; abstract;
+    property Exporter: TexExporter read FExporter write FExporter;
   end;
 
   { TexExporter }
 
   TexExporter = class(TComponent)
   private
+    FCurrentDataSet: TDataSet;
     FProvider: TexProvider;
     FPackages: TexPackageList;
     FDescription: String;
@@ -57,12 +63,14 @@ type
     procedure SetEvents(AValue: TexVariableList);
     procedure SetParameters(AValue: TexParameterList);
     procedure SetPipelines(AValue: TexPipelineList);
+    procedure SetProvider(AValue: TexProvider);
     procedure SetSerializer(AValue: TexSerializer);
     procedure SetSessions(AValue: TexSessionList);
-    procedure ScriptCompile(Sender: TPSScript);
-    procedure ScriptExecute(Sender: TPSScript);
+    procedure ScriptEngineCompile(Sender: TPSScript);
+    procedure ScriptEngineExecute(Sender: TPSScript);
     procedure ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
     procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
+    function ScriptEngineFindField(AFieldName: String): TField;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -70,12 +78,14 @@ type
     procedure LoadFromFile(const AFileName: String);
     procedure SaveToStream(const AStream: TStream);
     procedure SaveToFile(const AFileName: string);
+    function ExtractParamValue(AName: String): Variant;
     function ExecuteExpression(AScript: String; AArgs: TexScriptArgs = nil): Variant;
     function Execute: TexResutMap;
+    property CurrentDataSet: TDataSet read FCurrentDataSet write FCurrentDataSet;
   published
     property Description: String read FDescription write FDescription;
     property Sessions: TexSessionList read FSessions write SetSessions;
-    property Provider: TexProvider read FProvider write FProvider;
+    property Provider: TexProvider read FProvider write SetProvider;
     property Dictionaries: TexDictionaryList read FDictionaries write SetDictionaries;
     property Events: TexVariableList read FEvents write SetEvents;
     property Pipelines: TexPipelineList read FPipelines write SetPipelines;
@@ -88,10 +98,7 @@ type
 implementation
 
 uses
-  uPSC_dateutils,
-  uPSR_dateutils,
-  uPSC_SysUtils,
-  uPSR_SysUtils;
+  uPSC_dateutils, uPSR_dateutils, uPSC_SysUtils, uPSR_SysUtils, uPSR_DB, uPSC_DB;
 
 
 function PrepareScript(AExpression: String): TStrings;
@@ -119,8 +126,8 @@ begin
   inherited Create(AOwner);
   FScript := TPSScript.Create(nil);
   FScript.CompilerOptions := [icAllowNoBegin, icAllowNoEnd];
-  FScript.OnCompile := @ScriptCompile;
-  FScript.OnExecute := @ScriptExecute;
+  FScript.OnCompile := @ScriptEngineCompile;
+  FScript.OnExecute := @ScriptEngineExecute;
   FScript.OnCompImport := @ScriptEngineCompImport;
   FScript.OnExecImport := @ScriptEngineExecImport;
 
@@ -154,15 +161,17 @@ begin
   FSessions.Assign(AValue);
 end;
 
-procedure TexExporter.ScriptCompile(Sender: TPSScript);
+procedure TexExporter.ScriptEngineCompile(Sender: TPSScript);
 var
   I: Integer;
 begin
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TField;');
+
   for I := 0 to FScriptArgs.Count -1 do
     Sender.AddRegisteredVariable(FScriptArgs.Keys[I], 'Variant');
 end;
 
-procedure TexExporter.ScriptExecute(Sender: TPSScript);
+procedure TexExporter.ScriptEngineExecute(Sender: TPSScript);
 var
   I: Integer;
   AKey: String;
@@ -178,12 +187,20 @@ procedure TexExporter.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompil
 begin
   RegisterDatetimeLibrary_C(x);
   RegisterSysUtilsLibrary_C(x);
+  SIRegisterTFIELD(x);
 end;
 
 procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
 begin
   RegisterDateTimeLibrary_R(se);
   RegisterSysUtilsLibrary_R(se);
+  RIRegisterTFIELD(x)
+end;
+
+function TexExporter.ScriptEngineFindField(AFieldName: String): TField;
+begin
+  if (Assigned(FCurrentDataSet)) then
+     Result := FCurrentDataSet.FieldByName(AFieldName);
 end;
 
 
@@ -205,6 +222,13 @@ end;
 procedure TexExporter.SetPipelines(AValue: TexPipelineList);
 begin
   FPipelines.Assign(AValue);
+end;
+
+procedure TexExporter.SetProvider(AValue: TexProvider);
+begin
+  FProvider := AValue;
+  if (FProvider <> nil) then
+    FProvider.Exporter := Self;
 end;
 
 procedure TexExporter.SetSerializer(AValue: TexSerializer);
@@ -263,6 +287,21 @@ begin
     SaveToStream(AStream);
   finally
     AStream.Free;
+  end;
+end;
+
+function TexExporter.ExtractParamValue(AName: String): Variant;
+var
+  AParameter: TexParameter;
+begin
+  Result := Unassigned;
+  AParameter := FParameters.FindByName(AName);
+  if (AParameter <> nil) then
+  begin
+   if (not VarIsClear(AParameter.Value)) then
+      Result := AParameter.Value
+   else
+     Result := ExecuteExpression(AParameter.Expression);
   end;
 end;
 

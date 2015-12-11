@@ -5,7 +5,7 @@ unit exZeosProvider;
 interface
 
 uses
-  Classes, SysUtils, DB, ZConnection, ZDataset, exExporter, exDefinition;
+  Classes, SysUtils, DB, Variants, ZConnection, ZDataset, exExporter;
 
 type
 
@@ -15,9 +15,10 @@ type
   private
     FConnection: TZConnection;
   public
-    function CreateQuery(ASQL: String; AParameters: TexParameterList; AMaster: TDataSet): TDataSet; override;
+    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
     procedure OpenConnection; override;
     procedure CloseConnection; override;
+
   published
     property Connection: TZConnection read FConnection write FConnection;
   end;
@@ -28,35 +29,53 @@ implementation
 
 { TexZeosProvider }
 
-function TexZeosProvider.CreateQuery(ASQL: String; AParameters: TexParameterList; AMaster: TDataSet): TDataSet;
+function TexZeosProvider.CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet;
 var
   I: Integer;
-  AQuery: TZQuery;
   AField: TField;
   AParam: TParam;
-  AParameter: TexParameter;
+  AValue: Variant;
 begin
-  AQuery := TZQuery.Create(Self);
-  AQuery.SQL.Text := ASQL;
-  AQuery.Connection := FConnection;
-
-  if (AMaster <> nil) then
+  Result := TZQuery.Create(Self);
+  with (TZQuery(Result)) do
   begin
-    for I := 0 to AQuery.Params.Count -1 do
+    SQL.Text := ASQL;
+    Connection := FConnection;
+
+    for I := 0 to Params.Count -1 do
     begin
-      AParam := AQuery.Params[I];
-      AField := AMaster.FindField(AParam.Name);
+      AParam := Params[I];
+      AField := nil;
+
+      if (AMaster <> nil) then
+        AField := AMaster.FindField(AParam.Name);
+
       if (AField <> nil) then
-        AParam.Value := AField.Value;
-      {else begin
-         AParameter := AParameters.FindByName(AParam.Name);
-         if (AParameter <> nil) then
-            AParam.Value := EvaluateExpression(AParameter.Expression;
-      end;}
+        AParam.Value := AField.Value
+      else begin
+        AValue := Exporter.ExtractParamValue(AParam.Name);
+        if (AValue <> Unassigned) then
+        begin
+          case (VarType(AValue)) of
+            varsmallint, varinteger, varsingle, varshortint, varword, varlongword, varint64, varqword:
+              AParam.AsInteger := AValue;
+            vardouble, vardecimal:
+              AParam.AsFloat := AValue;
+            varcurrency:
+              AParam.Value := AValue;
+            vardate:
+              AParam.AsDate := AValue;
+            varboolean:
+              AParam.AsBoolean := AValue;
+            varstring, varustring :
+              AParam.AsString := AValue;
+            else
+              AParam.Value := AValue;
+          end;
+        end;
+      end;
     end;
   end;
-
-  Result := AQuery;
 end;
 
 procedure TexZeosProvider.OpenConnection;
