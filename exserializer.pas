@@ -28,6 +28,26 @@ type
     property Delimiter: String read FDelimiter write FDelimiter;
   end;
 
+  { TexHierarchicalSerializer }
+
+  TexHierarchicalSerializer = class(TexSerializerBase)
+  protected
+    function FormatData(ASession: TexSession; AMaster: TDataSet): String; virtual; abstract;
+  public
+    procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap); override;
+  end;
+
+  { TexJsonSerializer }
+
+  TexJsonSerializer = class(TexHierarchicalSerializer)
+  private
+    FHideRootKeys: Boolean;
+  protected
+    function FormatData(ASession: TexSession; AMaster: TDataSet): String; override;
+  published
+    property HideRootKeys: Boolean read FHideRootKeys write FHideRootKeys default False;
+  end;
+
 
 implementation
 
@@ -176,6 +196,97 @@ begin
       end;
     end;
   end;
+end;
+
+{ TexHierarchicalSerializer }
+
+procedure TexHierarchicalSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap);
+var
+  I: Integer;
+  AData: TStrings;
+  ASession: TexSession;
+begin
+  for I := 0 to ASessions.Count - 1 do
+  begin
+    ASession := ASessions[I];
+    AData := FindData(ASession, AResult);
+    AData.Add(FormatData(ASession, AMaster));
+  end;
+end;
+
+{ TexJsonSerializer }
+
+function TexJsonSerializer.FormatData(ASession: TexSession; AMaster: TDataSet): String;
+var
+  I, J: Integer;
+  ARow,
+  AValue: String;
+  ASame: Boolean;
+  AQuery: TDataSet;
+  AOwner: TexSession;
+  AColumn: TexColumn;
+  APipeline: TexPipeline;
+  AElements: TStringList;
+begin
+  Result := '';
+  AElements := TStringList.Create;
+  try
+    AOwner := ASession.Collection.Owner as TexSession;
+    APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
+    ASame := (AOwner <> nil) and (SameText(ASession.Pipeline, AOwner.Pipeline));
+
+    if (ASame) then
+      AQuery := AMaster
+    else
+      AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+
+    Exporter.CurrentDataSet := AQuery;
+    try
+      AQuery.Open;
+      while (not AQuery.EOF) do
+      begin
+        ARow := '';
+        for J := 0 to ASession.Columns.Count -1 do
+        begin
+          AColumn := ASession.Columns[J];
+          AValue := ExtractValue(AColumn, AQuery);
+          ARow := ARow + Format('"%s":"%s"', [AColumn.Name, AValue]) + ',';
+        end;
+
+        for I := 0 to ASession.Sessions.Count - 1 do
+          ARow := ARow + FormatData(ASession.Sessions[I], AQuery) + ',';
+
+        Delete(ARow, Length(ARow), 1);
+        AElements.Add(Format('{%s}', [ARow]));
+        Exporter.CurrentDataSet := AQuery;
+
+        if (ASame) then
+          break;
+
+        AQuery.Next;
+      end;
+
+      Result := '';
+      for J := 0 to AElements.Count -1 do
+        Result := Result + AElements[J] + ',';
+
+      Delete(Result, Length(Result), 1);
+
+      if (AElements.Count > 1) then
+        Result := Format('[%s]', [Result]);
+
+      if (AOwner <> nil) then
+        Result := Format('"%s":%s', [ASession.Name, Result])
+      else if (not Self.HideRootKeys) then
+        Result := Format('{"%s":%s}', [ASession.Name, Result]);
+    finally
+      if (not ASame) then
+        AQuery.Free;
+    end;
+  finally
+    AElements.Free;
+  end;
+
 end;
 
 end.

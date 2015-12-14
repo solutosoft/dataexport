@@ -5,8 +5,8 @@ unit exExporterTest;
 interface
 
 uses
-  Classes, SysUtils, Forms, RegExpr, fpcunit, testregistry, exExporter, exZeosProvider, exSerializer,
-  ZConnection, ZSqlProcessor, ZScriptParser;
+  Classes, SysUtils, Forms, RegExpr, fpcunit, testregistry, fpjson, jsonparser, exExporter, exZeosProvider,
+  exSerializer, ZConnection, ZSqlProcessor, ZScriptParser;
 
 type
 
@@ -25,6 +25,7 @@ type
   published
     procedure TestColumnSize;
     procedure TestColumnDelimiter;
+    procedure TestJson;
   end;
 
 implementation
@@ -163,6 +164,60 @@ begin
     AExporter.Free;
     ASerializer.Free;
   end;
+end;
+
+procedure TexExporterTest.TestJson;
+var
+  ASerializer: TexJsonSerializer;
+  AExporter: TexExporter;
+  AResult: TexResutMap;
+  AJson,
+  ADetails,
+  AData: TJSONData;
+begin
+  ASerializer := TexJsonSerializer.Create(nil);
+  AExporter := CreateExporter('hierarchical.def', ASerializer);
+  try
+    ASerializer.HideRootKeys := True;
+    AResult := AExporter.Execute;
+
+    AssertEquals(1, AResult.Count);
+    AssertTrue(AResult.IndexOf('invoices') <> -1);
+
+    AJson := GetJSON(AResult['invoices'].Text);
+    AssertEquals(2, AJson.Count);
+
+    ASerializer.HideRootKeys := False;
+    AResult := AExporter.Execute;
+    AJson := GetJSON(AResult['invoices'].Text);
+
+    AData := AJson.FindPath('invoices').Items[0];
+    AssertEquals('100', AData.FindPath('type').AsString);
+    AssertEquals('001', AData.FindPath('number').AsString);
+    AssertEquals('2015-11-10', AData.FindPath('created_at').AsString);
+    AssertEquals('The first order', AData.FindPath('description').AsString);
+
+    ADetails := AData.FindPath('details');
+    AssertEquals(2, ADetails.Count);
+
+    AData := ADetails.Items[0];
+    AssertEquals('200', AData.FindPath('type').AsString);
+    AssertEquals('1', AData.FindPath('product_id').AsString);
+    AssertEquals('2', AData.FindPath('quantity').AsString);
+    AssertEquals('10', AData.FindPath('price').AsString);
+    AssertEquals('20', AData.FindPath('total').AsString);
+
+    AData := ADetails.Items[1];
+    AssertEquals('200', AData.FindPath('type').AsString);
+    AssertEquals('2', AData.FindPath('product_id').AsString);
+    AssertEquals('5', AData.FindPath('quantity').AsString);
+    AssertEquals('20', AData.FindPath('price').AsString);
+    AssertEquals('100', AData.FindPath('total').AsString);
+  finally
+    AExporter.Free;
+    ASerializer.Free;
+  end
+
 end;
 
 initialization

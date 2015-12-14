@@ -15,7 +15,7 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('Data Export', [TexExporter, TexColumnSerializer]);
+  RegisterComponents('Data Export', [TexExporter, TexColumnSerializer, TexJsonSerializer]);
 end;
 
 end.
