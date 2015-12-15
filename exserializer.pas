@@ -48,6 +48,26 @@ type
     property HideRootKeys: Boolean read FHideRootKeys write FHideRootKeys default False;
   end;
 
+  { TexXmlSerializer }
+
+  TexXmlSerializer = class(TexHierarchicalSerializer)
+  private
+    FEncoding: String;
+    FItemTag: String;
+    FVersion: String;
+  private
+    function EncodeTag(AName, AValue: String): String;
+  protected
+    function FormatData(ASession: TexSession; AMaster: TDataSet): String; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap); override;
+  published
+    property Version: String read FVersion write FVersion;
+    property Encoding: String read FEncoding write FEncoding;
+    property ItemTag: String read FItemTag write FItemTag;
+  end;
+
 
 implementation
 
@@ -219,7 +239,7 @@ end;
 function TexJsonSerializer.FormatData(ASession: TexSession; AMaster: TDataSet): String;
 var
   I, J: Integer;
-  ARow,
+  AJson,
   AValue: String;
   ASame: Boolean;
   AQuery: TDataSet;
@@ -245,19 +265,19 @@ begin
       AQuery.Open;
       while (not AQuery.EOF) do
       begin
-        ARow := '';
+        AJson := '';
         for J := 0 to ASession.Columns.Count -1 do
         begin
           AColumn := ASession.Columns[J];
           AValue := ExtractValue(AColumn, AQuery);
-          ARow := ARow + Format('"%s":"%s"', [AColumn.Name, AValue]) + ',';
+          AJson := AJson + Format('"%s":"%s"', [AColumn.Name, AValue]) + ',';
         end;
 
         for I := 0 to ASession.Sessions.Count - 1 do
-          ARow := ARow + FormatData(ASession.Sessions[I], AQuery) + ',';
+          AJson := AJson + FormatData(ASession.Sessions[I], AQuery) + ',';
 
-        Delete(ARow, Length(ARow), 1);
-        AElements.Add(Format('{%s}', [ARow]));
+        Delete(AJson, Length(AJson), 1);
+        AElements.Add(Format('{%s}', [AJson]));
         Exporter.CurrentDataSet := AQuery;
 
         if (ASame) then
@@ -286,7 +306,90 @@ begin
   finally
     AElements.Free;
   end;
+end;
 
+{ TexXmlSerializer }
+
+constructor TexXmlSerializer.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FVersion := '1.0';
+  FEncoding := 'UTF-8';
+  FItemTag := 'item';
+end;
+
+procedure TexXmlSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap);
+var
+  I: Integer;
+  AData: TStrings;
+begin
+  inherited Serialize(ASessions, AMaster, AResult);
+  for I := 0 to AResult.Count -1 do
+  begin
+    AData := AResult.Data[I];
+    AData.Insert(0, Format('<?xml version="%s" encoding="%s"?>', [FVersion, FEncoding]));
+  end;
+end;
+
+function TexXmlSerializer.EncodeTag(AName, AValue: String): String;
+begin
+  Result := Format('<%s>%s</%s>', [AName, AValue, AName]);
+end;
+
+function TexXmlSerializer.FormatData(ASession: TexSession; AMaster: TDataSet): String;
+var
+  I, J: Integer;
+  AXml,
+  AValue: String;
+  ASame: Boolean;
+  AQuery: TDataSet;
+  AOwner: TexSession;
+  AColumn: TexColumn;
+  APipeline: TexPipeline;
+begin
+  Result := '';
+  AOwner := ASession.Collection.Owner as TexSession;
+  APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
+  ASame := (AOwner <> nil) and (SameText(ASession.Pipeline, AOwner.Pipeline));
+
+  if (ASame) then
+    AQuery := AMaster
+  else
+    AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+
+  Exporter.CurrentDataSet := AQuery;
+  try
+    AQuery.Open;
+    while (not AQuery.EOF) do
+    begin
+      AXml := '';
+      for J := 0 to ASession.Columns.Count -1 do
+      begin
+        AColumn := ASession.Columns[J];
+        AValue := ExtractValue(AColumn, AQuery);
+        AXml := AXml + EncodeTag(AColumn.Name, AValue);
+      end;
+
+      for I := 0 to ASession.Sessions.Count - 1 do
+        AXml := AXml + FormatData(ASession.Sessions[I], AQuery);
+
+      Exporter.CurrentDataSet := AQuery;
+
+      if (not ASame) then
+        AXml := EncodeTag(FItemTag, AXml)
+      else begin
+        Result := Result + AXml;
+        Break;
+      end;
+
+      Result := Result + AXml;
+      AQuery.Next;
+    end;
+    Result := EncodeTag(ASession.Name, Result);
+  finally
+    if (not ASame) then
+      AQuery.Free;
+  end;
 end;
 
 end.

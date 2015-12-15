@@ -5,8 +5,8 @@ unit exExporterTest;
 interface
 
 uses
-  Classes, SysUtils, Forms, RegExpr, fpcunit, testregistry, fpjson, jsonparser, exExporter, exZeosProvider,
-  exSerializer, ZConnection, ZSqlProcessor, ZScriptParser;
+  Classes, SysUtils, Forms, RegExpr, fpcunit, testregistry, fpjson, jsonparser, laz2_DOM, laz2_XMLRead, exExporter,
+  exZeosProvider, exSerializer, ZConnection, ZSqlProcessor, ZScriptParser;
 
 type
 
@@ -26,6 +26,7 @@ type
     procedure TestColumnSize;
     procedure TestColumnDelimiter;
     procedure TestJson;
+    procedure TestXml;
   end;
 
 implementation
@@ -217,7 +218,65 @@ begin
     AExporter.Free;
     ASerializer.Free;
   end
+end;
 
+procedure TexExporterTest.TestXml;
+var
+  ASerializer: TexXmlSerializer;
+  AExporter: TexExporter;
+  AResult: TexResutMap;
+  AXml: TXMLDocument;
+  ADetails,
+  AItem: TDOMNode;
+  AStream: TStringStream;
+begin
+  ASerializer := TexXmlSerializer.Create(nil);
+  AExporter := CreateExporter('hierarchical.def', ASerializer);
+  AXml := TXMLDocument.Create;
+  try
+    AResult := AExporter.Execute;
+    AssertEquals(1, AResult.Count);
+    AssertTrue(AResult.IndexOf('invoices') <> -1);
+
+    AStream := TStringStream.Create(AResult['invoices'].Text);
+    try
+      ReadXMLFile(AXml, AStream);
+      AssertEquals('UTF-8', AXml.Encoding);
+      AssertEquals('1.0', AXml.XMLVersion);
+      AssertTrue(AXml.FirstChild.CompareName('invoices') = 0);
+
+      AssertEquals(2, AXml.FirstChild.ChildNodes.Count);
+      AItem := AXml.FirstChild.ChildNodes[0];
+
+      AssertEquals('100', AItem.FindNode('type').TextContent);
+      AssertEquals('001', AItem.FindNode('number').TextContent);
+      AssertEquals('2015-11-10', AItem.FindNode('created_at').TextContent);
+      AssertEquals('The first order', AItem.FindNode('description').TextContent);
+
+      ADetails := AItem.FindNode('details');
+      AssertEquals(2, ADetails.ChildNodes.Count);
+
+      AItem := ADetails.ChildNodes[0];
+      AssertEquals('200', AItem.FindNode('type').TextContent);
+      AssertEquals('1', AItem.FindNode('product_id').TextContent);
+      AssertEquals('2', AItem.FindNode('quantity').TextContent);
+      AssertEquals('10', AItem.FindNode('price').TextContent);
+      AssertEquals('20', AItem.FindNode('total').TextContent);
+
+      AItem := ADetails.ChildNodes[1];
+      AssertEquals('200', AItem.FindNode('type').TextContent);
+      AssertEquals('2', AItem.FindNode('product_id').TextContent);
+      AssertEquals('5', AItem.FindNode('quantity').TextContent);
+      AssertEquals('20', AItem.FindNode('price').TextContent);
+      AssertEquals('100', AItem.FindNode('total').TextContent);
+    finally
+      AStream.Free;
+    end;
+  finally
+    AXml.Free;
+    AExporter.Free;
+    ASerializer.Free;
+  end
 end;
 
 initialization
