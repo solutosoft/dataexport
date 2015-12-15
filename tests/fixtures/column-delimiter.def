@@ -47,6 +47,11 @@ object TexExporter
         end>	
     end>
   Dictionaries = <>
+  Events = <
+    item
+      Name = 'function BeforeSerialize: String'
+      Expression = 'Result := ''|''+ Value +''|'';'
+    end>
   Packages = <
     item
       Name = 'orders.txt'

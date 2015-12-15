@@ -15,6 +15,7 @@ type
   protected
     function FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
     function ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
+    function BeforeSerialize(AData: String; ASession: TexSession): String;
   end;
 
   { TexColumnSerializer }
@@ -167,6 +168,24 @@ begin
   end;
 end;
 
+function TexSerializerBase.BeforeSerialize(AData: String; ASession: TexSession): String;
+var
+  AEvent: TexVariable;
+  AParams: TexScriptArgs;
+begin
+  AParams := TexScriptArgs.Create;
+  try
+    AParams['Value'] := AData;
+    AEvent := Exporter.Events.FindByName(EVENT_BEFORE_SERIALIZE);
+    if (AEvent <> nil) then
+      Result := Exporter.ExecuteExpression(AEvent.Expression, AParams)
+    else
+      Result := AData;
+  finally
+    AParams.Free;
+  end;
+end;
+
 { TexColumnSerializer }
 
 procedure TexColumnSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap);
@@ -187,14 +206,14 @@ begin
     begin
       AData := FindData(ASession, AResult);
       APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
-
       AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
-      Exporter.CurrentDataSet := AQuery;
       try
         AQuery.Open;
         while (not AQuery.EOF) do
         begin
           ARow := '';
+          Exporter.CurrentDataSet := AQuery;
+
           for J := 0 to ASession.Columns.Count -1 do
           begin
             AValue := ExtractValue(ASession.Columns[J], AQuery);
@@ -205,10 +224,10 @@ begin
           if (FDelimiter <> '') and (ALength > 0) then
              Delete(ARow, ALength, 1);
 
+          ARow := BeforeSerialize(ARow, ASession);
           AData.Add(ARow);
           Serialize(ASession.Sessions, AQuery, AResult);
 
-          Exporter.CurrentDataSet := AQuery;
           AQuery.Next;
         end;
       finally
@@ -260,12 +279,13 @@ begin
     else
       AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
 
-    Exporter.CurrentDataSet := AQuery;
     try
       AQuery.Open;
       while (not AQuery.EOF) do
       begin
         AJson := '';
+        Exporter.CurrentDataSet := AQuery;
+
         for J := 0 to ASession.Columns.Count -1 do
         begin
           AColumn := ASession.Columns[J];
@@ -278,10 +298,9 @@ begin
 
         Delete(AJson, Length(AJson), 1);
         AElements.Add(Format('{%s}', [AJson]));
-        Exporter.CurrentDataSet := AQuery;
 
         if (ASame) then
-          break;
+          Break;
 
         AQuery.Next;
       end;
@@ -357,12 +376,13 @@ begin
   else
     AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
 
-  Exporter.CurrentDataSet := AQuery;
   try
     AQuery.Open;
     while (not AQuery.EOF) do
     begin
       AXml := '';
+      Exporter.CurrentDataSet := AQuery;
+
       for J := 0 to ASession.Columns.Count -1 do
       begin
         AColumn := ASession.Columns[J];
@@ -372,8 +392,6 @@ begin
 
       for I := 0 to ASession.Sessions.Count - 1 do
         AXml := AXml + FormatData(ASession.Sessions[I], AQuery);
-
-      Exporter.CurrentDataSet := AQuery;
 
       if (not ASame) then
         AXml := EncodeTag(FItemTag, AXml)

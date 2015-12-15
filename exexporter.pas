@@ -13,6 +13,8 @@ const
   SCRIPT_FUNCEVAL_EXEC = 'exEvaluate';
   SCRIPT_VAR_REGEX = '^\s*var\s+';
 
+  EVENT_BEFORE_SERIALIZE = 'function BeforeSerialize: String';
+
 type
   TexExporter = class;
   TexResutMap = specialize TFPGMap<String, TStrings>;

@@ -144,22 +144,22 @@ begin
     AssertEquals(5, AData.Count);
 
     SplitRegExpr('\|', AData[0], AParts);
-    AssertEquals(5, AParts.Count);
+    AssertEquals(7, AParts.Count); // the event adds aditional "|"
 
-    AssertEquals('010', AParts[0]);
-    AssertEquals('001', AParts[1]);
-    AssertEquals('2015-11-10', AParts[2]);
-    AssertEquals('Administrator', AParts[3]);
-    AssertEquals('The first order - 1530,00', AParts[4]);
+    AssertEquals('010', AParts[1]);
+    AssertEquals('001', AParts[2]);
+    AssertEquals('2015-11-10', AParts[3]);
+    AssertEquals('Administrator', AParts[4]);
+    AssertEquals('The first order - 1530,00', AParts[5]);
 
     SplitRegExpr('\|', AData[1], AParts);
-    AssertEquals(5, AParts.Count);
+    AssertEquals(7, AParts.Count);
 
-    AssertEquals('020', AParts[0]);
-    AssertEquals('1', AParts[1]);
-    AssertEquals('2', AParts[2]);
-    AssertEquals('10', AParts[3]);
-    AssertEquals('20', AParts[4]);
+    AssertEquals('020', AParts[1]);
+    AssertEquals('1', AParts[2]);
+    AssertEquals('2', AParts[3]);
+    AssertEquals('10', AParts[4]);
+    AssertEquals('20', AParts[5]);
   finally
     AParts.Free;
     AExporter.Free;
