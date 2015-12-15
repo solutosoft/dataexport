@@ -84,3 +84,6 @@ object TexExporter
       Value = 42318
     end>	
 end
+object TexColumnSerializer
+  Delimiter = '|'
+end

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, RegExpr, fpcunit, testregistry, fpjson, jsonparser, laz2_DOM, laz2_XMLRead, exExporter,
-  exZeosProvider, exSerializer, ZConnection, ZSqlProcessor, ZScriptParser;
+  exZeosProvider, exSerializer, exDefinition, ZConnection, ZSqlProcessor, ZScriptParser;
 
 type
 
@@ -18,11 +18,12 @@ type
     FProvider: TexZeosProvider;
     FConnection: TZConnection;
     procedure PrepareDatabase;
-    function CreateExporter(AFileName: String; ASerializer: TexSerializer): TexExporter;
+    function CreateExporter(AFileName: String): TexExporter;
   public
     constructor Create; override;
     destructor Destroy; override;
   published
+    procedure TestStore;
     procedure TestColumnSize;
     procedure TestColumnDelimiter;
     procedure TestJson;
@@ -74,24 +75,90 @@ begin
   end;
 end;
 
-function TexExporterTest.CreateExporter(AFileName: String; ASerializer: TexSerializer): TexExporter;
+function TexExporterTest.CreateExporter(AFileName: String): TexExporter;
 begin
   Result := TexExporter.Create(nil);
-  Result.LoadFromFile(ConcatPaths([FFixtureDir, AFileName]));
+  LoadExporterFromFile(Result, ConcatPaths([FFixtureDir,  AFileName]));
   Result.Provider := FProvider;
-  Result.Serializer := ASerializer;
+end;
+
+procedure TexExporterTest.TestStore;
+var
+  AExporter: TexExporter;
+  ASession: TexSession;
+  ASerializer: TexSerializer;
+  AFileName: String;
+begin
+  ASerializer := TexXmlSerializer.Create(nil);
+  AExporter := TexExporter.Create(nil);
+  try
+    AExporter.Serializer := ASerializer;
+
+    with (AExporter.Pipelines.Add) do
+    begin
+      Name := 'persons-pipeline';
+      SQL.Text := 'select * from persons';
+    end;
+
+    with (AExporter.Dictionaries.Add) do
+    begin
+      Name := 'money';
+      Expression := 'Result := FormatFloat(''#,0.00'', Value);';
+    end;
+
+    with (AExporter.Parameters.Add) do
+    begin
+      Name := 'param1';
+      Value := 1;
+    end;
+
+    ASession := AExporter.Sessions.Add;
+    with(ASession) do
+    begin
+      Name := 'persons';
+      Pipeline := 'persons-pipeline';
+    end;
+
+    with (ASession.Columns.Add) do
+    begin
+      Name := 'firstName';
+      Size := 10;
+    end;
+
+    with (ASession.Columns.Add) do
+    begin
+      Name := 'lastName';
+      Size := 10;
+    end;
+
+    AFileName := ConcatPaths([FFixtureDir, 'storage.def']);
+
+    SaveExporterToFile(AExporter, AFileName);
+    AssertTrue(FileExists(AFileName));
+
+    AExporter := TexExporter.Create(nil);
+    LoadExporterFromFile(AExporter, AFileName);
+
+    AssertTrue(AExporter.Serializer <> nil);
+    AssertEquals(1, AExporter.Pipelines.Count);
+    AssertEquals(1, AExporter.Dictionaries.Count);
+    AssertEquals(1, AExporter.Parameters.Count);
+    AssertEquals(1, AExporter.Sessions.Count);
+    AssertEquals(2, AExporter.Sessions[0].Columns.Count);
+  finally
+    ASerializer.Free;
+    AExporter.Free;
+  end;
 end;
 
 procedure TexExporterTest.TestColumnSize;
 var
-  ASerializer: TexColumnSerializer;
   AExporter: TexExporter;
   AResult: TexResutMap;
   AData: TStrings;
   ALine: String;
 begin
-  ASerializer := TexColumnSerializer.Create(nil);
-  AExporter := CreateExporter('column-size.def', ASerializer);
+  AExporter := CreateExporter('column-size.def');
   try
      AResult := AExporter.Execute;
      AssertEquals(2, AResult.Count);
@@ -118,23 +185,19 @@ begin
      AssertEquals('Data export extension    ', Copy(ALine, 11, 25));
   finally
     AExporter.Free;
-    ASerializer.Free;
   end;
 end;
 
 procedure TexExporterTest.TestColumnDelimiter;
 var
-  ASerializer: TexColumnSerializer;
   AExporter: TexExporter;
   AResult: TexResutMap;
   AParts,
   AData: TStrings;
 begin
   AParts := TStringList.Create;
-  ASerializer := TexColumnSerializer.Create(nil);
-  AExporter := CreateExporter('column-delimiter.def', ASerializer);
+  AExporter := CreateExporter('column-delimiter.def');
   try
-    ASerializer.Delimiter := '|';
     AResult := AExporter.Execute;
 
     AssertEquals(1, AResult.Count);
@@ -163,7 +226,6 @@ begin
   finally
     AParts.Free;
     AExporter.Free;
-    ASerializer.Free;
   end;
 end;
 
@@ -177,8 +239,9 @@ var
   AData: TJSONData;
 begin
   ASerializer := TexJsonSerializer.Create(nil);
-  AExporter := CreateExporter('hierarchical.def', ASerializer);
+  AExporter := CreateExporter('hierarchical.def');
   try
+    AExporter.Serializer := ASerializer;
     ASerializer.HideRootKeys := True;
     AResult := AExporter.Execute;
 
@@ -231,9 +294,12 @@ var
   AStream: TStringStream;
 begin
   ASerializer := TexXmlSerializer.Create(nil);
-  AExporter := CreateExporter('hierarchical.def', ASerializer);
+  AExporter := CreateExporter('hierarchical.def');
+
   AXml := TXMLDocument.Create;
   try
+    AExporter.Serializer := ASerializer;
+
     AResult := AExporter.Execute;
     AssertEquals(1, AResult.Count);
     AssertTrue(AResult.IndexOf('invoices') <> -1);

@@ -5,13 +5,25 @@ unit exSerializer;
 interface
 
 uses
-  Classes, SysUtils, DB, StrUtils, Variants, exDefinition, exExporter;
+  Classes, SysUtils, DB, StrUtils, Variants, fgl, exDefinition, exExporter;
 
 type
+  TexSerializerClassMap = specialize TFPGMap<String, TexSerializerClass>;
 
-  { TexSerializerBase }
+  { TexSerializerFactory }
 
-  TexSerializerBase = class(TexSerializer)
+  TexSerializerFactory = class
+  private
+    class var
+      FClasses: TexSerializerClassMap;
+  public
+    class procedure RegisterClass(AClass: TexSerializerClass);
+    class function CreateInstance(AClassName: String; AOwner: TComponent): TexSerializer;
+  end;
+
+  { TexBaseSerializer }
+
+  TexBaseSerializer = class(TexSerializer)
   protected
     function FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
     function ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
@@ -20,7 +32,7 @@ type
 
   { TexColumnSerializer }
 
-  TexColumnSerializer = class(TexSerializerBase)
+  TexColumnSerializer = class(TexBaseSerializer)
   private
     FDelimiter: String;
   public
@@ -31,7 +43,7 @@ type
 
   { TexHierarchicalSerializer }
 
-  TexHierarchicalSerializer = class(TexSerializerBase)
+  TexHierarchicalSerializer = class(TexBaseSerializer)
   protected
     function FormatData(ASession: TexSession; AMaster: TDataSet): String; virtual; abstract;
   public
@@ -72,9 +84,27 @@ type
 
 implementation
 
-{ TexSerializerBase }
+{ TexSerializerFactory }
 
-function TexSerializerBase.FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
+class procedure TexSerializerFactory.RegisterClass(AClass: TexSerializerClass);
+begin
+  if (FClasses = nil) then
+     FClasses := TexSerializerClassMap.Create;
+
+   FClasses.Add(AClass.ClassName, AClass);
+end;
+
+class function TexSerializerFactory.CreateInstance(AClassName: String; AOwner: TComponent): TexSerializer;
+begin
+  if (FClasses.IndexOf(AClassName) = -1) then
+     raise EClassNotFound.CreateFmt('The class "%s" not found', [AClassName]);
+
+  Result := FClasses[AClassName].Create(AOwner);
+end;
+
+{ TexBaseSerializer }
+
+function TexBaseSerializer.FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
 var
   APackage: TexPackage;
   AOwner: TexSession;
@@ -100,7 +130,7 @@ begin
   end;
 end;
 
-function TexSerializerBase.ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
+function TexBaseSerializer.ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
 var
   ASize: Integer;
   AComplete: Char;
@@ -168,7 +198,7 @@ begin
   end;
 end;
 
-function TexSerializerBase.BeforeSerialize(AData: String; ASession: TexSession): String;
+function TexBaseSerializer.BeforeSerialize(AData: String; ASession: TexSession): String;
 var
   AEvent: TexVariable;
   AParams: TexScriptArgs;
@@ -409,6 +439,11 @@ begin
       AQuery.Free;
   end;
 end;
+
+initialization
+  TexSerializerFactory.RegisterClass(TexColumnSerializer);
+  TexSerializerFactory.RegisterClass(TexJsonSerializer);
+  TexSerializerFactory.RegisterClass(TexXmlSerializer);
 
 end.
 

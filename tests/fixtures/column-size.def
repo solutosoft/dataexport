@@ -90,3 +90,5 @@ object TexExporter
 	    )
     end> 
 end
+object TexColumnSerializer
+end
