@@ -67,7 +67,7 @@ begin
   try
     ASQLProcessor.DelimiterType := dtDelimiter;
     ASQLProcessor.Connection := FConnection;
-    ASQLProcessor.LoadFromFile(ConcatPaths([FFixtureDir, 'database-win.sql']));
+    ASQLProcessor.LoadFromFile(ConcatPaths([FFixtureDir, 'database.sql']));
     ASQLProcessor.Execute;
   finally
     ASQLProcessor.Free;

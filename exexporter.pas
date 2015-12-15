@@ -5,7 +5,7 @@ unit exExporter;
 interface
 
 uses
-  Classes, SysUtils, Variants, DB, fgl, RegExpr, uPSComponent, uPSCompiler, uPSRuntime, exDefinition, Dialogs;
+  Classes, SysUtils, Variants, DB, fgl, RegExpr, uPSComponent, uPSCompiler, uPSRuntime, exDefinition;
 
 const
   SCRIPT_PROGRAM = 'program exEvalutator;';
