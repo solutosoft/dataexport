@@ -183,7 +183,11 @@ begin
   begin
     AArgs := TexScriptArgs.Create;
     try
+      {$IFDEF FPC}
       AArgs['value'] := AValue;
+      {$ELSE}
+      AArgs.AddOrSetValue('value', AValue);
+      {$ENDIF}
       AValue := Exporter.ExecuteExpression(AExpression, AArgs);
     finally
       AArgs.Free;
@@ -213,7 +217,11 @@ var
 begin
   AParams := TexScriptArgs.Create;
   try
+    {$IFDEF FPC}
     AParams['Value'] := AData;
+    {$ELSE}
+    AParams.AddOrSetValue('Value', AData);
+    {$ENDIF}
     AEvent := Exporter.Events.FindByName(EVENT_BEFORE_SERIALIZE);
     if (AEvent <> nil) then
       Result := Exporter.ExecuteExpression(AEvent.Expression, AParams)
@@ -377,7 +385,9 @@ end;
 
 procedure TexXmlSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap);
 var
+  {$IFDEF FPC}
   I: Integer;
+  {$ENDIF}
   AData: TStrings;
   AKey: String;
 begin
