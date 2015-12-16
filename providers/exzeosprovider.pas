@@ -1,7 +1,5 @@
 unit exZeosProvider;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
@@ -58,9 +56,9 @@ begin
         if (AValue <> Unassigned) then
         begin
           case (VarType(AValue)) of
-            varsmallint, varinteger, varsingle, varshortint, varword, varlongword, varint64, varqword:
+            varsmallint, varinteger, varsingle, varshortint, varword, varlongword, varint64{$IFDEF FPC},varqword{$ENDIF}:
               AParam.AsInteger := AValue;
-            vardouble, vardecimal:
+            vardouble{$IFDEF FPC}, vardecimal{$ENDIF}:
               AParam.AsFloat := AValue;
             varcurrency:
               AParam.Value := AValue;

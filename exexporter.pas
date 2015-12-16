@@ -1,11 +1,11 @@
 unit exExporter;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
-  Classes, SysUtils, Variants, DB, fgl, RegExpr, uPSComponent, uPSCompiler, uPSRuntime, exDefinition;
+  Classes, SysUtils, Variants, DB,
+  {$IFDEF FPC}fgl, RegExpr, {$ELSE} Generics.Collections, RegularExpressions, {$ENDIF}
+  uPSComponent, uPSCompiler, uPSRuntime, exDefinition;
 
 const
   SCRIPT_PROGRAM = 'program exEvalutator;';
@@ -17,8 +17,8 @@ const
 
 type
   TexExporter = class;
-  TexResutMap = specialize TFPGMap<String, TStrings>;
-  TexScriptArgs = specialize TFPGMap<String, Variant>;
+  TexResutMap = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, TStrings>;
+  TexScriptArgs = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, Variant>;
 
   { TexComponent }
 
@@ -34,7 +34,7 @@ type
   private
     FExporter: TexExporter;
   public
-    procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap) virtual; abstract;
+    procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap); virtual; abstract;
     property Exporter: TexExporter read FExporter write FExporter;
   end;
 
@@ -111,47 +111,67 @@ uses
 
 procedure LoadExporterFromFile(AExporter: TexExporter; AFileName: String);
 var
+  AClassName: String;
   AFile: TFileStream;
   AContent: TStringStream;
+  {$IFDEF FPC}
   ARegExpr: TRegExpr;
   AParts: TStringList;
+  {$ELSE}
+  ARegExpr: TRegEx;
+  AParts: TArray<string>;
+  {$ENDIF}
   ASerializer: TexSerializer;
 const
   exprObject = 'object ';
   exprSerializer = 'object\s+(\w+)';
 begin
+  {$IFDEF FPC}
   AParts := TStringList.Create;
+  {$ENDIF}
   AFile := TFileStream.Create(AFileName, fmOpenRead);
   AContent := TStringStream.Create('');
   try
     AContent.CopyFrom(AFile, AFile.Size);
     try
+      {$IFDEF FPC}
       SplitRegExpr(exprObject, AContent.DataString, AParts);
-
+      {$ELSE}
+      AParts := TRegEx.Split(AContent.DataString, exprObject);
+      {$ENDIF}
       AContent := TStringStream.Create(exprObject + AParts[1]);
       AExporter.LoadFromStream(AContent);
 
-      if (AParts.Count > 2) then
+      if ({$IFDEF FPC}AParts.Count{$ELSE}Length(AParts){$ENDIF} > 2) then
       begin
+        AClassName := '';
         AContent := TStringStream.Create(exprObject + AParts[2]);
+        {$IFDEF FPC}
         ARegExpr := TRegExpr.Create;
         try
           ARegExpr.Expression := exprSerializer;
           if (ARegExpr.Exec(AContent.DataString)) then
-          begin
-            ASerializer := TexSerializerFactory.CreateInstance(ARegExpr.Match[1], AExporter.Owner);
-            ASerializer.LoadFromStream(AContent);
-            AExporter.Serializer := ASerializer;
-          end;
+            AClassName := ARegExpr.Match[1];
         finally
           ARegExpr.Free;
         end;
+        {$ELSE}
+         ARegExpr := TRegEx.Create(exprSerializer);
+         if (ARegExpr.IsMatch(AContent.DataString)) then
+           AClassName := ARegExpr.Match(AContent.DataString).Groups[1].Value;
+        {$ENDIF}
+
+         ASerializer := TexSerializerFactory.CreateInstance(AClassName, AExporter.Owner);
+         ASerializer.LoadFromStream(AContent);
+         AExporter.Serializer := ASerializer;
       end;
     except
       raise EParserError.Create('Invalid exporter file format');
     end;
   finally
+    {$IFDEF FPC}
     AParts.Free;
+    {$ENDIF}
     AFile.Free;
     AContent.Free;
   end;
@@ -176,7 +196,12 @@ var
   AVar: Boolean;
 begin
   Result := TStringList.Create;
+  {$IFDEF FPC}
   AVar := ExecRegExpr(SCRIPT_VAR_REGEX, AExpression);
+  {$ELSE}
+  AVar := TRegEx.IsMatch(AExpression, SCRIPT_VAR_REGEX);
+  {$ENDIF}
+
   Result.Add(SCRIPT_PROGRAM);
   Result.Add(SCRIPT_FUNCEVAL_DECL);
 
@@ -226,10 +251,10 @@ begin
   inherited Create(AOwner);
   FScript := TPSScript.Create(nil);
   FScript.CompilerOptions := [icAllowNoBegin, icAllowNoEnd];
-  FScript.OnCompile := @ScriptEngineCompile;
-  FScript.OnExecute := @ScriptEngineExecute;
-  FScript.OnCompImport := @ScriptEngineCompImport;
-  FScript.OnExecImport := @ScriptEngineExecImport;
+  FScript.OnCompile := {$IFDEF FPC}@{$ENDIF}ScriptEngineCompile;
+  FScript.OnExecute := {$IFDEF FPC}@{$ENDIF}ScriptEngineExecute;
+  FScript.OnCompImport := {$IFDEF FPC}@{$ENDIF}ScriptEngineCompImport;
+  FScript.OnExecImport := {$IFDEF FPC}@{$ENDIF}ScriptEngineExecImport;
 
   FSessions := TexSessionList.Create(nil);
   FDictionaries := TexDictionaryList.Create;
@@ -264,21 +289,36 @@ end;
 procedure TexExporter.ScriptEngineCompile(Sender: TPSScript);
 var
   I: Integer;
+  AKey: String;
 begin
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TField;');
-
+  {$IFDEF FPC}
   for I := 0 to FScriptArgs.Count -1 do
-    Sender.AddRegisteredVariable(FScriptArgs.Keys[I], 'Variant');
+  begin
+    AKey := FScriptArgs.Keys[I];
+  {$ELSE}
+  for AKey in FScriptArgs.Keys do
+  begin
+  {$ENDIF}
+    Sender.AddRegisteredVariable(AKey, 'Variant');
+  end;
 end;
 
 procedure TexExporter.ScriptEngineExecute(Sender: TPSScript);
 var
+  {$IFDEF FPC}
   I: Integer;
+  {$ENDIF}
   AKey: String;
 begin
+  {$IFDEF FPC}
   for I := 0 to FScriptArgs.Count -1 do
   begin
     AKey := FScriptArgs.Keys[I];
+  {$ELSE}
+  for AKey in FScriptArgs.Keys do
+  begin
+  {$ENDIF}
     PPSVariantVariant(FScript.GetVariable(AKey))^.Data := FScriptArgs[AKey];
   end;
 end;
@@ -299,8 +339,9 @@ end;
 
 function TexExporter.ScriptEngineFindField(AFieldName: String): TField;
 begin
+  Result := nil;
   if (Assigned(FCurrentDataSet)) then
-     Result := FCurrentDataSet.FieldByName(AFieldName);
+    Result := FCurrentDataSet.FieldByName(AFieldName);
 end;
 
 

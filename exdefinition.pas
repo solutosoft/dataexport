@@ -1,7 +1,5 @@
 unit exDefinition;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses

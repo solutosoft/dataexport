@@ -3,7 +3,7 @@ unit uPSR_SysUtils;
 interface
 
 uses
-  SysUtils, uPSRuntime, LCLIntf;
+  SysUtils, uPSRuntime {$IFDEF FPC}, LCLIntf {$ELSE}, Windows {$ENDIF};
 
 procedure RegisterSysUtilsLibrary_R(S: TPSExec);
 

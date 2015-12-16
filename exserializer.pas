@@ -1,14 +1,14 @@
 unit exSerializer;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
-  Classes, SysUtils, DB, StrUtils, Variants, fgl, exDefinition, exExporter;
+  Classes, SysUtils, DB, StrUtils, Variants,
+  {$IFDEF FPC}fgl, {$ELSE} Generics.Collections, {$ENDIF}
+  exDefinition, exExporter;
 
 type
-  TexSerializerClassMap = specialize TFPGMap<String, TexSerializerClass>;
+  TexSerializerClassMap = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, TexSerializerClass>;
 
   { TexSerializerFactory }
 
@@ -26,7 +26,7 @@ type
   TexBaseSerializer = class(TexSerializer)
   protected
     function FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
-    function ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
+    function ExtractColumnValue(AColumn: TexColumn; ADataSet: TDataSet): String;
     function BeforeSerialize(AData: String; ASession: TexSession): String;
   end;
 
@@ -96,7 +96,11 @@ end;
 
 class function TexSerializerFactory.CreateInstance(AClassName: String; AOwner: TComponent): TexSerializer;
 begin
+  {$IFDEF FPC}
   if (FClasses.IndexOf(AClassName) = -1) then
+  {$ELSE}
+  if (not FClasses.ContainsKey(AClassName)) then
+  {$ENDIF}
      raise EClassNotFound.CreateFmt('The class "%s" not found', [AClassName]);
 
   Result := FClasses[AClassName].Create(AOwner);
@@ -121,7 +125,11 @@ begin
   if (APackage = nil) and (AOwner = nil) then
      raise Exception.CreateFmt('The session "%s" does not have a file associated', [ASession.Name])
   else begin
+    {$IFDEF FPC}
     if (AResultMap.IndexOf(APackage.Name) <> -1) then
+    {$ELSE}
+    if (AResultMap.ContainsKey(APackage.Name)) then
+    {$ENDIF}
       Result := AResultMap[APackage.Name]
     else begin
       Result := TStringList.Create;
@@ -130,7 +138,7 @@ begin
   end;
 end;
 
-function TexBaseSerializer.ExtractValue(AColumn: TexColumn; ADataSet: TDataSet): String;
+function TexBaseSerializer.ExtractColumnValue(AColumn: TexColumn; ADataSet: TDataSet): String;
 var
   ASize: Integer;
   AComplete: Char;
@@ -190,9 +198,9 @@ begin
     else begin
       case AAlign of
         altLeft, altNone:
-          Result := AddCharR(AComplete, Result, ASize);
+          Result := {$IFDEF FPC}AddCharR(AComplete, Result, ASize){$ELSE} Result.PadRight(ASize, AComplete){$ENDIF};
         altRight:
-          Result := AddChar(AComplete, Result, ASize);
+          Result := {$IFDEF FPC}AddChar(AComplete, Result, ASize){$ELSE} Result.PadLeft(ASize, AComplete){$ENDIF};
       end;
     end;
   end;
@@ -246,7 +254,7 @@ begin
 
           for J := 0 to ASession.Columns.Count -1 do
           begin
-            AValue := ExtractValue(ASession.Columns[J], AQuery);
+            AValue := ExtractColumnValue(ASession.Columns[J], AQuery);
             ARow := ARow + AValue + FDelimiter;
           end;
 
@@ -319,7 +327,7 @@ begin
         for J := 0 to ASession.Columns.Count -1 do
         begin
           AColumn := ASession.Columns[J];
-          AValue := ExtractValue(AColumn, AQuery);
+          AValue := ExtractColumnValue(AColumn, AQuery);
           AJson := AJson + Format('"%s":"%s"', [AColumn.Name, AValue]) + ',';
         end;
 
@@ -371,11 +379,18 @@ procedure TexXmlSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSe
 var
   I: Integer;
   AData: TStrings;
+  AKey: String;
 begin
   inherited Serialize(ASessions, AMaster, AResult);
+  {$IFDEF FPC}
   for I := 0 to AResult.Count -1 do
   begin
-    AData := AResult.Data[I];
+    AKey := AResult.Keys[I];
+  {$ELSE}
+  for AKey in AResult.Keys do
+  begin
+  {$ENDIF}
+    AData := AResult[AKey];
     AData.Insert(0, Format('<?xml version="%s" encoding="%s"?>', [FVersion, FEncoding]));
   end;
 end;
@@ -416,7 +431,7 @@ begin
       for J := 0 to ASession.Columns.Count -1 do
       begin
         AColumn := ASession.Columns[J];
-        AValue := ExtractValue(AColumn, AQuery);
+        AValue := ExtractColumnValue(AColumn, AQuery);
         AXml := AXml + EncodeTag(AColumn.Name, AValue);
       end;
 

@@ -1,11 +1,10 @@
 unit exComponentReg;
 
-{$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, PropEdits, exExporter, exSerializer, Dialogs;
+  Classes, SysUtils, exExporter, exSerializer;
 
 procedure Register;
 
