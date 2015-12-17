@@ -9,6 +9,9 @@
         <Projects Include="ZeosProvider.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="FireDACProvider.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="ZeosProvider:Make">
         <MSBuild Projects="ZeosProvider.dproj" Targets="Make"/>
     </Target>
+    <Target Name="FireDACProvider">
+        <MSBuild Projects="FireDACProvider.dproj"/>
+    </Target>
+    <Target Name="FireDACProvider:Clean">
+        <MSBuild Projects="FireDACProvider.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="FireDACProvider:Make">
+        <MSBuild Projects="FireDACProvider.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="DataExporter;ZeosProvider"/>
+        <CallTarget Targets="DataExporter;ZeosProvider;FireDACProvider"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DataExporter:Clean;ZeosProvider:Clean"/>
+        <CallTarget Targets="DataExporter:Clean;ZeosProvider:Clean;FireDACProvider:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DataExporter:Make;ZeosProvider:Make"/>
+        <CallTarget Targets="DataExporter:Make;ZeosProvider:Make;FireDACProvider:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
