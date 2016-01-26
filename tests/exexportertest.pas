@@ -1,15 +1,13 @@
 unit exExporterTest;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
-  Classes, SysUtils, Forms, RegExpr, fpcunit, testregistry, fpjson, jsonparser, laz2_DOM, laz2_XMLRead, exExporter,
-  exZeosProvider, exSerializer, exDefinition, ZConnection, ZSqlProcessor, ZScriptParser;
+  Forms, Classes, SysUtils, IOUtils, JSON, RegularExpressions, xmldom, XMLIntf, XMLDoc, TestFrameWork, TestExtensions,
+  GUITesting, GuiTestRunner, exExporter, exZeosProvider, exSerializer, exDefinition, ZConnection, ZSqlProcessor,
+  ZScriptParser;
 
 type
-
   { TexExporterTest }
 
   TexExporterTest = class(TTestCase)
@@ -20,7 +18,7 @@ type
     procedure PrepareDatabase;
     function CreateExporter(AFileName: String): TexExporter;
   public
-    constructor Create; override;
+    procedure AfterConstruction; override;
     destructor Destroy; override;
   published
     procedure TestStore;
@@ -32,15 +30,17 @@ type
 
 implementation
 
-constructor TexExporterTest.Create;
+procedure TexExporterTest.AfterConstruction;
 begin
-  FFixtureDir := ConcatPaths([ExtractFilePath(Application.ExeName), '../../fixtures']);
+  inherited;
+  FFixtureDir := TPath.Combine(ExtractFilePath(Application.ExeName), '..\fixtures');
+
   if (not DirectoryExists(FFixtureDir)) then
     CreateDir(FFixtureDir);
 
   FConnection := TZConnection.Create(nil);
   FConnection.Protocol := 'sqlite-3';
-  FConnection.Database := ConcatPaths([ExtractFilePath(Application.ExeName), 'export-test.db']);
+  FConnection.Database := TPath.Combine(ExtractFilePath(Application.ExeName), 'export-test.db');
 
   FProvider := TexZeosProvider.Create(nil);
   FProvider.Connection := FConnection;
@@ -67,7 +67,7 @@ begin
   try
     ASQLProcessor.DelimiterType := dtDelimiter;
     ASQLProcessor.Connection := FConnection;
-    ASQLProcessor.LoadFromFile(ConcatPaths([FFixtureDir, 'database.sql']));
+    ASQLProcessor.LoadFromFile(TPath.Combine(FFixtureDir, 'database.sql'));
     ASQLProcessor.Execute;
   finally
     ASQLProcessor.Free;
@@ -78,7 +78,7 @@ end;
 function TexExporterTest.CreateExporter(AFileName: String): TexExporter;
 begin
   Result := TexExporter.Create(nil);
-  LoadExporterFromFile(Result, ConcatPaths([FFixtureDir,  AFileName]));
+  LoadExporterFromFile(Result, TPath.Combine(FFixtureDir,  AFileName));
   Result.Provider := FProvider;
 end;
 
@@ -131,20 +131,20 @@ begin
       Size := 10;
     end;
 
-    AFileName := ConcatPaths([FFixtureDir, 'storage.def']);
+    AFileName := TPath.Combine(FFixtureDir, 'storage.def');
 
     SaveExporterToFile(AExporter, AFileName);
-    AssertTrue(FileExists(AFileName));
+    CheckTrue(FileExists(AFileName));
 
     AExporter := TexExporter.Create(nil);
     LoadExporterFromFile(AExporter, AFileName);
 
-    AssertTrue(AExporter.Serializer <> nil);
-    AssertEquals(1, AExporter.Pipelines.Count);
-    AssertEquals(1, AExporter.Dictionaries.Count);
-    AssertEquals(1, AExporter.Parameters.Count);
-    AssertEquals(1, AExporter.Sessions.Count);
-    AssertEquals(2, AExporter.Sessions[0].Columns.Count);
+    CheckTrue(AExporter.Serializer <> nil);
+    CheckEquals(1, AExporter.Pipelines.Count);
+    CheckEquals(1, AExporter.Dictionaries.Count);
+    CheckEquals(1, AExporter.Parameters.Count);
+    CheckEquals(1, AExporter.Sessions.Count);
+    CheckEquals(2, AExporter.Sessions[0].Columns.Count);
   finally
     ASerializer.Free;
     AExporter.Free;
@@ -161,28 +161,28 @@ begin
   AExporter := CreateExporter('column-size.def');
   try
      AResult := AExporter.Execute;
-     AssertEquals(2, AResult.Count);
-     AssertTrue(AResult.IndexOf('persons.txt') <> -1);
+     CheckEquals(2, AResult.Count);
+     CheckTrue(AResult.ContainsKey('persons.txt'));
 
      AData := AResult['persons.txt'];
-     AssertEquals(3, AData.Count);
+     CheckEquals(3, AData.Count);
 
      ALine := AData[0];
-     AssertEquals(39, Length(ALine));
-     AssertEquals('010', Copy(ALine, 1, 3));
-     AssertEquals('Administra', Copy(ALine, 4, 10));
-     AssertEquals('Root ', Copy(ALine, 14, 5));
-     AssertEquals('20/04/1983', Copy(ALine, 19, 10));
-     AssertEquals('00153000', Copy(ALine, 29, 8));
-     AssertEquals('Yes', Copy(ALine, 37, 3));
+     CheckEquals(39, Length(ALine));
+     CheckEquals('010', Copy(ALine, 1, 3));
+     CheckEquals('Administra', Copy(ALine, 4, 10));
+     CheckEquals('Root ', Copy(ALine, 14, 5));
+     CheckEquals('20/04/1983', Copy(ALine, 19, 10));
+     CheckEquals('00153000', Copy(ALine, 29, 8));
+     CheckEquals('Yes', Copy(ALine, 37, 3));
 
-     AssertTrue(AResult.IndexOf('products.txt') <> -1);
+     CheckTrue(AResult.ContainsKey('products.txt'));
      AData := AResult['products.txt'];
-     AssertEquals(2, AData.Count);
+     CheckEquals(2, AData.Count);
 
      ALine := AData[0];
-     AssertEquals('0000000001', Copy(ALine, 1, 10));
-     AssertEquals('Data export extension    ', Copy(ALine, 11, 25));
+     CheckEquals('0000000001', Copy(ALine, 1, 10));
+     CheckEquals('Data export extension    ', Copy(ALine, 11, 25));
   finally
     AExporter.Free;
   end;
@@ -192,39 +192,37 @@ procedure TexExporterTest.TestColumnDelimiter;
 var
   AExporter: TexExporter;
   AResult: TexResutMap;
-  AParts,
   AData: TStrings;
+  AParts: TArray<String>;
 begin
-  AParts := TStringList.Create;
   AExporter := CreateExporter('column-delimiter.def');
   try
     AResult := AExporter.Execute;
 
-    AssertEquals(1, AResult.Count);
-    AssertTrue(AResult.IndexOf('orders.txt') <> -1);
+    CheckEquals(1, AResult.Count);
+    CheckTrue(AResult.ContainsKey('orders.txt'));
 
     AData := AResult['orders.txt'];
-    AssertEquals(5, AData.Count);
+    CheckEquals(5, AData.Count);
 
-    SplitRegExpr('\|', AData[0], AParts);
-    AssertEquals(7, AParts.Count); // the event adds aditional "|"
+    AParts := TRegEx.Split(AData[0], '\|');
+    CheckEquals(7, Length(AParts)); // the event adds aditional "|"
 
-    AssertEquals('010', AParts[1]);
-    AssertEquals('001', AParts[2]);
-    AssertEquals('2015-11-10', AParts[3]);
-    AssertEquals('Administrator', AParts[4]);
-    AssertEquals('The first order - 1530,00', AParts[5]);
+    CheckEquals('010', AParts[1]);
+    CheckEquals('001', AParts[2]);
+    CheckEquals('2015-11-10', AParts[3]);
+    CheckEquals('Administrator', AParts[4]);
+    CheckEquals('The first order - 1530,00', AParts[5]);
 
-    SplitRegExpr('\|', AData[1], AParts);
-    AssertEquals(7, AParts.Count);
+    AParts := TRegEx.Split(AData[1], '\|');
+    CheckEquals(7, Length(AParts));
 
-    AssertEquals('020', AParts[1]);
-    AssertEquals('1', AParts[2]);
-    AssertEquals('2', AParts[3]);
-    AssertEquals('10', AParts[4]);
-    AssertEquals('20', AParts[5]);
+    CheckEquals('020', AParts[1]);
+    CheckEquals('1', AParts[2]);
+    CheckEquals('2', AParts[3]);
+    CheckEquals('10', AParts[4]);
+    CheckEquals('20', AParts[5]);
   finally
-    AParts.Free;
     AExporter.Free;
   end;
 end;
@@ -234,9 +232,10 @@ var
   ASerializer: TexJsonSerializer;
   AExporter: TexExporter;
   AResult: TexResutMap;
-  AJson,
+  AJson: TJSONValue;
   ADetails,
-  AData: TJSONData;
+  AData: TJSONArray;
+  ARow: TJSONObject;
 begin
   ASerializer := TexJsonSerializer.Create(nil);
   AExporter := CreateExporter('hierarchical.def');
@@ -245,38 +244,45 @@ begin
     ASerializer.HideRootKeys := True;
     AResult := AExporter.Execute;
 
-    AssertEquals(1, AResult.Count);
-    AssertTrue(AResult.IndexOf('invoices') <> -1);
+    CheckEquals(1, AResult.Count);
+    CheckTrue(AResult.ContainsKey('invoices'));
 
-    AJson := GetJSON(AResult['invoices'].Text);
-    AssertEquals(2, AJson.Count);
+    AJson := TJSONObject.ParseJSONValue(AResult.Items['invoices'].Text);
+    CheckTrue(AJson is TJSONArray);
+
+    AData := TJSONArray(AJson);
+    CheckEquals(2, AData.Count);
 
     ASerializer.HideRootKeys := False;
     AResult := AExporter.Execute;
-    AJson := GetJSON(AResult['invoices'].Text);
 
-    AData := AJson.FindPath('invoices').Items[0];
-    AssertEquals('100', AData.FindPath('type').AsString);
-    AssertEquals('001', AData.FindPath('number').AsString);
-    AssertEquals('2015-11-10', AData.FindPath('created_at').AsString);
-    AssertEquals('The first order', AData.FindPath('description').AsString);
+    AJson := TJSONObject.ParseJSONValue(AResult['invoices'].Text);
+    CheckTrue(AJson is TJSONObject);
 
-    ADetails := AData.FindPath('details');
-    AssertEquals(2, ADetails.Count);
+    AData := TJSONArray(TJSONObject(AJson).Values['invoices']);
+    ARow := TJSONObject(AData.Items[0]);
 
-    AData := ADetails.Items[0];
-    AssertEquals('200', AData.FindPath('type').AsString);
-    AssertEquals('1', AData.FindPath('product_id').AsString);
-    AssertEquals('2', AData.FindPath('quantity').AsString);
-    AssertEquals('10', AData.FindPath('price').AsString);
-    AssertEquals('20', AData.FindPath('total').AsString);
+    CheckEquals('100', ARow.Values['type'].Value);
+    CheckEquals('001', ARow.Values['number'].Value);
+    CheckEquals('2015-11-10', ARow.Values['created_at'].Value);
+    CheckEquals('The first order', ARow.Values['description'].Value);
 
-    AData := ADetails.Items[1];
-    AssertEquals('200', AData.FindPath('type').AsString);
-    AssertEquals('2', AData.FindPath('product_id').AsString);
-    AssertEquals('5', AData.FindPath('quantity').AsString);
-    AssertEquals('20', AData.FindPath('price').AsString);
-    AssertEquals('100', AData.FindPath('total').AsString);
+    ADetails := TJSONArray(ARow.Values['details']);
+    CheckEquals(2, ADetails.Count);
+
+    ARow := TJSONObject(ADetails.Items[0]);
+    CheckEquals('200', ARow.Values['type'].Value);
+    CheckEquals('1', ARow.Values['product_id'].Value);
+    CheckEquals('2', ARow.Values['quantity'].Value);
+    CheckEquals('10', ARow.Values['price'].Value);
+    CheckEquals('20', ARow.Values['total'].Value);
+
+    ARow := TJSONObject(ADetails.Items[1]);
+    CheckEquals('200', ARow.Values['type'].Value);
+    CheckEquals('2', ARow.Values['product_id'].Value);
+    CheckEquals('5', ARow.Values['quantity'].Value);
+    CheckEquals('20', ARow.Values['price'].Value);
+    CheckEquals('100', ARow.Values['total'].Value);
   finally
     AExporter.Free;
     ASerializer.Free;
@@ -288,65 +294,60 @@ var
   ASerializer: TexXmlSerializer;
   AExporter: TexExporter;
   AResult: TexResutMap;
-  AXml: TXMLDocument;
+  AXMLDoc: IXMLDocument;
   ADetails,
-  AItem: TDOMNode;
-  AStream: TStringStream;
+  ARoot,
+  AItem: IXMLNode;
 begin
   ASerializer := TexXmlSerializer.Create(nil);
   AExporter := CreateExporter('hierarchical.def');
-
-  AXml := TXMLDocument.Create;
   try
     AExporter.Serializer := ASerializer;
+    ASerializer.Encoding := 'ISO-8859-1';
 
     AResult := AExporter.Execute;
-    AssertEquals(1, AResult.Count);
-    AssertTrue(AResult.IndexOf('invoices') <> -1);
+    CheckEquals(1, AResult.Count);
+    CheckTrue(AResult.ContainsKey('invoices'));
 
-    AStream := TStringStream.Create(AResult['invoices'].Text);
-    try
-      ReadXMLFile(AXml, AStream);
-      AssertEquals('UTF-8', AXml.Encoding);
-      AssertEquals('1.0', AXml.XMLVersion);
-      AssertTrue(AXml.FirstChild.CompareName('invoices') = 0);
+    AXMLDoc := LoadXMLData(AResult['invoices'].Text);
+    ARoot := AXMLDoc.DocumentElement;
 
-      AssertEquals(2, AXml.FirstChild.ChildNodes.Count);
-      AItem := AXml.FirstChild.ChildNodes[0];
+    //CheckEquals('UTF-8', AXMLDoc.Encoding);
+    CheckEquals('1.0', AXMLDoc.Version);
+    CheckEquals('invoices', ARoot.NodeName);
 
-      AssertEquals('100', AItem.FindNode('type').TextContent);
-      AssertEquals('001', AItem.FindNode('number').TextContent);
-      AssertEquals('2015-11-10', AItem.FindNode('created_at').TextContent);
-      AssertEquals('The first order', AItem.FindNode('description').TextContent);
+    CheckEquals(2, ARoot.ChildNodes.Count);
+    AItem := ARoot.ChildNodes[0];
 
-      ADetails := AItem.FindNode('details');
-      AssertEquals(2, ADetails.ChildNodes.Count);
+    CheckEquals('100', AItem.ChildNodes.FindNode('type').Text);
+    CheckEquals('001', AItem.ChildNodes.FindNode('number').Text);
+    CheckEquals('2015-11-10', AItem.ChildNodes.FindNode('created_at').Text);
+    CheckEquals('The first order', AItem.ChildNodes.FindNode('description').Text);
 
-      AItem := ADetails.ChildNodes[0];
-      AssertEquals('200', AItem.FindNode('type').TextContent);
-      AssertEquals('1', AItem.FindNode('product_id').TextContent);
-      AssertEquals('2', AItem.FindNode('quantity').TextContent);
-      AssertEquals('10', AItem.FindNode('price').TextContent);
-      AssertEquals('20', AItem.FindNode('total').TextContent);
+    ADetails := AItem.ChildNodes.FindNode('details');
+    CheckEquals(2, ADetails.ChildNodes.Count);
 
-      AItem := ADetails.ChildNodes[1];
-      AssertEquals('200', AItem.FindNode('type').TextContent);
-      AssertEquals('2', AItem.FindNode('product_id').TextContent);
-      AssertEquals('5', AItem.FindNode('quantity').TextContent);
-      AssertEquals('20', AItem.FindNode('price').TextContent);
-      AssertEquals('100', AItem.FindNode('total').TextContent);
-    finally
-      AStream.Free;
-    end;
+    AItem := ADetails.ChildNodes[0];
+    CheckEquals('200', AItem.ChildNodes.FindNode('type').Text);
+    CheckEquals('1', AItem.ChildNodes.FindNode('product_id').Text);
+    CheckEquals('2', AItem.ChildNodes.FindNode('quantity').Text);
+    CheckEquals('10', AItem.ChildNodes.FindNode('price').Text);
+    CheckEquals('20', AItem.ChildNodes.FindNode('total').Text);
+
+    AItem := ADetails.ChildNodes[1];
+    CheckEquals('200', AItem.ChildNodes.FindNode('type').Text);
+    CheckEquals('2', AItem.ChildNodes.FindNode('product_id').Text);
+    CheckEquals('5', AItem.ChildNodes.FindNode('quantity').Text);
+    CheckEquals('20', AItem.ChildNodes.FindNode('price').Text);
+    CheckEquals('100', AItem.ChildNodes.FindNode('total').Text);
   finally
-    AXml.Free;
     AExporter.Free;
     ASerializer.Free;
   end
 end;
 
 initialization
-  RegisterTest(TexExporterTest);
+  RegisterTest('exporter', TexExporterTest.Suite);
 
 end.
 
