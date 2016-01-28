@@ -4,7 +4,7 @@ unit exComponentReg;
 interface
 
 uses
-  Classes, SysUtils, DesignIntf, DesignEditors, exExporter, exSerializer;
+  Classes, SysUtils, {$IFNDEF LCL}DesignIntf, DesignEditors, {$ELSE} PropEdits, {$ENDIF} exExporter, exSerializer;
 
 type
   TexSerializerProperty = class(TClassProperty)
