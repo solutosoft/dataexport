@@ -20,22 +20,15 @@ type
   TexResutMap = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, TStrings>;
   TexScriptArgs = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, Variant>;
 
-  { TexComponent }
-
-  TexComponent = class(TComponent)
-  public
-    procedure LoadFromStream(const AStream: TStream);
-    procedure SaveToStream(const AStream: TStream);
-  end;
-
   { TexSerializer }
 
-  TexSerializer = class(TexComponent)
+  TexSerializer = class(TPersistent)
   private
     FExporter: TexExporter;
   public
+    constructor Create(AExporter: TexExporter); virtual;
     procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap); virtual; abstract;
-    property Exporter: TexExporter read FExporter write FExporter;
+    property Exporter: TexExporter read FExporter;
   end;
 
   TexSerializerClass = class of TexSerializer;
@@ -54,7 +47,7 @@ type
 
   { TexExporter }
 
-  TexExporter = class(TexComponent)
+  TexExporter = class(TComponent)
   private
     FCurrentDataSet: TDataSet;
     FProvider: TexProvider;
@@ -68,6 +61,9 @@ type
     FDictionaries: TexDictionaryList;
     FScript: TPSScript;
     FScriptArgs: TexScriptArgs;
+    FSerializerClass: TexSerializerClass;
+    function GetSerializerClassName: String;
+    procedure SetSerializerClassName(const Value: String);
     procedure SetPackages(AValue: TexPackageList);
     procedure SetDictionaries(AValue: TexDictionaryList);
     procedure SetEvents(AValue: TexVariableList);
@@ -81,13 +77,19 @@ type
     procedure ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
     procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
     function ScriptEngineFindField(AFieldName: String): TField;
+    procedure SetSerializerClass(const Value: TexSerializerClass);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function ExtractParamValue(AName: String): Variant;
     function ExecuteExpression(AScript: String; AArgs: TexScriptArgs = nil): Variant;
     function Execute: TexResutMap;
+    procedure LoadFromStream(const AStream: TStream);
+    procedure LoadFromFile(const AFileName: String);
+    procedure SaveToStream(const AStream: TStream);
+    procedure SaveToFile(const AFileName: string);
     property CurrentDataSet: TDataSet read FCurrentDataSet write FCurrentDataSet;
+    property SerializerClass: TexSerializerClass read FSerializerClass write SetSerializerClass;
   published
     property Description: String read FDescription write FDescription;
     property Sessions: TexSessionList read FSessions write SetSessions;
@@ -96,100 +98,16 @@ type
     property Events: TexVariableList read FEvents write SetEvents;
     property Pipelines: TexPipelineList read FPipelines write SetPipelines;
     property Parameters: TexParameterList read FParameters write SetParameters;
+    property SerializerClassName: String read GetSerializerClassName write SetSerializerClassName;
     property Serializer: TexSerializer read FSerializer write SetSerializer;
     property Packages: TexPackageList read FPackages write SetPackages;
   end;
-
-procedure LoadExporterFromFile(AExporter: TexExporter; AFileName: String);
-procedure SaveExporterToFile(AExporter: TexExporter; AFileName: String);
 
 implementation
 
 uses
   uPSC_dateutils, uPSR_dateutils, uPSC_SysUtils, uPSR_SysUtils, uPSR_DB, uPSC_DB, exSerializer;
 
-
-procedure LoadExporterFromFile(AExporter: TexExporter; AFileName: String);
-var
-  AClassName: String;
-  AFile: TFileStream;
-  AContent: TStringStream;
-  {$IFDEF FPC}
-  ARegExpr: TRegExpr;
-  AParts: TStringList;
-  {$ELSE}
-  ARegExpr: TRegEx;
-  AParts: TArray<string>;
-  {$ENDIF}
-  ASerializer: TexSerializer;
-const
-  exprObject = 'object ';
-  exprSerializer = 'object\s+(\w+)';
-begin
-  {$IFDEF FPC}
-  AParts := TStringList.Create;
-  {$ENDIF}
-  AFile := TFileStream.Create(AFileName, fmOpenRead);
-  AContent := TStringStream.Create('');
-  try
-    AContent.CopyFrom(AFile, AFile.Size);
-    try
-      {$IFDEF FPC}
-      SplitRegExpr(exprObject, AContent.DataString, AParts);
-      {$ELSE}
-      AParts := TRegEx.Split(AContent.DataString, exprObject);
-      {$ENDIF}
-      AContent := TStringStream.Create(exprObject + AParts[1]);
-      AExporter.LoadFromStream(AContent);
-
-      if ({$IFDEF FPC}AParts.Count{$ELSE}Length(AParts){$ENDIF} > 2) then
-      begin
-        AClassName := '';
-        AContent := TStringStream.Create(exprObject + AParts[2]);
-        {$IFDEF FPC}
-        ARegExpr := TRegExpr.Create;
-        try
-          ARegExpr.Expression := exprSerializer;
-          if (ARegExpr.Exec(AContent.DataString)) then
-            AClassName := ARegExpr.Match[1];
-        finally
-          ARegExpr.Free;
-        end;
-        {$ELSE}
-         ARegExpr := TRegEx.Create(exprSerializer);
-         if (ARegExpr.IsMatch(AContent.DataString)) then
-           AClassName := ARegExpr.Match(AContent.DataString).Groups[1].Value;
-        {$ENDIF}
-
-         ASerializer := TexSerializerFactory.CreateInstance(AClassName, AExporter.Owner);
-         ASerializer.LoadFromStream(AContent);
-         AExporter.Serializer := ASerializer;
-      end;
-    except
-      raise EParserError.Create('Invalid exporter file format');
-    end;
-  finally
-    {$IFDEF FPC}
-    AParts.Free;
-    {$ENDIF}
-    AFile.Free;
-    AContent.Free;
-  end;
-end;
-
-procedure SaveExporterToFile(AExporter: TexExporter; AFileName: String);
-var
-  AStream: TFileStream;
-begin
-  AStream := TFileStream.Create(AFileName, fmCreate);
-  try
-    AExporter.SaveToStream(AStream);
-    if (AExporter.Serializer <> nil) then
-      AExporter.Serializer.SaveToStream(AStream);
-  finally
-    AStream.Free;
-  end;
-end;
 
 function PrepareScript(AExpression: String): TStrings;
 var
@@ -214,34 +132,12 @@ begin
     Result.Add('end;');
 end;
 
-{ TexComponent }
 
-procedure TexComponent.LoadFromStream(const AStream: TStream);
-var
-  AMemStream: TMemoryStream;
-begin
-  AMemStream := TMemoryStream.Create;
-  try
-    ObjectTextToBinary(AStream, AMemStream);
-    AMemStream.Position := 0;
-    AMemStream.ReadComponent(Self);
-  finally
-    AMemStream.Free;
-  end;
-end;
+{ TexSerializer }
 
-procedure TexComponent.SaveToStream(const AStream: TStream);
-var
-  AMemStream: TMemoryStream;
+constructor TexSerializer.Create(AExporter: TexExporter);
 begin
-  AMemStream := TMemoryStream.Create;
-  try
-    AMemStream.WriteComponent(Self);
-    AMemStream.Position := 0;
-    ObjectBinaryToText(AMemStream, AStream);
-  finally
-    AMemStream.Free;
-  end;
+  FExporter := AExporter;
 end;
 
 { TexExporter }
@@ -272,8 +168,34 @@ begin
   FEvents.Free;
   FPipelines.Free;
   FParameters.Free;
-  FPackages.Free;;
+  FPackages.Free;
+  FreeAndNil(FSerializer);
   inherited Destroy;
+end;
+
+procedure TexExporter.SetSerializerClass(const Value: TexSerializerClass);
+begin
+  if FSerializerClass <> Value then
+  begin
+    FreeAndNil(FSerializer);
+    FSerializerClass := Value;
+
+    if (FSerializerClass <> nil) then
+      FSerializer := FSerializerClass.Create(Self);
+  end;
+end;
+
+function TexExporter.GetSerializerClassName: String;
+begin
+  if FSerializer = nil then
+    Result := ''
+  else
+    Result := FSerializer.ClassName;
+end;
+
+procedure TexExporter.SetSerializerClassName(const Value: String);
+begin
+  SerializerClass := GetRegisteredSerializers.FindByClassName(Value).RegisteredClass;
 end;
 
 procedure TexExporter.SetPackages(AValue: TexPackageList);
@@ -288,7 +210,9 @@ end;
 
 procedure TexExporter.ScriptEngineCompile(Sender: TPSScript);
 var
+  {$IFDEF FPC}
   I: Integer;
+  {$ENDIF}
   AKey: String;
 begin
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TField;');
@@ -374,9 +298,8 @@ end;
 
 procedure TexExporter.SetSerializer(AValue: TexSerializer);
 begin
-  FSerializer := AValue;
-  if (FSerializer <> nil) then
-    FSerializer.Exporter := Self;
+  if (FSerializer <> nil) and (AValue <> nil) then
+    FSerializer.Assign(AValue);
 end;
 
 function TexExporter.ExtractParamValue(AName: String): Variant;
@@ -421,6 +344,9 @@ end;
 
 function TexExporter.Execute: TexResutMap;
 begin
+  if FSerializer = nil then
+    raise Exception.Create('The serializer property must be set');
+
   Result := TexResutMap.Create;
   FProvider.OpenConnection;
   try
@@ -430,5 +356,56 @@ begin
   end;
 end;
 
-end.
+procedure TexExporter.LoadFromStream(const AStream: TStream);
+var
+  AMemStream: TMemoryStream;
+begin
+  AMemStream := TMemoryStream.Create;
+  try
+    ObjectTextToBinary(AStream, AMemStream);
+    AMemStream.Position := 0;
+    AMemStream.ReadComponent(Self);
+  finally
+    AMemStream.Free;
+  end;
+end;
 
+procedure TexExporter.LoadFromFile(const AFileName: String);
+var
+  AStream: TFileStream;
+begin
+  AStream := TFileStream.Create(AFileName, fmOpenRead);
+  try
+    LoadFromStream(AStream);
+  finally
+    AStream.Free;
+  end;
+end;
+
+procedure TexExporter.SaveToFile(const AFileName: string);
+var
+  AStream: TFileStream;
+begin
+  AStream := TFileStream.Create(AFileName, fmCreate);
+  try
+    SaveToStream(AStream);
+  finally
+    AStream.Free;
+  end;
+end;
+
+procedure TexExporter.SaveToStream(const AStream: TStream);
+var
+  AMemStream: TMemoryStream;
+begin
+  AMemStream := TMemoryStream.Create;
+  try
+    AMemStream.WriteComponent(Self);
+    AMemStream.Position := 0;
+    ObjectBinaryToText(AMemStream, AStream);
+  finally
+    AMemStream.Free;
+  end;
+end;
+
+end.

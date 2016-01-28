@@ -32,6 +32,7 @@ package DataExporter;
 requires
   rtl,
   dbrtl,
+  designide,
   PascalScript_Core_D22;
 
 contains

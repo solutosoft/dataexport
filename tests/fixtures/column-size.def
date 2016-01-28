@@ -63,6 +63,7 @@ object TexExporter
       Expression = 'if (Value = 1) then Result := ''Yes'' else Result := ''No'';'
       Size = 3
     end>  
+  SerializerClassName = 'TexColumnSerializer'   
   Packages = <    
     item
       Name = 'persons.txt'
@@ -89,6 +90,4 @@ object TexExporter
 	      'select * from products'
 	    )
     end> 
-end
-object TexColumnSerializer
 end

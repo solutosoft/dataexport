@@ -12,6 +12,9 @@
         <Projects Include="FireDACProvider.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\..\application\Exporter.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -47,14 +50,23 @@
     <Target Name="FireDACProvider:Make">
         <MSBuild Projects="FireDACProvider.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Exporter">
+        <MSBuild Projects="..\..\application\Exporter.dproj"/>
+    </Target>
+    <Target Name="Exporter:Clean">
+        <MSBuild Projects="..\..\application\Exporter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Exporter:Make">
+        <MSBuild Projects="..\..\application\Exporter.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="DataExporter;ZeosProvider;FireDACProvider"/>
+        <CallTarget Targets="DataExporter;ZeosProvider;FireDACProvider;Exporter"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DataExporter:Clean;ZeosProvider:Clean;FireDACProvider:Clean"/>
+        <CallTarget Targets="DataExporter:Clean;ZeosProvider:Clean;FireDACProvider:Clean;Exporter:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DataExporter:Make;ZeosProvider:Make;FireDACProvider:Make"/>
+        <CallTarget Targets="DataExporter:Make;ZeosProvider:Make;FireDACProvider:Make;Exporter:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

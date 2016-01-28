@@ -52,6 +52,8 @@ object TexExporter
       Name = 'function BeforeSerialize: String'
       Expression = 'Result := ''|''+ Value +''|'';'
     end>
+  SerializerClassName = 'TexColumnSerializer'
+  Serializer.Delimiter = '|'  
   Packages = <
     item
       Name = 'orders.txt'
@@ -83,7 +85,4 @@ object TexExporter
       DataType = datDateTime
       Value = 42318
     end>	
-end
-object TexColumnSerializer
-  Delimiter = '|'
 end

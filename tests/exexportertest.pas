@@ -33,7 +33,7 @@ implementation
 procedure TexExporterTest.AfterConstruction;
 begin
   inherited;
-  FFixtureDir := TPath.Combine(ExtractFilePath(Application.ExeName), '..\fixtures');
+  FFixtureDir := TPath.Combine(ExtractFilePath(Application.ExeName), '..\..\tests\fixtures');
 
   if (not DirectoryExists(FFixtureDir)) then
     CreateDir(FFixtureDir);
@@ -78,7 +78,7 @@ end;
 function TexExporterTest.CreateExporter(AFileName: String): TexExporter;
 begin
   Result := TexExporter.Create(nil);
-  LoadExporterFromFile(Result, TPath.Combine(FFixtureDir,  AFileName));
+  Result.LoadFromFile(TPath.Combine(FFixtureDir,  AFileName));
   Result.Provider := FProvider;
 end;
 
@@ -86,13 +86,12 @@ procedure TexExporterTest.TestStore;
 var
   AExporter: TexExporter;
   ASession: TexSession;
-  ASerializer: TexSerializer;
   AFileName: String;
 begin
-  ASerializer := TexXmlSerializer.Create(nil);
+
   AExporter := TexExporter.Create(nil);
   try
-    AExporter.Serializer := ASerializer;
+    AExporter.SerializerClass := TexXmlSerializer;
 
     with (AExporter.Pipelines.Add) do
     begin
@@ -133,11 +132,11 @@ begin
 
     AFileName := TPath.Combine(FFixtureDir, 'storage.def');
 
-    SaveExporterToFile(AExporter, AFileName);
+    AExporter.SaveToFile(AFileName);
     CheckTrue(FileExists(AFileName));
 
     AExporter := TexExporter.Create(nil);
-    LoadExporterFromFile(AExporter, AFileName);
+    AExporter.LoadFromFile(AFileName);
 
     CheckTrue(AExporter.Serializer <> nil);
     CheckEquals(1, AExporter.Pipelines.Count);
@@ -146,7 +145,6 @@ begin
     CheckEquals(1, AExporter.Sessions.Count);
     CheckEquals(2, AExporter.Sessions[0].Columns.Count);
   finally
-    ASerializer.Free;
     AExporter.Free;
   end;
 end;
@@ -237,10 +235,11 @@ var
   AData: TJSONArray;
   ARow: TJSONObject;
 begin
-  ASerializer := TexJsonSerializer.Create(nil);
   AExporter := CreateExporter('hierarchical.def');
   try
-    AExporter.Serializer := ASerializer;
+    AExporter.SerializerClass := TexJsonSerializer;
+    ASerializer := TexJsonSerializer(AExporter.Serializer);
+
     ASerializer.HideRootKeys := True;
     AResult := AExporter.Execute;
 
@@ -285,7 +284,6 @@ begin
     CheckEquals('100', ARow.Values['total'].Value);
   finally
     AExporter.Free;
-    ASerializer.Free;
   end
 end;
 
@@ -299,10 +297,11 @@ var
   ARoot,
   AItem: IXMLNode;
 begin
-  ASerializer := TexXmlSerializer.Create(nil);
   AExporter := CreateExporter('hierarchical.def');
   try
-    AExporter.Serializer := ASerializer;
+    AExporter.SerializerClass := TexXmlSerializer;
+
+    ASerializer := TexXmlSerializer(AExporter);
     ASerializer.Encoding := 'ISO-8859-1';
 
     AResult := AExporter.Execute;
@@ -342,7 +341,6 @@ begin
     CheckEquals('100', AItem.ChildNodes.FindNode('total').Text);
   finally
     AExporter.Free;
-    ASerializer.Free;
   end
 end;
 

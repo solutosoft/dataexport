@@ -3,22 +3,36 @@ unit exSerializer;
 interface
 
 uses
-  Classes, SysUtils, DB, StrUtils, Variants,
-  {$IFDEF FPC}fgl, {$ELSE} Generics.Collections, {$ENDIF}
+  Classes, SysUtils, DB, StrUtils, Variants, {$IFDEF FPC}fgl, {$ELSE} Generics.Collections, {$ENDIF}
   exDefinition, exExporter;
 
 type
-  TexSerializerClassMap = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, TexSerializerClass>;
 
-  { TexSerializerFactory }
+  { TexRegisteredClassItem }
 
-  TexSerializerFactory = class
+  TexRegisteredClassItem = class(TCollectionItem)
   private
-    class var
-      FClasses: TexSerializerClassMap;
+    FRegisteredClass: TexSerializerClass;
+    FDescription: String;
   public
-    class procedure RegisterClass(AClass: TexSerializerClass);
-    class function CreateInstance(AClassName: String; AOwner: TComponent): TexSerializer;
+    property RegisteredClass: TexSerializerClass read FRegisteredClass write FRegisteredClass;
+    property Description: String read FDescription write FDescription;
+  end;
+
+  { TexRegisteredClasses }
+
+  TexRegisteredClasses = class(TCollection)
+  private
+    function GetItem(Index: Integer): TexRegisteredClassItem;
+    procedure SetItem(Index: Integer; AValue: TexRegisteredClassItem);
+  public
+    constructor Create;
+    function Add: TexRegisteredClassItem;
+    property Items[Index: Integer]: TexRegisteredClassItem read GetItem write SetItem; default;
+    function FindByDescription(ADescription: String): TexRegisteredClassItem;
+    function FindByClassType(AClassType: TexSerializerClass): TexRegisteredClassItem;
+    function FindByClassName(AClassName: String): TexRegisteredClassItem;
+    procedure RegisterClass(ADescription: String; AClass: TexSerializerClass);
   end;
 
   { TexBaseSerializer }
@@ -73,7 +87,7 @@ type
   protected
     function FormatData(ASession: TexSession; AMaster: TDataSet): String; override;
   public
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AExporter: TexExporter); override;
     procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap); override;
   published
     property Version: String read FVersion write FVersion;
@@ -81,29 +95,105 @@ type
     property ItemTag: String read FItemTag write FItemTag;
   end;
 
+const
+  sexSColumnSerializer = 'Column';
+  sexSJsonSerializer = 'JSON';
+  sexSXMLSerializer = 'XML';
+
+var
+  FRegisteredSerializers: TexRegisteredClasses;
+
+function GetRegisteredSerializers: TexRegisteredClasses;
 
 implementation
 
-{ TexSerializerFactory }
-
-class procedure TexSerializerFactory.RegisterClass(AClass: TexSerializerClass);
+function GetRegisteredSerializers: TexRegisteredClasses;
 begin
-  if (FClasses = nil) then
-     FClasses := TexSerializerClassMap.Create;
-
-   FClasses.Add(AClass.ClassName, AClass);
+  if FRegisteredSerializers = nil then
+    FRegisteredSerializers := TexRegisteredClasses.Create;
+  Result := FRegisteredSerializers;
 end;
 
-class function TexSerializerFactory.CreateInstance(AClassName: String; AOwner: TComponent): TexSerializer;
-begin
-  {$IFDEF FPC}
-  if (FClasses.IndexOf(AClassName) = -1) then
-  {$ELSE}
-  if (not FClasses.ContainsKey(AClassName)) then
-  {$ENDIF}
-     raise EClassNotFound.CreateFmt('The class "%s" not found', [AClassName]);
+{ TexRegisteredClasses }
 
-  Result := FClasses[AClassName].Create(AOwner);
+constructor TexRegisteredClasses.Create;
+begin
+  inherited Create(TexRegisteredClassItem);
+end;
+
+function TexRegisteredClasses.GetItem(Index: Integer): TexRegisteredClassItem;
+begin
+  Result := TexRegisteredClassItem(inherited GetItem(Index));
+end;
+
+procedure TexRegisteredClasses.SetItem(Index: Integer; AValue: TexRegisteredClassItem);
+begin
+  inherited SetItem(Index, AValue);
+end;
+
+function TexRegisteredClasses.Add: TexRegisteredClassItem;
+begin
+  Result := TexRegisteredClassItem(inherited Add);
+end;
+
+function TexRegisteredClasses.FindByClassType(AClassType: TexSerializerClass): TexRegisteredClassItem;
+var
+  I: Integer;
+  AItem: TexRegisteredClassItem;
+begin
+  Result := nil;
+  for I := 0 to Self.Count -1 do
+  begin
+    AItem := Self.Items[I];
+    if (AItem.RegisteredClass = AClassType) then
+    begin
+      Result := AItem;
+      Exit;
+    end;
+  end;
+end;
+
+function TexRegisteredClasses.FindByClassName(AClassName: String): TexRegisteredClassItem;
+var
+  I: Integer;
+  AItem: TexRegisteredClassItem;
+begin
+  Result := nil;
+  for I := 0 to Self.Count -1 do
+  begin
+    AItem := Self.Items[I];
+    if (AItem.RegisteredClass <> nil) and (SameText(AItem.RegisteredClass.ClassName, AClassName)) then
+    begin
+      Result := AItem;
+      Exit;
+    end;
+  end;
+end;
+
+function TexRegisteredClasses.FindByDescription(ADescription: String): TexRegisteredClassItem;
+var
+  I: Integer;
+  AItem: TexRegisteredClassItem;
+begin
+  Result := nil;
+  for I := 0 to Self.Count -1 do
+  begin
+    AItem := Self.Items[I];
+    if (SameText(AItem.Description, ADescription)) then
+    begin
+      Result := AItem;
+      Exit;
+    end;
+  end;
+end;
+
+procedure TexRegisteredClasses.RegisterClass(ADescription: String; AClass: TexSerializerClass);
+begin
+  with Add do
+  begin
+    Description := ADescription;
+    RegisteredClass := AClass;
+  end;
 end;
 
 { TexBaseSerializer }
@@ -375,9 +465,9 @@ end;
 
 { TexXmlSerializer }
 
-constructor TexXmlSerializer.Create(AOwner: TComponent);
+constructor TexXmlSerializer.Create(AExporter: TexExporter);
 begin
-  inherited Create(AOwner);
+  inherited Create(AExporter);
   FVersion := '1.0';
   FEncoding := 'UTF-8';
   FItemTag := 'item';
@@ -465,10 +555,11 @@ begin
   end;
 end;
 
+
 initialization
-  TexSerializerFactory.RegisterClass(TexColumnSerializer);
-  TexSerializerFactory.RegisterClass(TexJsonSerializer);
-  TexSerializerFactory.RegisterClass(TexXmlSerializer);
+  GetRegisteredSerializers.RegisterClass(sexSColumnSerializer, TexColumnSerializer);
+  GetRegisteredSerializers.RegisterClass(sexSJsonSerializer, TexJsonSerializer);
+  GetRegisteredSerializers.RegisterClass(sexSXMLSerializer, TexXmlSerializer);
 
 end.
 
