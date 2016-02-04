@@ -4,22 +4,107 @@ unit exComponentReg;
 interface
 
 uses
-  Classes, SysUtils, {$IFNDEF LCL}DesignIntf, DesignEditors, {$ELSE} PropEdits, {$ENDIF} exExporter, exSerializer;
+  Classes, SysUtils,{$IFNDEF LCL} DesignIntf, DesignEditors, {$ELSE} PropEdits, {$ENDIF}
+  exClasses, exOptionsDlg, exDefinition, exOptions, exExporter, exSerializer;
 
 type
-  TexSerializerProperty = class(TClassProperty)
+
+  { TexDynamicProperty }
+
+  TexDynamicProperty = class(TClassProperty)
   protected
-    function HasSubProperties: Boolean;
+    function HasSubProperties: Boolean; virtual; abstract;
+    function GetRegisteredClasses: TexRegisteredClasses; virtual; abstract;
+    function GetClassType: TClass; virtual; abstract;
+    procedure SetPropClassValue(AComponent: TPersistent; AClass: TClass); virtual; abstract;
   public
     function GetAttributes: TPropertyAttributes; override;
     function GetValue: string; override;
-    procedure GetValues(Proc: TGetStrProc); override;
     procedure SetValue(const Value: string); override;
+    procedure GetValues(Proc: TGetStrProc); override;
+  end;
+
+  { TexSerializerProperty }
+
+  TexSerializerProperty = class(TexDynamicProperty)
+  protected
+    function HasSubProperties: Boolean; override;
+    function GetRegisteredClasses: TexRegisteredClasses; override;
+    function GetClassType: TClass; override;
+    procedure SetPropClassValue(AComponent: TPersistent; AClass: TClass); override;
+  end;
+
+  { TexOptionsClassNameProperty }
+
+  TexPackageTypeProperty = class(TexDynamicProperty)
+  protected
+    function HasSubProperties: Boolean; override;
+    function GetRegisteredClasses: TexRegisteredClasses; override;
+    function GetClassType: TClass; override;
+    procedure SetPropClassValue(AComponent: TPersistent; AClass: TClass); override;
+  public
+    function GetAttributes: TPropertyAttributes; override;
   end;
 
 procedure Register;
 
 implementation
+
+{ TexDynamicProperty }
+
+function TexDynamicProperty.GetAttributes: TPropertyAttributes;
+begin
+  Result := inherited GetAttributes;
+  if not HasSubProperties then
+    Exclude(Result, paSubProperties);
+  Result := Result - [paReadOnly] +
+    [paValueList, paSortList, paRevertable, paVolatileSubProperties];
+end;
+
+function TexDynamicProperty.GetValue: string;
+var
+  AClassType: TClass;
+  AItem: TexRegisteredClassItem;
+begin
+  Result := '';
+  AClassType := GetClassType;
+
+  if (AClassType <> nil) and (HasSubProperties) then
+  begin
+    AItem := GetRegisteredClasses.FindByClassType(AClassType);
+    if (AItem <> nil) then
+      Result := AItem.Description;
+  end;
+end;
+
+procedure TexDynamicProperty.GetValues(Proc: TGetStrProc);
+var
+  I: Integer;
+begin
+  for I := 0 to GetRegisteredClasses.Count -1 do
+    Proc(GetRegisteredClasses.Items[I].Description);
+end;
+
+procedure TexDynamicProperty.SetValue(const Value: string);
+var
+  I: Integer;
+  AItem: TexRegisteredClassItem;
+begin
+  AItem := GetRegisteredClasses.FindByClassName(Value);
+
+  if AItem = nil then
+    AItem := GetRegisteredClasses.FindByDescription(Value);
+
+  if (AItem <> nil) then
+  begin
+    for I := 0 to PropCount - 1 do
+      SetPropClassValue(GetComponent(I), AItem.RegisteredClass);
+
+    Modified;
+  end;
+end;
+
+{ TexSerializerProperty }
 
 function TexSerializerProperty.HasSubProperties: Boolean;
 var
@@ -33,66 +118,72 @@ begin
   Result := True;
 end;
 
-function TexSerializerProperty.GetAttributes: TPropertyAttributes;
-begin
-  Result := inherited GetAttributes;
-  if not HasSubProperties then
-    Exclude(Result, paSubProperties);
-  Result := Result - [paReadOnly] +
-    [paValueList, paSortList, paRevertable, paVolatileSubProperties];
-end;
-
-function TexSerializerProperty.GetValue: string;
+function TexSerializerProperty.GetClassType: TClass;
 var
-  AClassType: TexSerializerClass;
-  AItem: TexRegisteredClassItem;
   ASerializer: TexSerializer;
 begin
-  Result := '';
+  Result := nil;
   ASerializer := TexExporter(GetComponent(0)).Serializer;
   if (ASerializer <> nil) then
-  begin
-    AClassType := TexSerializerClass(TexExporter(GetComponent(0)).Serializer.ClassType);
-    if HasSubProperties then
-    begin
-      AItem := GetRegisteredSerializers.FindByClassType(AClassType);
-      if (AItem <> nil) then
-        Result := AItem.Description;
-    end;
-  end;
+    Result := ASerializer.ClassType;
 end;
 
-procedure TexSerializerProperty.GetValues(Proc: TGetStrProc);
+function TexSerializerProperty.GetRegisteredClasses: TexRegisteredClasses;
+begin
+  Result := GetRegisteredSerializers;
+end;
+
+procedure TexSerializerProperty.SetPropClassValue(AComponent: TPersistent; AClass: TClass);
+begin
+  TexExporter(AComponent).SerializerClass := TexSerializerClass(AClass);
+end;
+
+{ TexPackageTypeProperty }
+
+function TexPackageTypeProperty.GetAttributes: TPropertyAttributes;
+begin
+  Result :=  [paValueList, paSortList];
+end;
+
+function TexPackageTypeProperty.GetClassType: TClass;
+var
+  AOptions: TexOptions;
+begin
+  Result := nil;
+  AOptions := TexPackage(GetComponent(0)).Options;
+  if (AOptions <> nil) then
+    Result := AOptions.ClassType;
+end;
+
+function TexPackageTypeProperty.GetRegisteredClasses: TexRegisteredClasses;
+begin
+  Result := GetRegisteredOptions;
+end;
+
+function TexPackageTypeProperty.HasSubProperties: Boolean;
 var
   I: Integer;
 begin
-  for I := 0 to GetRegisteredSerializers.Count -1 do
-    Proc(GetRegisteredSerializers.Items[I].Description);
+  for I := 0 to PropCount - 1 do
+  begin
+    Result := TexPackage(GetComponent(I)).Options <> nil;
+    if not Result then Exit;
+  end;
+  Result := True;
 end;
 
-procedure TexSerializerProperty.SetValue(const Value: string);
-var
-  I: Integer;
-  AItem: TexRegisteredClassItem;
+procedure TexPackageTypeProperty.SetPropClassValue(AComponent: TPersistent; AClass: TClass);
 begin
-  AItem := GetRegisteredSerializers.FindByClassName(Value);
-
-  if AItem = nil then
-    AItem := GetRegisteredSerializers.FindByDescription(Value);
-
-  if (AItem <> nil) then
-  begin
-    for I := 0 to PropCount - 1 do
-      TexExporter(GetComponent(I)).SerializerClass := AItem.RegisteredClass;
-
-    Modified;
-  end;
+  TexPackage(AComponent).OptionsClass := TexOptionsClass(AClass);
 end;
 
 procedure Register;
 begin
-  RegisterPropertyEditor(TypeInfo(TexSerializer), TexExporter, 'Serializer', TexSerializerProperty);
   RegisterPropertyEditor(TypeInfo(string), TexExporter, 'SerializerClassName', nil);
+  RegisterPropertyEditor(TypeInfo(TexSerializer), TexExporter, 'Serializer', TexSerializerProperty);
+
+  RegisterPropertyEditor(TypeInfo(string), TexPackage, 'PackageType', TexPackageTypeProperty);
+  RegisterPropertyEditor(TypeInfo(TexOptions), TexPackage, 'Options', TexOptionsProperty);
 
   RegisterComponents('Data Export', [TexExporter]);
 end;

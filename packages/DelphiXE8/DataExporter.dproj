@@ -3,7 +3,7 @@
         <ProjectGuid>{7B8DB6BC-13D4-4E35-940D-E4B00BE6DB4E}</ProjectGuid>
         <MainSource>DataExporter.dpk</MainSource>
         <ProjectVersion>17.2</ProjectVersion>
-        <FrameworkType>None</FrameworkType>
+        <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -73,7 +73,7 @@
         <GenPackage>true</GenPackage>
         <SanitizedProjectName>DataExporter</SanitizedProjectName>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <DCC_DcuOutput>..\..\lib\$(Platform)-$(Config)</DCC_DcuOutput>
         <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_E>false</DCC_E>
@@ -139,12 +139,17 @@
         <DCCReference Include="dbrtl.dcp"/>
         <DCCReference Include="designide.dcp"/>
         <DCCReference Include="PascalScript_Core_D22.dcp"/>
-        <DCCReference Include="..\..\excomponentreg.pas"/>
+        <DCCReference Include="..\..\exclasses.pas"/>
         <DCCReference Include="..\..\exdefinition.pas"/>
         <DCCReference Include="..\..\exexporter.pas"/>
         <DCCReference Include="..\..\exserializer.pas"/>
+        <DCCReference Include="..\..\excomponentreg.pas"/>
         <DCCReference Include="..\..\scripts\upsc_sysutils.pas"/>
         <DCCReference Include="..\..\scripts\upsr_sysutils.pas"/>
+        <DCCReference Include="..\..\editors\exoptionsdlg.pas">
+            <Form>OptionsDlg</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\exoptions.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -171,14 +176,14 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="1">
-                <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
-                    <Platform Name="OSX32">
+                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\16.0\Bpl\DataExporterD22.bpl" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>DataExporter.bpl</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\16.0\Bpl\DataExporter.bpl" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>DataExporter.bpl</RemoteName>
+                <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
+                    <Platform Name="OSX32">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -509,8 +514,8 @@
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>

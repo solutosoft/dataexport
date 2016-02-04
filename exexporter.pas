@@ -195,7 +195,7 @@ end;
 
 procedure TexExporter.SetSerializerClassName(const Value: String);
 begin
-  SerializerClass := GetRegisteredSerializers.FindByClassName(Value).RegisteredClass;
+  SerializerClass := TexSerializerClass(GetRegisteredSerializers.FindByClassName(Value).RegisteredClass);
 end;
 
 procedure TexExporter.SetPackages(AValue: TexPackageList);

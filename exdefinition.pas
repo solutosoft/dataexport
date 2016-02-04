@@ -3,7 +3,7 @@ unit exDefinition;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, Variants, exClasses;
 
 const
   VK_CHAR_SPACE = #32;
@@ -12,6 +12,23 @@ type
 
   TexAlignment = (altNone, altRight, altLeft);
   TexDataType = (datNone, datText, datInteger, datDateTime, datBoolean, datFloat, datCurrency);
+
+  { TexOptions }
+
+  TexOptions = class(TStringList)
+  private
+    FEditors: TexEditorList;
+  public
+    constructor Create; reintroduce; virtual;
+    destructor Destroy; override;
+    function GetAsString(AName: String; ADefault: String = ''): String;
+    function GetAsInteger(AName: String; ADefault: Integer = 0): Integer;
+    function GetAsFloat(AName: String; ADefault: Double = 0): Double;
+    function GetAsBoolean(AName: String; ADefault: Boolean = False): Boolean;
+    property Editors: TexEditorList read FEditors;
+  end;
+
+  TexOptionsClass = class of TexOptions;
 
   { TexElement }
 
@@ -200,12 +217,21 @@ type
   TexPackage = class(TexElement)
   private
     FSessions: TStrings;
+    FOptions: TexOptions;
+    FOptionsClass: TexOptionsClass;
     procedure SetSessions(AValue: TStrings);
+    procedure SetOptions(const Value: TexOptions);
+    procedure SetOptionsClass(const Value: TexOptionsClass);
+    function GetPackageType: String;
+    procedure SetPackageType(const Value: String);
   public
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
+    property OptionsClass: TexOptionsClass read FOptionsClass write SetOptionsClass;
   published
     property Sessions: TStrings read FSessions write SetSessions;
+    property PackageType: String read GetPackageType write SetPackageType;
+    property Options: TexOptions read FOptions write SetOptions;
   end;
 
   { TexPackageList }
@@ -222,37 +248,47 @@ type
     property Items[Index: Integer]: TexPackage read GetItem write SetItem; default;
   end;
 
-
 implementation
 
-{ TexPackage }
+uses
+  exOptions;
 
-constructor TexPackage.Create(ACollection: TCollection);
+
+{ TexOptions }
+
+constructor TexOptions.Create;
 begin
-  inherited Create(ACollection);
-  FSessions := TStringList.Create;
+  FEditors := TexEditorList.Create;
 end;
 
-destructor TexPackage.Destroy;
+destructor TexOptions.Destroy;
 begin
-  FSessions.Free;
+  FEditors.Free;
   inherited Destroy;
 end;
 
-
-procedure TexPackage.SetSessions(AValue: TStrings);
+function TexOptions.GetAsString(AName: String; ADefault: String = ''): String;
 begin
-  FSessions.Assign(AValue);
+  if (IndexOfName(AName) <> -1) then
+    Result := Self.Values[ADefault];
+
+  if (Result = '') then
+    Result := ADefault;
 end;
 
-{ TexDictionary }
-
-constructor TexDictionary.Create(ACollection: TCollection);
+function TexOptions.GetAsInteger(AName: String; ADefault: Integer = 0): Integer;
 begin
-  inherited Create(ACollection);
-  FAlign := altNone;
-  FComplete := VK_CHAR_SPACE;
-  FSize := 0;
+  Result := StrToIntDef(GetAsString(AName), ADefault);
+end;
+
+function TexOptions.GetAsFloat(AName: String; ADefault: Double = 0): Double;
+begin
+  Result := StrToFloatDef(GetAsString(AName), ADefault);
+end;
+
+function TexOptions.GetAsBoolean(AName: String; ADefault: Boolean = False): Boolean;
+begin
+  Result := StrToBoolDef(GetAsString(AName), ADefault);
 end;
 
 { TexElementList }
@@ -272,6 +308,70 @@ begin
       Exit;
     end;
   end;
+end;
+
+{ TexVariableList }
+
+constructor TexVariableList.Create;
+begin
+  inherited Create(TexVariable);
+end;
+
+function TexVariableList.FindByName(AName: String): TexVariable;
+begin
+  Result := TexVariable(inherited FindByName(AName));
+end;
+
+function TexVariableList.Add: TexVariable;
+begin
+  Result := TexVariable(inherited Add);
+end;
+
+function TexVariableList.GetItem(Index: Integer): TexVariable;
+begin
+  Result := TexVariable(inherited GetItem(Index));
+end;
+
+procedure TexVariableList.SetItem(Index: Integer; AValue: TexVariable);
+begin
+  inherited SetItem(Index, AValue);
+end;
+
+{ TexDictionary }
+
+constructor TexDictionary.Create(ACollection: TCollection);
+begin
+  inherited Create(ACollection);
+  FAlign := altNone;
+  FComplete := VK_CHAR_SPACE;
+  FSize := 0;
+end;
+
+{ TexDictionaryList }
+
+constructor TexDictionaryList.Create;
+begin
+  inherited Create(TexDictionary);
+end;
+
+function TexDictionaryList.FindByName(AName: String): TexDictionary;
+begin
+  Result := TexDictionary(inherited FindByName(AName));
+end;
+
+function TexDictionaryList.GetItem(Index: Integer): TexDictionary;
+begin
+  Result := TexDictionary(inherited GetItem(Index)) ;
+end;
+
+procedure TexDictionaryList.SetItem(Index: Integer; AValue: TexDictionary);
+begin
+  inherited SetItem(Index, AValue);
+end;
+
+function TexDictionaryList.Add: TexDictionary;
+begin
+  Result := TexDictionary(inherited Add);
 end;
 
 { TexColumnList }
@@ -337,6 +437,20 @@ begin
   inherited SetItem(Index, AValue);
 end;
 
+{ TexPipeline }
+
+constructor TexPipeline.Create(ACollection: TCollection);
+begin
+  inherited Create(ACollection);
+  FSQL := TStringList.Create;
+end;
+
+destructor TexPipeline.Destroy;
+begin
+  FSQL.Free;
+  inherited Destroy;
+end;
+
 { TexPipelineList }
 
 constructor TexPipelineList.Create;
@@ -364,58 +478,21 @@ begin
   inherited SetItem(Index, AValue);
 end;
 
-{ TexVariableList }
+{ TexSession }
 
-constructor TexVariableList.Create;
+constructor TexSession.Create(ACollection: TCollection);
 begin
-  inherited Create(TexVariable);
+  inherited Create(ACollection);
+  FVisible := True;
+  FColumns := TexColumnList.Create;
+  FSessions := TexSessionList.Create(Self);
 end;
 
-function TexVariableList.FindByName(AName: String): TexVariable;
+destructor TexSession.Destroy;
 begin
-  Result := TexVariable(inherited FindByName(AName));
-end;
-
-function TexVariableList.Add: TexVariable;
-begin
-  Result := TexVariable(inherited Add);
-end;
-
-function TexVariableList.GetItem(Index: Integer): TexVariable;
-begin
-  Result := TexVariable(inherited GetItem(Index));
-end;
-
-procedure TexVariableList.SetItem(Index: Integer; AValue: TexVariable);
-begin
-  inherited SetItem(Index, AValue);
-end;
-
-{ TexDictionaryList }
-
-constructor TexDictionaryList.Create;
-begin
-  inherited Create(TexDictionary);
-end;
-
-function TexDictionaryList.FindByName(AName: String): TexDictionary;
-begin
-  Result := TexDictionary(inherited FindByName(AName));
-end;
-
-function TexDictionaryList.GetItem(Index: Integer): TexDictionary;
-begin
-  Result := TexDictionary(inherited GetItem(Index)) ;
-end;
-
-procedure TexDictionaryList.SetItem(Index: Integer; AValue: TexDictionary);
-begin
-  inherited SetItem(Index, AValue);
-end;
-
-function TexDictionaryList.Add: TexDictionary;
-begin
-  Result := TexDictionary(inherited Add);
+  FColumns.Free;
+  FSessions.Free;
+  inherited Destroy;
 end;
 
 { TexSessionList }
@@ -451,23 +528,6 @@ begin
   inherited SetItem(Index, AValue);
 end;
 
-{ TexSession }
-
-constructor TexSession.Create(ACollection: TCollection);
-begin
-  inherited Create(ACollection);
-  FVisible := True;
-  FColumns := TexColumnList.Create;
-  FSessions := TexSessionList.Create(Self);
-end;
-
-destructor TexSession.Destroy;
-begin
-  FColumns.Free;
-  FSessions.Free;
-  inherited Destroy;
-end;
-
 procedure TexSession.SeTexSessions(AValue: TexSessionList);
 begin
   FSessions.Assign(AValue);
@@ -478,23 +538,60 @@ begin
   FColumns.Assign(AValue);
 end;
 
-{ TexPipeline }
-
-constructor TexPipeline.Create(ACollection: TCollection);
-begin
-  inherited Create(ACollection);
-  FSQL := TStringList.Create;
-end;
-
-destructor TexPipeline.Destroy;
-begin
-  FSQL.Free;
-  inherited Destroy;
-end;
-
 procedure TexPipeline.SetSQL(AValue: TStrings);
 begin
   FSQL.Assign(AValue);
+end;
+
+{ TexPackage }
+
+constructor TexPackage.Create(ACollection: TCollection);
+begin
+  inherited Create(ACollection);
+  FSessions := TStringList.Create;
+  SetOptionsClass(TexFileOptions);
+end;
+
+destructor TexPackage.Destroy;
+begin
+  FSessions.Free;
+  FreeAndNil(FOptions);
+  inherited Destroy;
+end;
+
+procedure TexPackage.SetOptions(const Value: TexOptions);
+begin
+  FOptions.Assign(Value);
+end;
+
+procedure TexPackage.SetOptionsClass(const Value: TexOptionsClass);
+begin
+  if FOptionsClass <> Value then
+  begin
+    FreeAndNil(FOptions);
+    FOptionsClass := Value;
+
+    if (FOptionsClass <> nil) then
+      FOptions := FOptionsClass.Create;
+  end;
+end;
+
+function TexPackage.GetPackageType: String;
+begin
+  if FOptions = nil then
+    Result := ''
+  else
+    Result := FOptions.ClassName;
+end;
+
+procedure TexPackage.SetPackageType(const Value: String);
+begin
+  OptionsClass := TexOptionsClass(GetRegisteredOptions.FindByClassName(Value).RegisteredClass);
+end;
+
+procedure TexPackage.SetSessions(AValue: TStrings);
+begin
+  FSessions.Assign(AValue);
 end;
 
 { TexPackageList }
@@ -540,6 +637,10 @@ procedure TexPackageList.SetItem(Index: Integer; AValue: TexPackage);
 begin
   inherited SetItem(Index, AValue);
 end;
+
+initialization
+  GetRegisteredOptions.RegisterClass(sexSFileOptions, TexFileOptions);
+  GetRegisteredOptions.RegisterClass(sexSHttpOptions, TexHttpOptions);
 
 end.
 

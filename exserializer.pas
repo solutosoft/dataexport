@@ -4,36 +4,9 @@ interface
 
 uses
   Classes, SysUtils, DB, StrUtils, Variants, {$IFDEF FPC}fgl, {$ELSE} Generics.Collections, {$ENDIF}
-  exDefinition, exExporter;
+  exClasses, exDefinition, exExporter;
 
 type
-
-  { TexRegisteredClassItem }
-
-  TexRegisteredClassItem = class(TCollectionItem)
-  private
-    FRegisteredClass: TexSerializerClass;
-    FDescription: String;
-  public
-    property RegisteredClass: TexSerializerClass read FRegisteredClass write FRegisteredClass;
-    property Description: String read FDescription write FDescription;
-  end;
-
-  { TexRegisteredClasses }
-
-  TexRegisteredClasses = class(TCollection)
-  private
-    function GetItem(Index: Integer): TexRegisteredClassItem;
-    procedure SetItem(Index: Integer; AValue: TexRegisteredClassItem);
-  public
-    constructor Create;
-    function Add: TexRegisteredClassItem;
-    property Items[Index: Integer]: TexRegisteredClassItem read GetItem write SetItem; default;
-    function FindByDescription(ADescription: String): TexRegisteredClassItem;
-    function FindByClassType(AClassType: TexSerializerClass): TexRegisteredClassItem;
-    function FindByClassName(AClassName: String): TexRegisteredClassItem;
-    procedure RegisterClass(ADescription: String; AClass: TexSerializerClass);
-  end;
 
   { TexBaseSerializer }
 
@@ -112,88 +85,6 @@ begin
   if FRegisteredSerializers = nil then
     FRegisteredSerializers := TexRegisteredClasses.Create;
   Result := FRegisteredSerializers;
-end;
-
-{ TexRegisteredClasses }
-
-constructor TexRegisteredClasses.Create;
-begin
-  inherited Create(TexRegisteredClassItem);
-end;
-
-function TexRegisteredClasses.GetItem(Index: Integer): TexRegisteredClassItem;
-begin
-  Result := TexRegisteredClassItem(inherited GetItem(Index));
-end;
-
-procedure TexRegisteredClasses.SetItem(Index: Integer; AValue: TexRegisteredClassItem);
-begin
-  inherited SetItem(Index, AValue);
-end;
-
-function TexRegisteredClasses.Add: TexRegisteredClassItem;
-begin
-  Result := TexRegisteredClassItem(inherited Add);
-end;
-
-function TexRegisteredClasses.FindByClassType(AClassType: TexSerializerClass): TexRegisteredClassItem;
-var
-  I: Integer;
-  AItem: TexRegisteredClassItem;
-begin
-  Result := nil;
-  for I := 0 to Self.Count -1 do
-  begin
-    AItem := Self.Items[I];
-    if (AItem.RegisteredClass = AClassType) then
-    begin
-      Result := AItem;
-      Exit;
-    end;
-  end;
-end;
-
-function TexRegisteredClasses.FindByClassName(AClassName: String): TexRegisteredClassItem;
-var
-  I: Integer;
-  AItem: TexRegisteredClassItem;
-begin
-  Result := nil;
-  for I := 0 to Self.Count -1 do
-  begin
-    AItem := Self.Items[I];
-    if (AItem.RegisteredClass <> nil) and (SameText(AItem.RegisteredClass.ClassName, AClassName)) then
-    begin
-      Result := AItem;
-      Exit;
-    end;
-  end;
-end;
-
-function TexRegisteredClasses.FindByDescription(ADescription: String): TexRegisteredClassItem;
-var
-  I: Integer;
-  AItem: TexRegisteredClassItem;
-begin
-  Result := nil;
-  for I := 0 to Self.Count -1 do
-  begin
-    AItem := Self.Items[I];
-    if (SameText(AItem.Description, ADescription)) then
-    begin
-      Result := AItem;
-      Exit;
-    end;
-  end;
-end;
-
-procedure TexRegisteredClasses.RegisterClass(ADescription: String; AClass: TexSerializerClass);
-begin
-  with Add do
-  begin
-    Description := ADescription;
-    RegisteredClass := AClass;
-  end;
 end;
 
 { TexBaseSerializer }
