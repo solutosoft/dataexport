@@ -1,11 +1,12 @@
-unit uPSR_SysUtils;
+unit exscript;
 
 interface
 
 uses
-  SysUtils, uPSRuntime {$IFDEF FPC}, LCLIntf {$ELSE}, Windows {$ENDIF};
+  SysUtils, uPSRuntime, uPSCompiler {$IFDEF FPC}, LCLIntf {$ELSE}, Windows {$ENDIF};
 
 procedure RegisterSysUtilsLibrary_R(S: TPSExec);
+procedure RegisterSysUtilsLibrary_C(S: TPSPascalCompiler);
 
 implementation
 
@@ -29,6 +30,15 @@ begin
   S.RegisterDelphiFunction(@DeleteFile, 'DELETEFILE', cdRegister);
   S.RegisterDelphiFunction(@RenameFile, 'RENAMEFILE', cdRegister);
   S.RegisterDelphiFunction(@RemoveMask, 'REMOVEMASK', cdRegister);
+end;
+
+procedure RegisterSysUtilsLibrary_C(S: TPSPascalCompiler);
+begin
+  S.AddDelphiFunction('function FormatFloat(Const Format : String; Value : Extended) : String;');
+  S.AddDelphiFunction('function FileExists (Const FileName : String) : Boolean;');
+  S.AddDelphiFunction('function DirectoryExists (Const Directory : String) : Boolean;');
+  S.AddDelphiFunction('function DeleteFile (Const FileName : String) : Boolean;');
+  S.AddDelphiFunction('function RemoveMask(Text: string): String;');
 end;
 
 end.

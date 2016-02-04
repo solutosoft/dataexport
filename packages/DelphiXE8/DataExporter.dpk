@@ -41,8 +41,7 @@ contains
   exexporter in '..\..\exexporter.pas',
   exserializer in '..\..\exserializer.pas',
   excomponentreg in '..\..\excomponentreg.pas',
-  upsc_sysutils in '..\..\scripts\upsc_sysutils.pas',
-  upsr_sysutils in '..\..\scripts\upsr_sysutils.pas',
+  exscript in '..\..\exscript.pas',
   exoptionsdlg in '..\..\editors\exoptionsdlg.pas' {OptionsDlg},
   exoptions in '..\..\exoptions.pas';
 

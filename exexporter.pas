@@ -106,7 +106,7 @@ type
 implementation
 
 uses
-  uPSC_dateutils, uPSR_dateutils, uPSC_SysUtils, uPSR_SysUtils, uPSR_DB, uPSC_DB, exSerializer;
+  uPSC_dateutils, uPSR_dateutils, uPSR_DB, uPSC_DB, exScript, exSerializer;
 
 
 function PrepareScript(AExpression: String): TStrings;
