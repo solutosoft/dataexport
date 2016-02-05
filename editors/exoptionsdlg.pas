@@ -3,7 +3,7 @@ unit exoptionsdlg;
 interface
 
 uses
-  SysUtils, {$IFNDEF LCL} DesignIntf, DesignEditors, {$ELSE} PropEdits, {$ENDIF} Variants, Classes, Graphics, Controls, Forms,
+  Windows, SysUtils, {$IFNDEF LCL} DesignIntf, DesignEditors, {$ELSE} PropEdits, {$ENDIF} Variants, Classes, Graphics, Controls, Forms,
   Grids, ExtCtrls, StdCtrls, StrUtils, Math, exClasses, exDefinition;
 
 type
@@ -49,7 +49,7 @@ end;
 
 procedure TOptionsDlg.GridSelectCell(Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);
 var
-  ARect: TRect;
+  ARect:  TRect;
   AName,
   AValue: String;
   AItem: TexEditorItem;
