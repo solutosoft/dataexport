@@ -6,6 +6,11 @@ uses
   System.SysUtils, System.Classes;
 
 type
+  TexEditorType = (
+    edtText, edtPassword, edtInteger, edtCurrency, edtBoolean, edtDate, edtDateTime, edtTime,
+    edtFile, edtDirectory, edtLookup, edtCombobox, edtCheckbox, edtRangeDate
+  );
+
 
   { TexRegisteredClassItem }
 
@@ -33,11 +38,6 @@ type
     function FindByClassName(AClassName: String): TexRegisteredClassItem;
     procedure RegisterClass(ADescription: String; AClass: TClass);
   end;
-
-  TexEditorType = (
-    edtText, edtPassword, edtInteger, edtCurrency, edtBoolean, edtDate, edtDateTime, edtTime,
-    edtFile, edtDirectory, edtLookup, edtCombobox, edtCheckbox, edtRangeDate
-  );
 
   { TexEditorItem }
 

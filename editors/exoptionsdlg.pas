@@ -38,14 +38,13 @@ implementation
 procedure TOptionsDlg.CbxValueChange(Sender: TObject);
 begin
   Grid.Cells[Grid.Col, Grid.Row] := CbxValue.Items[CbxValue.ItemIndex];
-  Grid.SetFocus;
+  CbxValue.Visible := True;
 end;
 
 procedure TOptionsDlg.CbxValueExit(Sender: TObject);
 begin
   Grid.Cells[Grid.Col, Grid.Row] := CbxValue.Items[CbxValue.ItemIndex];
   CbxValue.Visible := False;
-  Grid.SetFocus;
 end;
 
 procedure TOptionsDlg.GridSelectCell(Sender: TObject; ACol, ARow: Integer; var CanSelect: Boolean);

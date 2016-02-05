@@ -43,6 +43,7 @@ contains
   excomponentreg in '..\..\excomponentreg.pas',
   exscript in '..\..\exscript.pas',
   exoptionsdlg in '..\..\editors\exoptionsdlg.pas' {OptionsDlg},
-  exoptions in '..\..\exoptions.pas';
+  exoptions in '..\..\exoptions.pas',
+  excomboitemsdlg in '..\..\editors\excomboitemsdlg.pas' {ComboItemsDlg};
 
 end.

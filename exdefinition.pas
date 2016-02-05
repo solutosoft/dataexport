@@ -118,20 +118,55 @@ type
     property Items[Index: Integer]: TexColumn read GetItem write SetItem; default;
   end;
 
+  { TexComboItem }
+
+  TexComboItem = class(TCollectionItem)
+  private
+    FDescription: String;
+    FValue: Variant;
+  published
+    property Descrition: String read FDescription write FDescription;
+    property Value: Variant read FValue write FValue;
+  end;
+
+  { TexComboList }
+
+  TexComboList = class(TCollection)
+  private
+    function GetItem(Index: Integer): TexComboItem;
+    procedure SetItem(Index: Integer; Value: TexComboItem);
+  public
+    constructor Create;
+    function Add: TexComboItem;
+    property Items[Index: Integer]: TexComboItem read GetItem write SetItem;default;
+  end;
+
   { TexParameter }
 
   TexParameter = class(TexVariable)
   private
+    FName: String;
     FCaption: String;
     FDataType: TexDataType;
+    FEditorType: TexEditorType;
     FRequired: Boolean;
     FValue: Variant;
+    FItems: TexComboList;
+    FWidth: Integer;
+    FHeight: Integer;
+    procedure SetItems(const Value: TexComboList);
   public
     constructor Create(ACollection: TCollection); override;
+    destructor Destroy; override;
   published
+    property Name: String read FName write FName;
     property Caption: String read FCaption write FCaption;
     property DataType: TexDataType read FDataType write FDataType default datNone;
-    property Required: Boolean read FRequired write FRequired;
+    property EditorType: TexEditorType read FEditorType write FEditorType default edtText;
+    property Height: Integer read FHeight write FHeight default 0;
+    property Items: TexComboList read FItems write SetItems;
+    property Required: Boolean read FRequired write FRequired default False;
+    property Width: Integer read FWidth write FWidth default 0;
     property Value: Variant read FValue write FValue;
   end;
 
@@ -401,12 +436,46 @@ begin
   inherited SetItem(Index, AValue);
 end;
 
+{ TexComboList }
+
+constructor TexComboList.Create;
+begin
+  inherited Create(TexComboItem);
+end;
+
+function TexComboList.Add: TexComboItem;
+begin
+  Result := TexComboItem(inherited Add);
+end;
+
+function TexComboList.GetItem(Index: Integer): TexComboItem;
+begin
+  Result := TexComboItem(inherited GetItem(Index));
+end;
+
+procedure TexComboList.SetItem(Index: Integer; Value: TexComboItem);
+begin
+  inherited SetItem(Index, Value);
+end;
+
 { TexParameter }
 
 constructor TexParameter.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
+  FItems := TexComboList.Create;
   FDataType := datNone;
+end;
+
+destructor TexParameter.Destroy;
+begin
+  FItems.Free;
+  inherited Destroy;
+end;
+
+procedure TexParameter.SetItems(const Value: TexComboList);
+begin
+  FItems.Assign(Value);
 end;
 
 { TexParameterList }

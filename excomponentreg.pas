@@ -5,7 +5,7 @@ interface
 
 uses
   Classes, SysUtils,{$IFNDEF LCL} DesignIntf, DesignEditors, {$ELSE} PropEdits, {$ENDIF}
-  exClasses, exOptionsDlg, exDefinition, exOptions, exExporter, exSerializer;
+  exClasses, exDefinition, exOptions, exExporter, exSerializer, exOptionsDlg, exComboItemsDlg;
 
 type
 
@@ -184,6 +184,8 @@ begin
 
   RegisterPropertyEditor(TypeInfo(string), TexPackage, 'PackageType', TexPackageTypeProperty);
   RegisterPropertyEditor(TypeInfo(TexOptions), TexPackage, 'Options', TexOptionsProperty);
+
+  RegisterPropertyEditor(TypeInfo(TexComboList), TexParameter, 'Items', TexComboItemsProperty);
 
   RegisterComponents('Data Export', [TexExporter]);
 end;
