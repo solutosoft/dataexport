@@ -3,7 +3,7 @@ unit exClasses;
 interface
 
 uses
-  System.SysUtils, System.Classes;
+  SysUtils, Classes;
 
 type
   TexEditorType = (

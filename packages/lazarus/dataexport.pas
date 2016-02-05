@@ -7,8 +7,8 @@ unit dataexport;
 interface
 
 uses
-  exComponentReg, exDefinition, exExporter, exSerializer, uPSR_SysUtils, 
-  uPSC_SysUtils, LazarusPackageIntf;
+  exComponentReg, exDefinition, exExporter, exSerializer, exClasses, 
+  exOptions, exscript, excomboitemsdlg, exoptionsdlg, LazarusPackageIntf;
 
 implementation
 

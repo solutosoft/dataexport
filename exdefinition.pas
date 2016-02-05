@@ -145,7 +145,6 @@ type
 
   TexParameter = class(TexVariable)
   private
-    FName: String;
     FCaption: String;
     FDataType: TexDataType;
     FEditorType: TexEditorType;
@@ -159,7 +158,6 @@ type
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
   published
-    property Name: String read FName write FName;
     property Caption: String read FCaption write FCaption;
     property DataType: TexDataType read FDataType write FDataType default datNone;
     property EditorType: TexEditorType read FEditorType write FEditorType default edtText;

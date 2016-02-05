@@ -9,12 +9,12 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\..;..\..\scripts"/>
+        <OtherUnitFiles Value="..\..;..\..\scripts;..\..\editors"/>
         <UnitOutputDirectory Value="..\..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Version Major="1"/>
-    <Files Count="6">
+    <Files Count="9">
       <Item1>
         <Filename Value="..\..\excomponentreg.pas"/>
         <HasRegisterProc Value="True"/>
@@ -33,13 +33,25 @@
         <UnitName Value="exSerializer"/>
       </Item4>
       <Item5>
-        <Filename Value="..\..\scripts\upsr_sysutils.pas"/>
-        <UnitName Value="uPSR_SysUtils"/>
+        <Filename Value="..\..\exclasses.pas"/>
+        <UnitName Value="exClasses"/>
       </Item5>
       <Item6>
-        <Filename Value="..\..\scripts\upsc_sysutils.pas"/>
-        <UnitName Value="uPSC_SysUtils"/>
+        <Filename Value="..\..\exoptions.pas"/>
+        <UnitName Value="exOptions"/>
       </Item6>
+      <Item7>
+        <Filename Value="..\..\exscript.pas"/>
+        <UnitName Value="exscript"/>
+      </Item7>
+      <Item8>
+        <Filename Value="..\..\editors\excomboitemsdlg.pas"/>
+        <UnitName Value="excomboitemsdlg"/>
+      </Item8>
+      <Item9>
+        <Filename Value="..\..\editors\exoptionsdlg.pas"/>
+        <UnitName Value="exoptionsdlg"/>
+      </Item9>
     </Files>
     <RequiredPkgs Count="3">
       <Item1>

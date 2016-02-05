@@ -3,8 +3,8 @@ unit exoptionsdlg;
 interface
 
 uses
-  Windows, Messages, SysUtils, DesignIntf, DesignEditors, Variants, Classes, Graphics, Controls, Forms,
-  Grids, ExtCtrls, StdCtrls, Math, StrUtils, exClasses, exDefinition;
+  SysUtils, {$IFNDEF LCL} DesignIntf, DesignEditors, {$ELSE} PropEdits, {$ENDIF} Variants, Classes, Graphics, Controls, Forms,
+  Grids, ExtCtrls, StdCtrls, StrUtils, Math, exClasses, exDefinition;
 
 type
   TOptionsDlg = class(TForm)
@@ -147,7 +147,7 @@ begin
     if (AFrm.ShowModal = mrOk) then
     begin
       AFrm.SaveComponent;
-      Designer.Modified;
+      Modified;
     end;
   finally
     AFrm.Free;

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, StdCtrls, ExtCtrls, Grids,
-  DesignIntf, DesignEditors, exDefinition;
+  {$IFNDEF LCL}DesignIntf, DesignEditors, {$ELSE} PropEdits, {$ENDIF} exDefinition;
 
 type
   TCustomGridAccess = class(TCustomGrid);
@@ -122,7 +122,13 @@ end;
 procedure TComboItemsDlg.BtnDelClick(Sender: TObject);
 begin
   if (Grid.RowCount > 1) then
+  begin
+    {$IFDEF FPC}
+    Grid.DeleteRow(Grid.Row);
+    {$ELSE}
     TCustomGridAccess(Grid).DeleteRow(Grid.Row);
+    {$ENDIF}
+  end;
 end;
 
 procedure TComboItemsDlg.LoadComponent(AComboItems: TexComboList);
@@ -177,7 +183,7 @@ begin
     if (AFrm.ShowModal = mrOk) then
     begin
       AFrm.SaveComponent;
-      Designer.Modified;
+      Modified;
     end;
   finally
     AFrm.Free;
