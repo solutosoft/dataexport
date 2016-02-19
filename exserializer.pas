@@ -203,7 +203,7 @@ begin
     {$ELSE}
     AParams.AddOrSetValue('Value', AData);
     {$ENDIF}
-    AEvent := Exporter.Events.FindByName(EVENT_BEFORE_SERIALIZE);
+    AEvent := Exporter.Events.FindByName(EXPORTER_BEFORE_SERIALIZE);
     if (AEvent <> nil) then
       Result := Exporter.ExecuteExpression(AEvent.Expression, AParams)
     else

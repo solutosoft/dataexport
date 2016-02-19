@@ -11,7 +11,6 @@ type
     edtFile, edtDirectory, edtLookup, edtCombobox, edtCheckbox, edtRangeDate
   );
 
-
   { TexRegisteredClassItem }
 
   TexRegisteredClassItem = class(TCollectionItem)
@@ -60,8 +59,7 @@ type
     procedure SetItem(Index: Integer; AValue: TexEditorItem);
   public
     constructor Create;
-    function Add: TexEditorItem; overload;
-    function Add(AName: String; AEditorType: TexEditorType; ADefaultValue: String = ''): TexEditorItem; overload;
+    function Add: TexEditorItem;
     function FindByName(AName: String): TexEditorItem;
     property Items[Index: Integer]: TexEditorItem read GetItem write SetItem; default;
   end;
@@ -160,17 +158,6 @@ end;
 function TexEditorList.Add: TexEditorItem;
 begin
   Result := TexEditorItem(inherited Add);
-end;
-
-function TexEditorList.Add(AName: String; AEditorType: TexEditorType; ADefaultValue: String = ''): TexEditorItem;
-begin
-  Result := Add;
-  with Result do
-  begin
-    Name := AName;
-    EditorType := AEditorType;
-    DefaultValue := ADefaultValue;
-  end;
 end;
 
 function TexEditorList.FindByName(AName: String): TexEditorItem;

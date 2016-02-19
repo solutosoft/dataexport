@@ -7,6 +7,8 @@ uses
   Grids, ExtCtrls, StdCtrls, StrUtils, Math, exClasses, exDefinition;
 
 type
+  TexOptionsAccess = class(TexOptions);
+
   TOptionsDlg = class(TForm)
     Grid: TStringGrid;
     PanBtn: TPanel;
@@ -17,7 +19,7 @@ type
     procedure CbxValueChange(Sender: TObject);
     procedure CbxValueExit(Sender: TObject);
   private
-    FOptions: TexOptions;
+    FOptions: TexOptionsAccess;
   public
     procedure LoadComponent(AOptions: TexOptions);
     procedure SaveComponent;
@@ -58,7 +60,7 @@ begin
   begin
     AName := Grid.Cells[0, ARow];
     AValue := Grid.Cells[ACol, ARow];
-    AItem := FOptions.Editors.FindByName(AName);
+    AItem := TexOptionsAccess(FOptions).FEditors.FindByName(AName);
 
     if (AItem.EditorType in [edtText, edtPassword]) then
       Exit;
@@ -112,12 +114,12 @@ var
   AItem: TexEditorItem;
   AValue: String;
 begin
-  FOptions := AOptions;
-  Grid.RowCount := FOptions.Editors.Count;
+  FOptions := TexOptionsAccess(AOptions);
+  Grid.RowCount := FOptions.FEditors.Count;
 
-  for I := 0 to FOptions.Editors.Count -1 do
+  for I := 0 to FOptions.FEditors.Count -1 do
   begin
-    AItem := FOptions.Editors[I];
+    AItem := FOptions.FEditors[I];
     AValue := FOptions.Values[AItem.Name];
 
     Grid.Cells[0, I] := AItem.Name;

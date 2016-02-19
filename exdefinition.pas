@@ -9,15 +9,37 @@ const
   VK_CHAR_SPACE = #32;
 
 type
+  TVariantDynArray = array of Variant;
 
   TexAlignment = (altNone, altRight, altLeft);
   TexDataType = (datNone, datText, datInteger, datDateTime, datBoolean, datFloat, datCurrency);
 
+  { TexValue }
+
+  TexValue = class(TObject)
+  private
+    FValue: Variant;
+    function GetRange: TVariantDynArray;
+    function CheckIsNull(AValue: Variant): Boolean;
+  public
+    constructor Create(AValue: Variant);
+    function GetIsNull: Boolean;
+    function GetAsVariant: Variant;
+    function GetAsString: String;
+    function GetAsInteger: Integer;
+    function GetAsFloat: Extended;
+    function GetAsDateTime: TDateTime;
+    function GetDateStart: TDateTime;
+    function GetDateEnd: TDateTime;
+    function GetAsArray: TVariantDynArray;
+  end;
+
   { TexOptions }
 
   TexOptions = class(TStringList)
-  private
+  protected
     FEditors: TexEditorList;
+    procedure RegisterOption(AName: String; AEditor: TexEditorType; ADefault: String = '');
   public
     constructor Create; reintroduce; virtual;
     destructor Destroy; override;
@@ -25,7 +47,6 @@ type
     function GetAsInteger(AName: String; ADefault: Integer = 0): Integer;
     function GetAsFloat(AName: String; ADefault: Double = 0): Double;
     function GetAsBoolean(AName: String; ADefault: Boolean = False): Boolean;
-    property Editors: TexEditorList read FEditors;
   end;
 
   TexOptionsClass = class of TexOptions;
@@ -252,11 +273,13 @@ type
     FSessions: TStrings;
     FOptions: TexOptions;
     FOptionsClass: TexOptionsClass;
+    FEvents: TexVariableList;
     procedure SetSessions(AValue: TStrings);
     procedure SetOptions(const Value: TexOptions);
     procedure SetOptionsClass(const Value: TexOptionsClass);
     function GetPackageType: String;
     procedure SetPackageType(const Value: String);
+    procedure SetEvents(const Value: TexVariableList);
   public
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
@@ -265,6 +288,7 @@ type
     property Sessions: TStrings read FSessions write SetSessions;
     property PackageType: String read GetPackageType write SetPackageType;
     property Options: TexOptions read FOptions write SetOptions;
+    property Events: TexVariableList read FEvents write SetEvents;
   end;
 
   { TexPackageList }
@@ -286,6 +310,107 @@ implementation
 uses
   exOptions;
 
+{ TexValue }
+
+function TexValue.CheckIsNull(AValue: Variant): Boolean;
+var
+  I: Integer;
+begin
+  Result := (VarIsClear(AValue)) or (VarIsNull(AValue)) or (VarIsEmpty(AValue));
+  if (not Result) then
+  begin
+    if (VarIsNumeric(AValue)) or (VarType(AValue) = varDate) then
+      Result := (AValue = 0)
+    else if (VarIsStr(AValue)) then
+      Result := String.IsNullOrWhiteSpace(AValue)
+    else if (VarIsArray(AValue)) then
+    begin
+      Result := VarArrayHighBound(AValue, 1) = -1;
+      if (not Result) then
+      begin
+        for I := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
+        begin
+          Result := CheckIsNull(AValue[I]);
+          if (Result) then
+            Exit;
+        end;
+      end;
+    end;
+  end;
+end;
+
+constructor TexValue.Create(AValue: Variant);
+begin
+  FValue := AValue;
+end;
+
+function TexValue.GetRange: TVariantDynArray;
+var
+  AValue: Variant;
+begin
+  AValue := GetAsVariant;
+
+  if (not VarIsArray(AValue)) or (VarArrayDimCount(AValue) <> 2) then
+    raise EInvalidCast.Create('Invalid range format');
+
+  Result := [AValue[0], AValue[1]];
+end;
+
+function TexValue.GetIsNull: Boolean;
+begin
+  Result := CheckIsNull(GetAsVariant);
+end;
+
+function TexValue.GetAsVariant: Variant;
+begin
+  Result := FValue;
+end;
+
+function TexValue.GetAsString: String;
+begin
+  Result := VarToStrDef(GetAsVariant, '');
+end;
+
+function TexValue.GetAsDateTime: TDateTime;
+begin
+  Result := VarAsType(GetAsVariant, varDate);
+end;
+
+function TexValue.GetAsFloat: Extended;
+begin
+  Result := StrToFloatDef(GetAsString, 0);
+end;
+
+function TexValue.GetAsInteger: Integer;
+begin
+  Result := StrToIntDef(GetAsString, 0);
+end;
+
+function TexValue.GetDateStart: TDateTime;
+begin
+  Result := GetRange[0];
+end;
+
+function TexValue.GetDateEnd: TDateTime;
+begin
+  Result := GetRange[1];
+end;
+
+function TexValue.GetAsArray: TVariantDynArray;
+var
+  I: Integer;
+  AValue: Variant;
+begin
+  AValue := GetAsVariant;
+  Result := [];
+
+  if (VarIsArray(AValue)) then
+  begin
+    SetLength(Result, VarArrayDimCount(AValue));
+    for I := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
+      Result[I] := AValue[I];
+  end;
+end;
 
 { TexOptions }
 
@@ -307,6 +432,18 @@ begin
 
   if (Result = '') then
     Result := ADefault;
+end;
+
+procedure TexOptions.RegisterOption(AName: String; AEditor: TexEditorType; ADefault: String);
+var
+  AItem: TexEditorItem;
+begin
+  with FEditors.Add do
+  begin
+    Name := AName;
+    EditorType := AEditor;
+    DefaultValue := ADefault;
+  end;
 end;
 
 function TexOptions.GetAsInteger(AName: String; ADefault: Integer = 0): Integer;
@@ -537,7 +674,7 @@ end;
 
 function TexPipelineList.GetItem(Index: Integer): TexPipeline;
 begin
-  Result := TexPipeline(GetItem(Index));
+  Result := TexPipeline(inherited GetItem(Index));
 end;
 
 procedure TexPipelineList.SetItem(Index: Integer; AValue: TexPipeline);
@@ -616,14 +753,21 @@ constructor TexPackage.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FSessions := TStringList.Create;
+  FEvents := TexVariableList.Create;
   SetOptionsClass(TexFileOptions);
 end;
 
 destructor TexPackage.Destroy;
 begin
   FSessions.Free;
+  FEvents.Free;
   FreeAndNil(FOptions);
   inherited Destroy;
+end;
+
+procedure TexPackage.SetEvents(const Value: TexVariableList);
+begin
+  FEvents.Assign(Value);
 end;
 
 procedure TexPackage.SetOptions(const Value: TexOptions);

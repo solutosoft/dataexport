@@ -43,7 +43,7 @@ end;
 constructor TexFileOptions.Create;
 begin
   inherited Create;
-  Editors.Add('FileName', edtFile);
+  RegisterOption('FileName', edtFile);
 end;
 
 { TexHttpOptions }
@@ -51,12 +51,12 @@ end;
 constructor TexHttpOptions.Create;
 begin
   inherited Create;
-  Editors.Add('BaseUrl', edtText);
-  Editors.Add('BasicAuth', edtBoolean, 'False');
-  Editors.Add('ProxyServer', edtText);
-  Editors.Add('ProxyPort', edtInteger);
-  Editors.Add('ProxyUsername', edtText);
-  Editors.Add('ProxyPassword', edtPassword);
+  RegisterOption('BaseUrl', edtText);
+  RegisterOption('BasicAuth', edtBoolean, 'False');
+  RegisterOption('ProxyServer', edtText);
+  RegisterOption('ProxyPort', edtInteger);
+  RegisterOption('ProxyUsername', edtText);
+  RegisterOption('ProxyPassword', edtPassword);
 end;
 
 end.

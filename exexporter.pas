@@ -13,12 +13,20 @@ const
   SCRIPT_FUNCEVAL_EXEC = 'exEvaluate';
   SCRIPT_VAR_REGEX = '^\s*var\s+';
 
-  EVENT_BEFORE_SERIALIZE = 'function BeforeSerialize: String';
+  EXPORTER_BEFORE_SERIALIZE = 'function BeforeSerialize: String';
+  EXPORTER_BEFORE_EXEC = 'procedure BeforeExecute';
+  EXPORTER_AFTER_EXEC = 'procedure AfterExecute';
+  EXPORTER_EVENTS: array [1 .. 3] of String = (EXPORTER_BEFORE_EXEC, EXPORTER_AFTER_EXEC, EXPORTER_BEFORE_SERIALIZE);
+
+  PACKAGE_BEFORE_EXEC = 'function BeforeExecute(AParams: TexOptions): Boolean';
+  PACKAGE_AFTER_EXEC = 'procedure AfterExecute(AData: String)';
+  PACKAGE_EVENTS: array [1 .. 2] of String = (PACKAGE_BEFORE_EXEC, PACKAGE_AFTER_EXEC);
 
 type
   TexExporter = class;
   TexResutMap = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, TStrings>;
   TexScriptArgs = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, Variant>;
+  TexValues = {$IFDEF FPC} specialize TFPGMap {$ELSE} TObjectDictionary {$ENDIF}<String, TexValue>;
 
   { TexSerializer }
 
@@ -62,6 +70,8 @@ type
     FScript: TPSScript;
     FScriptArgs: TexScriptArgs;
     FSerializerClass: TexSerializerClass;
+    FParamValues: TexValues;
+    FVariables: TexVariableList;
     function GetSerializerClassName: String;
     procedure SetSerializerClassName(const Value: String);
     procedure SetPackages(AValue: TexPackageList);
@@ -77,7 +87,9 @@ type
     procedure ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
     procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
     function ScriptEngineFindField(AFieldName: String): TField;
+    function ScriptEngineFindParam(AParamName: String): TexValue;
     procedure SetSerializerClass(const Value: TexSerializerClass);
+    procedure SetVariables(const Value: TexVariableList);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -92,15 +104,16 @@ type
     property SerializerClass: TexSerializerClass read FSerializerClass write SetSerializerClass;
   published
     property Description: String read FDescription write FDescription;
-    property Sessions: TexSessionList read FSessions write SetSessions;
-    property Provider: TexProvider read FProvider write SetProvider;
     property Dictionaries: TexDictionaryList read FDictionaries write SetDictionaries;
     property Events: TexVariableList read FEvents write SetEvents;
-    property Pipelines: TexPipelineList read FPipelines write SetPipelines;
+    property Packages: TexPackageList read FPackages write SetPackages;
     property Parameters: TexParameterList read FParameters write SetParameters;
+    property Pipelines: TexPipelineList read FPipelines write SetPipelines;
+    property Provider: TexProvider read FProvider write SetProvider;
+    property Sessions: TexSessionList read FSessions write SetSessions;
+    property Variables: TexVariableList read FVariables write SetVariables;
     property SerializerClassName: String read GetSerializerClassName write SetSerializerClassName;
     property Serializer: TexSerializer read FSerializer write SetSerializer;
-    property Packages: TexPackageList read FPackages write SetPackages;
   end;
 
 implementation
@@ -158,17 +171,21 @@ begin
   FPipelines := TexPipelineList.Create;
   FParameters := TexParameterList.Create;
   FPackages := TexPackageList.Create;
+  FVariables := TexVariableList.Create;
+  FParamValues := TexValues.Create;
 end;
 
 destructor TexExporter.Destroy;
 begin
-  FScript.Free;
   FSessions.Free;
   FDictionaries.Free;
   FEvents.Free;
   FPipelines.Free;
   FParameters.Free;
   FPackages.Free;
+  FVariables.Free;
+  FParamValues.Free;
+  FScript.Free;
   FreeAndNil(FSerializer);
   inherited Destroy;
 end;
@@ -208,6 +225,11 @@ begin
   FSessions.Assign(AValue);
 end;
 
+procedure TexExporter.SetVariables(const Value: TexVariableList);
+begin
+  FVariables.Assign(Value);
+end;
+
 procedure TexExporter.ScriptEngineCompile(Sender: TPSScript);
 var
   {$IFDEF FPC}
@@ -216,15 +238,20 @@ var
   AKey: String;
 begin
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TField;');
-  {$IFDEF FPC}
-  for I := 0 to FScriptArgs.Count -1 do
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineFindParam, 'function FindParam(AParamName: String): TexValue;');
+
+  if (Assigned(FScriptArgs)) then
   begin
-    AKey := FScriptArgs.Keys[I];
-  {$ELSE}
-  for AKey in FScriptArgs.Keys do
-  begin
-  {$ENDIF}
-    Sender.AddRegisteredVariable(AKey, 'Variant');
+    {$IFDEF FPC}
+    for I := 0 to FScriptArgs.Count -1 do
+    begin
+      AKey := FScriptArgs.Keys[I];
+    {$ELSE}
+    for AKey in FScriptArgs.Keys do
+    begin
+    {$ENDIF}
+      Sender.AddRegisteredVariable(AKey, 'Variant');
+    end;
   end;
 end;
 
@@ -235,15 +262,18 @@ var
   {$ENDIF}
   AKey: String;
 begin
-  {$IFDEF FPC}
-  for I := 0 to FScriptArgs.Count -1 do
+  if (Assigned(FScriptArgs)) then
   begin
-    AKey := FScriptArgs.Keys[I];
-  {$ELSE}
-  for AKey in FScriptArgs.Keys do
-  begin
-  {$ENDIF}
-    PPSVariantVariant(FScript.GetVariable(AKey))^.Data := FScriptArgs[AKey];
+    {$IFDEF FPC}
+    for I := 0 to FScriptArgs.Count -1 do
+    begin
+      AKey := FScriptArgs.Keys[I];
+    {$ELSE}
+    for AKey in FScriptArgs.Keys do
+    begin
+    {$ENDIF}
+      PPSVariantVariant(FScript.GetVariable(AKey))^.Data := FScriptArgs[AKey];
+    end;
   end;
 end;
 
@@ -251,6 +281,7 @@ procedure TexExporter.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompil
 begin
   RegisterDatetimeLibrary_C(x);
   RegisterSysUtilsLibrary_C(x);
+  RegisterTexValueClass_C(x);
   SIRegisterTFIELD(x);
 end;
 
@@ -258,7 +289,8 @@ procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TP
 begin
   RegisterDateTimeLibrary_R(se);
   RegisterSysUtilsLibrary_R(se);
-  RIRegisterTFIELD(x)
+  RegisterTexValueClass_R(x);
+  RIRegisterTFIELD(x);
 end;
 
 function TexExporter.ScriptEngineFindField(AFieldName: String): TField;
@@ -268,6 +300,22 @@ begin
     Result := FCurrentDataSet.FieldByName(AFieldName);
 end;
 
+function TexExporter.ScriptEngineFindParam(AParamName: String): TexValue;
+var
+  AParam: TexParameter;
+begin
+  Result := nil;
+  if (FParamValues.ContainsKey(AParamName)) then
+    Result := FParamValues[AParamName]
+  else begin
+    AParam := FParameters.FindByName(AParamName);
+    if (AParam <> nil) then
+    begin
+      Result := TexValue.Create(AParam.Value);
+      FParamValues.Add(AParam.Name, Result);
+    end;
+  end;
+end;
 
 procedure TexExporter.SetDictionaries(AValue: TexDictionaryList);
 begin
@@ -350,6 +398,7 @@ begin
   Result := TexResutMap.Create;
   FProvider.OpenConnection;
   try
+    FParamValues.Clear;
     Serializer.Serialize(Sessions, nil, Result);
   finally
     FProvider.CloseConnection;
