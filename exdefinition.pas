@@ -428,7 +428,7 @@ end;
 function TexOptions.GetAsString(AName: String; ADefault: String = ''): String;
 begin
   if (IndexOfName(AName) <> -1) then
-    Result := Self.Values[ADefault];
+    Result := Self.Values[AName];
 
   if (Result = '') then
     Result := ADefault;

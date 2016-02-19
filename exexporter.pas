@@ -28,15 +28,19 @@ type
   TexScriptArgs = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, Variant>;
   TexValues = {$IFDEF FPC} specialize TFPGMap {$ELSE} TObjectDictionary {$ENDIF}<String, TexValue>;
 
+  TexWorkBeginEvent = procedure(Sender: TObject; SessionCount: Integer) of object;
+
   { TexSerializer }
 
   TexSerializer = class(TPersistent)
   private
     FExporter: TexExporter;
+    FOnWork: TNotifyEvent;
   public
     constructor Create(AExporter: TexExporter); virtual;
     procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap); virtual; abstract;
     property Exporter: TexExporter read FExporter;
+    property OnWork: TNotifyEvent read FOnWork write FOnWork;
   end;
 
   TexSerializerClass = class of TexSerializer;
@@ -72,6 +76,9 @@ type
     FSerializerClass: TexSerializerClass;
     FParamValues: TexValues;
     FVariables: TexVariableList;
+    FOnWorkBegin: TexWorkBeginEvent;
+    FOnWorkEnd: TNotifyEvent;
+    FOnWork: TNotifyEvent;
     function GetSerializerClassName: String;
     procedure SetSerializerClassName(const Value: String);
     procedure SetPackages(AValue: TexPackageList);
@@ -114,6 +121,9 @@ type
     property Variables: TexVariableList read FVariables write SetVariables;
     property SerializerClassName: String read GetSerializerClassName write SetSerializerClassName;
     property Serializer: TexSerializer read FSerializer write SetSerializer;
+    property OnWork: TNotifyEvent read FOnWork write FOnWork;
+    property OnWorkBegin: TexWorkBeginEvent read FOnWorkBegin write FOnWorkBegin;
+    property OnWorkEnd: TNotifyEvent read FOnWorkEnd write FOnWorkEnd;
   end;
 
 implementation
@@ -398,8 +408,14 @@ begin
   Result := TexResutMap.Create;
   FProvider.OpenConnection;
   try
+    if (Assigned(FOnWorkBegin)) then
+      FOnWorkBegin(Self, Sessions.Count);
+
     FParamValues.Clear;
     Serializer.Serialize(Sessions, nil, Result);
+
+    if (Assigned(FOnWorkEnd)) then
+      FOnWorkEnd(Self);
   finally
     FProvider.CloseConnection;
   end;

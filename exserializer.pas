@@ -12,6 +12,7 @@ type
 
   TexBaseSerializer = class(TexSerializer)
   protected
+    procedure DoWork;
     function FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
     function ExtractColumnValue(AColumn: TexColumn; ADataSet: TDataSet): String;
     function BeforeSerialize(AData: String; ASession: TexSession): String;
@@ -88,6 +89,12 @@ begin
 end;
 
 { TexBaseSerializer }
+
+procedure TexBaseSerializer.DoWork;
+begin
+  if (Assigned(OnWork)) then
+    OnWork(Exporter);
+end;
 
 function TexBaseSerializer.FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
 var
@@ -255,6 +262,9 @@ begin
           AData.Add(ARow);
           Serialize(ASession.Sessions, AQuery, AResult);
 
+          if (ASessions.Owner = nil) then
+            DoWork;
+
           AQuery.Next;
         end;
       finally
@@ -277,6 +287,9 @@ begin
     ASession := ASessions[I];
     AData := FindData(ASession, AResult);
     AData.Add(FormatData(ASession, AMaster));
+
+    if (ASessions.Owner = nil) then
+      DoWork;
   end;
 end;
 
