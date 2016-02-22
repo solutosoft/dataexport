@@ -51,16 +51,19 @@ end;
 constructor TexHttpOptions.Create;
 begin
   inherited Create;
-  RegisterOption('BasicAuth', edtBoolean, 'False');
-  RegisterOption('ConnectTimeout', edtText);
+  RegisterOption('Accept', edtText);
+  RegisterOption('BasicAuthentication', edtBoolean, 'False');
+  RegisterOption('ConnectTimeout', edtInteger);
   RegisterOption('ContentType', edtText);
   RegisterOption('ContentEncoding', edtText);
   RegisterOption('Method', edtText);
-  RegisterOption('ProxyServer', edtText);
-  RegisterOption('ProxyPort', edtInteger);
-  RegisterOption('ProxyUsername', edtText);
+  RegisterOption('Password', edtText);
   RegisterOption('ProxyPassword', edtPassword);
+  RegisterOption('ProxyPort', edtInteger);
+  RegisterOption('ProxyServer', edtText);
+  RegisterOption('ProxyUsername', edtText);
   RegisterOption('Url', edtText);
+  RegisterOption('Username', edtText);
 end;
 
 end.
