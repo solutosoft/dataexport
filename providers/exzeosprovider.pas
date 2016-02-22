@@ -63,7 +63,7 @@ begin
             varcurrency:
               AParam.Value := AValue;
             vardate:
-              AParam.AsDate := AValue;
+              AParam.AsDateTime := AValue;
             varboolean:
               AParam.AsBoolean := AValue;
             varstring, varustring :
