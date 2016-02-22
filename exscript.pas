@@ -41,15 +41,15 @@ begin
   with S.Add(TexValue) do
   begin
     RegisterConstructor(@TexValue.Create, 'Create');
-    RegisterMethod(@TexValue.GetIsNull, 'GetIsNull');
-    RegisterMethod(@TexValue.GetAsVariant, 'GetAsVariant');
-    RegisterMethod(@TexValue.GetAsString, 'GetAsString');
-    RegisterMethod(@TexValue.GetAsInteger, 'GetAsInteger');
-    RegisterMethod(@TexValue.GetAsFloat, 'GetAsFloat');
-    RegisterMethod(@TexValue.GetAsDateTime, 'GetAsDateTime');
-    RegisterMethod(@TexValue.GetDateStart, 'GetDateStart');
-    RegisterMethod(@TexValue.GetDateEnd, 'GetDateEnd');
-    RegisterMethod(@TexValue.GetAsArray, 'GetAsArray');
+    RegisterMethod(@TexValue.IsNull, 'IsNull');
+    RegisterMethod(@TexValue.AsVariant, 'AsVariant');
+    RegisterMethod(@TexValue.AsString, 'AsString');
+    RegisterMethod(@TexValue.AsInteger, 'AsInteger');
+    RegisterMethod(@TexValue.AsFloat, 'AsFloat');
+    RegisterMethod(@TexValue.AsDateTime, 'AsDateTime');
+    RegisterMethod(@TexValue.AsDateBegin, 'AsDateBegin');
+    RegisterMethod(@TexValue.AsDateEnd, 'AsDateEnd');
+    RegisterMethod(@TexValue.AsArray, 'AsArray');
   end;
 end;
 
@@ -68,15 +68,15 @@ begin
   with S.AddClassN(S.FindClass('TObject'), 'TexValue') do
   begin
     RegisterMethod('Constructor Create( AValue : Variant)');
-    RegisterMethod('Function GetIsNull : Boolean');
-    RegisterMethod('Function GetAsVariant : Variant');
-    RegisterMethod('Function GetAsString : String');
-    RegisterMethod('Function GetAsInteger : Integer');
-    RegisterMethod('Function GetAsFloat : Extended');
-    RegisterMethod('Function GetAsDateTime : TDateTime');
-    RegisterMethod('Function GetDateStart : TDateTime');
-    RegisterMethod('Function GetDateEnd : TDateTime');
-    RegisterMethod('Function GetAsArray : TVariantDynArray');
+    RegisterMethod('Function IsNull : Boolean');
+    RegisterMethod('Function AsVariant : Variant');
+    RegisterMethod('Function AsString : String');
+    RegisterMethod('Function AsInteger : Integer');
+    RegisterMethod('Function AsFloat : Extended');
+    RegisterMethod('Function AsDateTime : TDateTime');
+    RegisterMethod('Function AsArray : TVariantDynArray');
+    RegisterMethod('Function AsDateBegin : TDateTime');
+    RegisterMethod('Function AsDateEnd : TDateTime');
   end;
 end;
 

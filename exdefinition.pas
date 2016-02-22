@@ -23,15 +23,15 @@ type
     function CheckIsNull(AValue: Variant): Boolean;
   public
     constructor Create(AValue: Variant);
-    function GetIsNull: Boolean;
-    function GetAsVariant: Variant;
-    function GetAsString: String;
-    function GetAsInteger: Integer;
-    function GetAsFloat: Extended;
-    function GetAsDateTime: TDateTime;
-    function GetDateStart: TDateTime;
-    function GetDateEnd: TDateTime;
-    function GetAsArray: TVariantDynArray;
+    function IsNull: Boolean;
+    function AsVariant: Variant;
+    function AsString: String;
+    function AsInteger: Integer;
+    function AsFloat: Extended;
+    function AsArray: TVariantDynArray;
+    function AsDateTime: TDateTime;
+    function AsDateBegin: TDateTime;
+    function AsDateEnd: TDateTime;
   end;
 
   { TexOptions }
@@ -348,60 +348,60 @@ function TexValue.GetRange: TVariantDynArray;
 var
   AValue: Variant;
 begin
-  AValue := GetAsVariant;
+  AValue := AsVariant;
 
-  if (not VarIsArray(AValue)) or (VarArrayDimCount(AValue) <> 2) then
+  if (not VarIsArray(AValue)) or (VarArrayHighBound(AValue, 1) <> 1) then
     raise EInvalidCast.Create('Invalid range format');
 
   Result := [AValue[0], AValue[1]];
 end;
 
-function TexValue.GetIsNull: Boolean;
+function TexValue.IsNull: Boolean;
 begin
-  Result := CheckIsNull(GetAsVariant);
+  Result := CheckIsNull(AsVariant);
 end;
 
-function TexValue.GetAsVariant: Variant;
+function TexValue.AsVariant: Variant;
 begin
   Result := FValue;
 end;
 
-function TexValue.GetAsString: String;
+function TexValue.AsString: String;
 begin
-  Result := VarToStrDef(GetAsVariant, '');
+  Result := VarToStrDef(AsVariant, '');
 end;
 
-function TexValue.GetAsDateTime: TDateTime;
+function TexValue.AsDateTime: TDateTime;
 begin
-  Result := VarAsType(GetAsVariant, varDate);
+  Result := VarAsType(AsVariant, varDate);
 end;
 
-function TexValue.GetAsFloat: Extended;
+function TexValue.AsFloat: Extended;
 begin
-  Result := StrToFloatDef(GetAsString, 0);
+  Result := StrToFloatDef(AsString, 0);
 end;
 
-function TexValue.GetAsInteger: Integer;
+function TexValue.AsInteger: Integer;
 begin
-  Result := StrToIntDef(GetAsString, 0);
+  Result := StrToIntDef(AsString, 0);
 end;
 
-function TexValue.GetDateStart: TDateTime;
+function TexValue.AsDateBegin: TDateTime;
 begin
   Result := GetRange[0];
 end;
 
-function TexValue.GetDateEnd: TDateTime;
+function TexValue.AsDateEnd: TDateTime;
 begin
   Result := GetRange[1];
 end;
 
-function TexValue.GetAsArray: TVariantDynArray;
+function TexValue.AsArray: TVariantDynArray;
 var
   I: Integer;
   AValue: Variant;
 begin
-  AValue := GetAsVariant;
+  AValue := AsVariant;
   Result := [];
 
   if (VarIsArray(AValue)) then
@@ -425,15 +425,6 @@ begin
   inherited Destroy;
 end;
 
-function TexOptions.GetAsString(AName: String; ADefault: String = ''): String;
-begin
-  if (IndexOfName(AName) <> -1) then
-    Result := Self.Values[AName];
-
-  if (Result = '') then
-    Result := ADefault;
-end;
-
 procedure TexOptions.RegisterOption(AName: String; AEditor: TexEditorType; ADefault: String);
 var
   AItem: TexEditorItem;
@@ -444,6 +435,15 @@ begin
     EditorType := AEditor;
     DefaultValue := ADefault;
   end;
+end;
+
+function TexOptions.GetAsString(AName: String; ADefault: String = ''): String;
+begin
+  if (IndexOfName(AName) <> -1) then
+    Result := Self.Values[AName];
+
+  if (Result = '') then
+    Result := ADefault;
 end;
 
 function TexOptions.GetAsInteger(AName: String; ADefault: Integer = 0): Integer;

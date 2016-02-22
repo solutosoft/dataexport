@@ -26,7 +26,6 @@ type
   TexExporter = class;
   TexResutMap = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, TStrings>;
   TexScriptArgs = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, Variant>;
-  TexValues = {$IFDEF FPC} specialize TFPGMap {$ELSE} TObjectDictionary {$ENDIF}<String, TexValue>;
 
   TexWorkBeginEvent = procedure(Sender: TObject; SessionCount: Integer) of object;
   TexSerializeDataEvent = procedure(Sender: TexPackage; AData: WideString) of object;
@@ -77,7 +76,6 @@ type
     FScript: TPSScript;
     FScriptArgs: TexScriptArgs;
     FSerializerClass: TexSerializerClass;
-    FParamValues: TexValues;
     FVariables: TexVariableList;
     FOnWorkBegin: TexWorkBeginEvent;
     FOnWorkEnd: TNotifyEvent;
@@ -187,7 +185,6 @@ begin
   FParameters := TexParameterList.Create;
   FPackages := TexPackageList.Create;
   FVariables := TexVariableList.Create;
-  FParamValues := TexValues.Create;
 end;
 
 destructor TexExporter.Destroy;
@@ -199,7 +196,6 @@ begin
   FParameters.Free;
   FPackages.Free;
   FVariables.Free;
-  FParamValues.Free;
   FScript.Free;
   FreeAndNil(FSerializer);
   inherited Destroy;
@@ -319,17 +315,10 @@ function TexExporter.ScriptEngineFindParam(AParamName: String): TexValue;
 var
   AParam: TexParameter;
 begin
-  Result := nil;
-  if (FParamValues.ContainsKey(AParamName)) then
-    Result := FParamValues[AParamName]
-  else begin
-    AParam := FParameters.FindByName(AParamName);
-    if (AParam <> nil) then
-    begin
-      Result := TexValue.Create(AParam.Value);
-      FParamValues.Add(AParam.Name, Result);
-    end;
-  end;
+  Result := TexValue.Create(Null);
+  AParam := FParameters.FindByName(AParamName);
+  if (AParam <> nil) then
+    Result := TexValue.Create(AParam.Value);
 end;
 
 procedure TexExporter.SetDictionaries(AValue: TexDictionaryList);
@@ -367,30 +356,37 @@ end;
 
 function TexExporter.ExtractParamValue(AName: String): Variant;
 var
+  AVariable: TexVariable;
   AParameter: TexParameter;
 begin
   Result := Unassigned;
-  AParameter := FParameters.FindByName(AName);
-  if (AParameter <> nil) then
-  begin
-   if (not VarIsClear(AParameter.Value)) then
-      Result := AParameter.Value
-   else
-     Result := ExecuteExpression(AParameter.Expression);
+  AVariable := FVariables.FindByName(AName);
 
-    case AParameter.DataType of
-      datText:
-        Result := VarAsType(Result, varstring);
-      datInteger:
-        Result := VarAsType(Result, varinteger);
-      datDateTime:
-        Result := VarAsType(Result, vardate);
-      datBoolean:
-        Result := VarAsType(Result, varboolean);
-      datFloat:
-        Result := VarAsType(Result, vardouble);
-      datCurrency:
-        Result := VarAsType(Result, varcurrency);
+  if (AVariable <> nil) then
+    Result := ExecuteExpression(AVariable.Expression)
+  else begin
+    AParameter := FParameters.FindByName(AName);
+    if (AParameter <> nil) then
+    begin
+     if (not VarIsClear(AParameter.Value)) then
+       Result := AParameter.Value
+     else
+       Result := ExecuteExpression(AParameter.Expression);
+
+      case AParameter.DataType of
+        datText:
+          Result := VarAsType(Result, varstring);
+        datInteger:
+          Result := VarAsType(Result, varinteger);
+        datDateTime:
+          Result := VarAsType(Result, vardate);
+        datBoolean:
+          Result := VarAsType(Result, varboolean);
+        datFloat:
+          Result := VarAsType(Result, vardouble);
+        datCurrency:
+          Result := VarAsType(Result, varcurrency);
+      end;
     end;
   end;
 end;
@@ -416,7 +412,6 @@ begin
     if (Assigned(FOnWorkBegin)) then
       FOnWorkBegin(Self, Sessions.Count);
 
-    FParamValues.Clear;
     FSerializer.OnWork := FOnWork;
     FSerializer.OnSerializeData := FOnSerializeData;
     FSerializer.Serialize(Sessions, nil, Result);
