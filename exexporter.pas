@@ -29,6 +29,7 @@ type
   TexValues = {$IFDEF FPC} specialize TFPGMap {$ELSE} TObjectDictionary {$ENDIF}<String, TexValue>;
 
   TexWorkBeginEvent = procedure(Sender: TObject; SessionCount: Integer) of object;
+  TexSerializeDataEvent = procedure(Sender: TexPackage; AData: WideString) of object;
 
   { TexSerializer }
 
@@ -36,11 +37,13 @@ type
   private
     FExporter: TexExporter;
     FOnWork: TNotifyEvent;
+    FOnSerializeData: TexSerializeDataEvent;
   public
     constructor Create(AExporter: TexExporter); virtual;
     procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap); virtual; abstract;
     property Exporter: TexExporter read FExporter;
     property OnWork: TNotifyEvent read FOnWork write FOnWork;
+    property OnSerializeData: TexSerializeDataEvent read FOnSerializeData write FOnSerializeData;
   end;
 
   TexSerializerClass = class of TexSerializer;
@@ -79,6 +82,7 @@ type
     FOnWorkBegin: TexWorkBeginEvent;
     FOnWorkEnd: TNotifyEvent;
     FOnWork: TNotifyEvent;
+    FOnSerializeData: TexSerializeDataEvent;
     function GetSerializerClassName: String;
     procedure SetSerializerClassName(const Value: String);
     procedure SetPackages(AValue: TexPackageList);
@@ -124,6 +128,7 @@ type
     property OnWork: TNotifyEvent read FOnWork write FOnWork;
     property OnWorkBegin: TexWorkBeginEvent read FOnWorkBegin write FOnWorkBegin;
     property OnWorkEnd: TNotifyEvent read FOnWorkEnd write FOnWorkEnd;
+    property OnSerializeData: TexSerializeDataEvent read FOnSerializeData write FOnSerializeData;
   end;
 
 implementation
@@ -412,7 +417,9 @@ begin
       FOnWorkBegin(Self, Sessions.Count);
 
     FParamValues.Clear;
-    Serializer.Serialize(Sessions, nil, Result);
+    FSerializer.OnWork := FOnWork;
+    FSerializer.OnSerializeData := FOnSerializeData;
+    FSerializer.Serialize(Sessions, nil, Result);
 
     if (Assigned(FOnWorkEnd)) then
       FOnWorkEnd(Self);

@@ -13,6 +13,7 @@ type
   TexBaseSerializer = class(TexSerializer)
   protected
     procedure DoWork;
+    procedure DoSerializeData(APackage: TexPackage; AData: WideString);
     function FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
     function ExtractColumnValue(AColumn: TexColumn; ADataSet: TDataSet): String;
     function BeforeSerialize(AData: String; ASession: TexSession): String;
@@ -89,6 +90,12 @@ begin
 end;
 
 { TexBaseSerializer }
+
+procedure TexBaseSerializer.DoSerializeData(APackage: TexPackage; AData: WideString);
+begin
+  if (Assigned(OnSerializeData)) then
+    OnSerializeData(APackage, AData);
+end;
 
 procedure TexBaseSerializer.DoWork;
 begin
@@ -306,6 +313,7 @@ var
   AColumn: TexColumn;
   APipeline: TexPipeline;
   AElements: TStringList;
+  APackage: TexPackage;
 begin
   Result := '';
   AElements := TStringList.Create;
@@ -337,10 +345,17 @@ begin
           AJson := AJson + FormatData(ASession.Sessions[I], AQuery) + ',';
 
         Delete(AJson, Length(AJson), 1);
-        AElements.Add(Format('{%s}', [AJson]));
+        AJson := Format('{%s}', [AJson]);
+        AElements.Add(AJson);
 
         if (ASame) then
           Break;
+
+        if (AOwner = nil) then
+        begin
+          APackage := Exporter.Packages.FindBySession(ASession.Name);
+          DoSerializeData(APackage, AJson);
+        end;
 
         AQuery.Next;
       end;
@@ -351,7 +366,7 @@ begin
 
       Delete(Result, Length(Result), 1);
 
-      if (AElements.Count > 1) then
+      if (not ASame) then
         Result := Format('[%s]', [Result]);
 
       if (AOwner <> nil) then
@@ -414,6 +429,7 @@ var
   AOwner: TexSession;
   AColumn: TexColumn;
   APipeline: TexPipeline;
+  APackage: TexPackage;
 begin
   Result := '';
   AOwner := ASession.Collection.Owner as TexSession;
@@ -450,6 +466,13 @@ begin
       end;
 
       Result := Result + AXml;
+
+      if (AOwner = nil) then
+      begin
+        APackage := Exporter.Packages.FindBySession(ASession.Name);
+        DoSerializeData(APackage, Result);
+      end;
+
       AQuery.Next;
     end;
     Result := EncodeTag(ASession.Name, Result);
