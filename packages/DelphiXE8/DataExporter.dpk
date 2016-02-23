@@ -27,7 +27,7 @@ package DataExporter;
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Data Export Components'}
 {$LIBSUFFIX 'D22'}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   rtl,

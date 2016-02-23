@@ -1,4 +1,4 @@
-package ZeosProvider;
+package DataSnapProvider;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -25,21 +25,21 @@ package ZeosProvider;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'Data Export Zeos Provider'}
+{$DESCRIPTION 'Data Exporter DataSnap Provider'}
 {$LIBSUFFIX 'D22'}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
   rtl,
-  DataExporter,
-  ZComponentDesign,
-  ZComponent,
-  ZParseSql,
-  ZCore,
-  ZDbc,
-  ZPlain;
+  dbrtl,
+  dsnap,
+  dbexpress,
+  DbxCommonDriver,
+  DbxClientDriver,
+  DataSnapProviderClient,
+  DataExporter;
 
 contains
-  exzeosprovider in '..\..\providers\exzeosprovider.pas';
+  exdatasnapprovider in '..\..\providers\exdatasnapprovider.pas';
 
 end.

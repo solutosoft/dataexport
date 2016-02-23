@@ -27,7 +27,7 @@ package FireDACProvider;
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Data Exporter FireDAC Provider'}
 {$LIBSUFFIX 'D22'}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   rtl,
