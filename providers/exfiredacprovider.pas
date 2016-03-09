@@ -63,8 +63,7 @@ begin
         AParam.Value := AField.Value
       else begin
         AValue := Exporter.ExtractParamValue(AParam.Name);
-
-        if (AValue <> Unassigned) then
+        if (not VarIsEmpty(AValue)) then
         begin
           case (VarType(AValue)) of
             varsmallint, varinteger, varsingle, varshortint, varword, varlongword, varint64:
