@@ -46,6 +46,7 @@ begin
     RegisterMethod(@TexValue.AsString, 'AsString');
     RegisterMethod(@TexValue.AsInteger, 'AsInteger');
     RegisterMethod(@TexValue.AsFloat, 'AsFloat');
+    RegisterMethod(@TexValue.AsBoolean, 'AsBoolean');
     RegisterMethod(@TexValue.AsDateTime, 'AsDateTime');
     RegisterMethod(@TexValue.AsDateBegin, 'AsDateBegin');
     RegisterMethod(@TexValue.AsDateEnd, 'AsDateEnd');
@@ -73,6 +74,7 @@ begin
     RegisterMethod('Function AsString : String');
     RegisterMethod('Function AsInteger : Integer');
     RegisterMethod('Function AsFloat : Extended');
+    RegisterMethod('Function AsBoolean : Boolean');
     RegisterMethod('Function AsDateTime : TDateTime');
     RegisterMethod('Function AsArray : TVariantDynArray');
     RegisterMethod('Function AsDateBegin : TDateTime');

@@ -28,6 +28,7 @@ type
     function AsString: String;
     function AsInteger: Integer;
     function AsFloat: Extended;
+    function AsBoolean: Boolean;
     function AsArray: TVariantDynArray;
     function AsDateTime: TDateTime;
     function AsDateBegin: TDateTime;
@@ -379,6 +380,11 @@ end;
 function TexValue.AsFloat: Extended;
 begin
   Result := StrToFloatDef(AsString, 0);
+end;
+
+function TexValue.AsBoolean: Boolean;
+begin
+  Result := StrToBoolDef(AsString, False);
 end;
 
 function TexValue.AsInteger: Integer;
