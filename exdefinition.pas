@@ -323,7 +323,7 @@ begin
     if (VarIsNumeric(AValue)) or (VarType(AValue) = varDate) then
       Result := (AValue = 0)
     else if (VarIsStr(AValue)) then
-      Result := String.IsNullOrWhiteSpace(AValue)
+      Result := Trim(AValue) = ''
     else if (VarIsArray(AValue)) then
     begin
       Result := VarArrayHighBound(AValue, 1) = -1;
@@ -408,7 +408,7 @@ var
   AValue: Variant;
 begin
   AValue := AsVariant;
-  Result := [];
+  SetLength(Result, 0);
 
   if (VarIsArray(AValue)) then
   begin
@@ -432,8 +432,6 @@ begin
 end;
 
 procedure TexOptions.RegisterOption(AName: String; AEditor: TexEditorType; ADefault: String);
-var
-  AItem: TexEditorItem;
 begin
   with FEditors.Add do
   begin
