@@ -14,16 +14,56 @@ procedure RegisterTexValueClass_C(S: TPSPascalCompiler);
 
 implementation
 
-function RemoveMask(Text: string): String;
+function RemoveMask(AText: string): String;
 var
   I: Integer;
 begin
   Result := '';
-  for I := 1 to Length(Text) do
+  for I := 1 to Length(AText) do
   begin
-    if (IsCharAlphaNumeric(Text[I])) then
-      Result := Result + Text[I];
+    if (IsCharAlphaNumeric(AText[I])) then
+      Result := Result + AText[I];
   end;
+end;
+
+procedure SetDateSeparator(ADateSeparator: Char);
+begin
+  FormatSettings.DateSeparator := ADateSeparator;
+end;
+
+procedure SetTimeSeparator(ATimeSeparator: Char);
+begin
+  FormatSettings.TimeSeparator := ATimeSeparator;
+end;
+
+procedure SetThousandSeparator(AThousandSeparator: Char);
+begin
+  FormatSettings.ThousandSeparator := AThousandSeparator;
+end;
+
+procedure SetDecimalSeparator(ADecimalSeparator: Char);
+begin
+  FormatSettings.DecimalSeparator := ADecimalSeparator;
+end;
+
+procedure SetLongDateFormat(ALongDateFormat: String);
+begin
+  FormatSettings.LongDateFormat := ALongDateFormat;
+end;
+
+procedure SetShortDateFormat(AShortDateFormat: String);
+begin
+  FormatSettings.ShortDateFormat := AShortDateFormat;
+end;
+
+procedure SetLongTimeFormat(ALongTimeFormat: String);
+begin
+  FormatSettings.LongTimeFormat := ALongTimeFormat;
+end;
+
+procedure SetShortTimeFormat(AShortTimeFormat: String);
+begin
+  FormatSettings.ShortTimeFormat := AShortTimeFormat;
 end;
 
 procedure RegisterSysUtilsLibrary_R(S: TPSExec);
@@ -34,6 +74,14 @@ begin
   S.RegisterDelphiFunction(@DeleteFile, 'DELETEFILE', cdRegister);
   S.RegisterDelphiFunction(@RenameFile, 'RENAMEFILE', cdRegister);
   S.RegisterDelphiFunction(@RemoveMask, 'REMOVEMASK', cdRegister);
+  S.RegisterDelphiFunction(@SetDateSeparator, 'SETDATESEPARATOR', cdRegister);
+  S.RegisterDelphiFunction(@SetTimeSeparator, 'SETTIMESEPARATOR', cdRegister);
+  S.RegisterDelphiFunction(@SetThousandSeparator, 'SETTHOUSANDSEPARATOR', cdRegister);
+  S.RegisterDelphiFunction(@SetDecimalSeparator, 'SETDECIMALSEPARATOR', cdRegister);
+  S.RegisterDelphiFunction(@SetLongDateFormat, 'SETLONGDATEFORMAT', cdRegister);
+  S.RegisterDelphiFunction(@SetShortDateFormat, 'SETSHORTDATEFORMAT', cdRegister);
+  S.RegisterDelphiFunction(@SetLongTimeFormat, 'SETLONGTIMEFORMAT', cdRegister);
+  S.RegisterDelphiFunction(@SetShortTimeFormat, 'SETSHORTTIMEFORMAT', cdRegister);
 end;
 
 procedure RegisterTexValueClass_R(S: TPSRuntimeClassImporter);
@@ -60,7 +108,15 @@ begin
   S.AddDelphiFunction('function FileExists (Const FileName : String) : Boolean;');
   S.AddDelphiFunction('function DirectoryExists (Const Directory : String) : Boolean;');
   S.AddDelphiFunction('function DeleteFile (Const FileName : String) : Boolean;');
-  S.AddDelphiFunction('function RemoveMask(Text: string): String;');
+  S.AddDelphiFunction('function RemoveMask(AText: string): String;');
+  S.AddDelphiFunction('procedure SetDateSeparator(ADateSeparator: Char);');
+  S.AddDelphiFunction('procedure SetTimeSeparator(ATimeSeparator: Char);');
+  S.AddDelphiFunction('procedure SetThousandSeparator(AThousandSeparator: Char);');
+  S.AddDelphiFunction('procedure SetDecimalSeparator(ADecimalSeparator: Char);');
+  S.AddDelphiFunction('procedure SetLongDateFormat(ALongDateFormat: String);');
+  S.AddDelphiFunction('procedure SetShortDateFormat(AShortDateFormat: String);');
+  S.AddDelphiFunction('procedure SetLongTimeFormat(ALongTimeFormat: String);');
+  S.AddDelphiFunction('procedure SetShortTimeFormat(AShortTimeFormat: String);');
 end;
 
 procedure RegisterTexValueClass_C(S: TPSPascalCompiler);

@@ -153,7 +153,10 @@ begin
   AExpression := AColumn.Expression;
 
   if (AField <> nil) then
-    AValue := AField.AsVariant;
+  begin
+    Result := AField.AsString;
+    AValue := AField.Value;
+  end;
 
   if (AColumn.Dictionary <> '') then
   begin
@@ -183,13 +186,12 @@ begin
       {$ELSE}
       AArgs.AddOrSetValue('value', AValue);
       {$ENDIF}
-      AValue := Exporter.ExecuteExpression(AExpression, AArgs);
+      Result := Exporter.ExecuteExpression(AExpression, AArgs);
     finally
       AArgs.Free;
     end;
   end;
 
-  Result := VarToStrDef(AValue, '');
   if (ASize <> 0) then
   begin
     if (ASize < Length(Result)) then
@@ -207,23 +209,23 @@ end;
 
 function TexBaseSerializer.BeforeSerialize(AData: String; ASession: TexSession): String;
 var
-  AEvent: TexVariable;
-  AParams: TexScriptArgs;
+  AArgs: TexScriptArgs;
+  AEventResult: Variant;
 begin
-  AParams := TexScriptArgs.Create;
+  AArgs := TexScriptArgs.Create;
   try
     {$IFDEF FPC}
-    AParams['Value'] := AData;
+    AArgs['Value'] := AData;
     {$ELSE}
-    AParams.AddOrSetValue('Value', AData);
+    AArgs.AddOrSetValue('Value', AData);
     {$ENDIF}
-    AEvent := Exporter.Events.FindByName(EXPORTER_BEFORE_SERIALIZE);
-    if (AEvent <> nil) then
-      Result := Exporter.ExecuteExpression(AEvent.Expression, AParams)
+    AEventResult := Exporter.ExecuteEvent(EXPORTER_BEFORE_SERIALIZE, AArgs);
+    if (AEventResult <> Unassigned) then
+      Result := AEventResult
     else
       Result := AData;
   finally
-    AParams.Free;
+    AArgs.Free;
   end;
 end;
 

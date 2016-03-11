@@ -104,6 +104,7 @@ type
     destructor Destroy; override;
     function ExtractParamValue(AName: String): Variant;
     function ExecuteExpression(AScript: String; AArgs: TexScriptArgs = nil): Variant;
+    function ExecuteEvent(AName: String; AArgs: TexScriptArgs = nil): Variant;
     function Execute: TexResutMap;
     procedure LoadFromStream(const AStream: TStream);
     procedure LoadFromFile(const AFileName: String);
@@ -412,15 +413,30 @@ begin
     if (Assigned(FOnWorkBegin)) then
       FOnWorkBegin(Self, Sessions.Count);
 
+    ExecuteEvent(EXPORTER_BEFORE_EXEC);
+
     FSerializer.OnWork := FOnWork;
     FSerializer.OnSerializeData := FOnSerializeData;
     FSerializer.Serialize(Sessions, nil, Result);
+
+    ExecuteEvent(EXPORTER_AFTER_EXEC);
 
     if (Assigned(FOnWorkEnd)) then
       FOnWorkEnd(Self);
   finally
     FProvider.CloseConnection;
   end;
+end;
+
+function TexExporter.ExecuteEvent(AName: String; AArgs: TexScriptArgs = nil): Variant;
+var
+  AEvent: TexVariable;
+begin
+  Result := Unassigned;
+  AEvent := Self.Events.FindByName(AName);
+
+  if (AEvent <> nil) and (Trim(AEvent.Expression) <> '') then
+    Result := ExecuteExpression(AEvent.Expression, AArgs);
 end;
 
 procedure TexExporter.LoadFromStream(const AStream: TStream);
