@@ -81,6 +81,8 @@ type
     FOnWorkEnd: TNotifyEvent;
     FOnWork: TNotifyEvent;
     FOnSerializeData: TexSerializeDataEvent;
+    FOnScriptExecImport: TPSOnExecImportEvent;
+    FOnScriptCompImport: TPSOnCompImportEvent;
     function GetSerializerClassName: String;
     procedure SetSerializerClassName(const Value: String);
     procedure SetPackages(AValue: TexPackageList);
@@ -91,14 +93,14 @@ type
     procedure SetProvider(AValue: TexProvider);
     procedure SetSerializer(AValue: TexSerializer);
     procedure SetSessions(AValue: TexSessionList);
+    procedure SetSerializerClass(const Value: TexSerializerClass);
+    procedure SetVariables(const Value: TexVariableList);
     procedure ScriptEngineCompile(Sender: TPSScript);
     procedure ScriptEngineExecute(Sender: TPSScript);
     procedure ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
     procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
-    function ScriptEngineFindField(AFieldName: String): TField;
+    function ScriptEngineFindField(AFieldName: String): TexValue;
     function ScriptEngineFindParam(AParamName: String): TexValue;
-    procedure SetSerializerClass(const Value: TexSerializerClass);
-    procedure SetVariables(const Value: TexVariableList);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -124,16 +126,18 @@ type
     property Variables: TexVariableList read FVariables write SetVariables;
     property SerializerClassName: String read GetSerializerClassName write SetSerializerClassName;
     property Serializer: TexSerializer read FSerializer write SetSerializer;
+    property OnScriptCompImport: TPSOnCompImportEvent read FOnScriptCompImport write FOnScriptCompImport;
+    property OnScriptExecImport: TPSOnExecImportEvent read FOnScriptExecImport write FOnScriptExecImport;
+    property OnSerializeData: TexSerializeDataEvent read FOnSerializeData write FOnSerializeData;
     property OnWork: TNotifyEvent read FOnWork write FOnWork;
     property OnWorkBegin: TexWorkBeginEvent read FOnWorkBegin write FOnWorkBegin;
     property OnWorkEnd: TNotifyEvent read FOnWorkEnd write FOnWorkEnd;
-    property OnSerializeData: TexSerializeDataEvent read FOnSerializeData write FOnSerializeData;
   end;
 
 implementation
 
 uses
-  uPSC_dateutils, uPSR_dateutils, uPSR_DB, uPSC_DB, exScript, exSerializer;
+  exScript, exSerializer;
 
 
 function PrepareScript(AExpression: String): TStrings;
@@ -249,7 +253,7 @@ var
   {$ENDIF}
   AKey: String;
 begin
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TField;');
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TexValue;');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindParam, 'function FindParam(AParamName: String): TexValue;');
 
   if (Assigned(FScriptArgs)) then
@@ -265,6 +269,22 @@ begin
       Sender.AddRegisteredVariable(AKey, 'Variant');
     end;
   end;
+end;
+
+procedure TexExporter.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
+begin
+  RegisterTexValueClass_C(x);
+
+  if (Assigned(FOnScriptCompImport)) then
+    FOnScriptCompImport(Sender, x);
+end;
+
+procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
+begin
+  RegisterTexValueClass_R(x);
+
+  if (Assigned(FOnScriptExecImport)) then
+    FOnScriptExecImport(Sender, se, x);
 end;
 
 procedure TexExporter.ScriptEngineExecute(Sender: TPSScript);
@@ -289,27 +309,11 @@ begin
   end;
 end;
 
-procedure TexExporter.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
-begin
-  RegisterDatetimeLibrary_C(x);
-  RegisterSysUtilsLibrary_C(x);
-  RegisterTexValueClass_C(x);
-  SIRegisterTFIELD(x);
-end;
-
-procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
-begin
-  RegisterDateTimeLibrary_R(se);
-  RegisterSysUtilsLibrary_R(se);
-  RegisterTexValueClass_R(x);
-  RIRegisterTFIELD(x);
-end;
-
-function TexExporter.ScriptEngineFindField(AFieldName: String): TField;
+function TexExporter.ScriptEngineFindField(AFieldName: String): TexValue;
 begin
   Result := nil;
   if (Assigned(FCurrentDataSet)) then
-    Result := FCurrentDataSet.FieldByName(AFieldName);
+    Result := TexValue.Create(FCurrentDataSet.FieldByName(AFieldName).Value);
 end;
 
 function TexExporter.ScriptEngineFindParam(AParamName: String): TexValue;

@@ -16,7 +16,7 @@ program DataExportTest;
 
 uses
   DUnitTestRunner,
-  exexportertest in 'exexportertest.pas';
+  exExporterTest in 'exexportertest.pas';
 
 {$R *.RES}
 

@@ -5,7 +5,7 @@ interface
 uses
   Forms, Classes, SysUtils, IOUtils, JSON, RegularExpressions, xmldom, XMLIntf, XMLDoc, TestFrameWork, TestExtensions,
   GUITesting, GuiTestRunner, exExporter, exZeosProvider, exSerializer, exDefinition, ZConnection, ZSqlProcessor,
-  ZScriptParser;
+  ZScriptParser, uPSRuntime, uPSCompiler;
 
 type
   { TexExporterTest }
@@ -17,6 +17,8 @@ type
     FConnection: TZConnection;
     procedure PrepareDatabase;
     function CreateExporter(AFileName: String): TexExporter;
+    procedure ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
+    procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
   public
     procedure AfterConstruction; override;
     destructor Destroy; override;
@@ -29,6 +31,10 @@ type
   end;
 
 implementation
+
+uses
+  uPSC_dateutils, uPSR_dateutils, uPSR_DB, uPSC_DB, exScript;
+
 
 procedure TexExporterTest.AfterConstruction;
 begin
@@ -80,6 +86,20 @@ begin
   Result := TexExporter.Create(nil);
   Result.LoadFromFile(TPath.Combine(FFixtureDir,  AFileName));
   Result.Provider := FProvider;
+  Result.OnScriptCompImport := ScriptEngineCompImport;
+  Result.OnScriptExecImport := ScriptEngineExecImport;
+end;
+
+procedure TexExporterTest.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
+begin
+  RegisterDatetimeLibrary_C(x);
+  RegisterSysUtilsLibrary_C(x);
+end;
+
+procedure TexExporterTest.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
+begin
+  RegisterDateTimeLibrary_R(se);
+  RegisterSysUtilsLibrary_R(se);
 end;
 
 procedure TexExporterTest.TestStore;
