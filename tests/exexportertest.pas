@@ -274,14 +274,14 @@ begin
     CheckEquals('1', ARow.Values['product_id'].Value);
     CheckEquals('2', ARow.Values['quantity'].Value);
     CheckEquals('10', ARow.Values['price'].Value);
-    CheckEquals('20', ARow.Values['total'].Value);
+    CheckEquals('20', ARow.Values['value'].Value);
 
     ARow := TJSONObject(ADetails.Items[1]);
     CheckEquals('200', ARow.Values['type'].Value);
     CheckEquals('2', ARow.Values['product_id'].Value);
     CheckEquals('5', ARow.Values['quantity'].Value);
     CheckEquals('20', ARow.Values['price'].Value);
-    CheckEquals('100', ARow.Values['total'].Value);
+    CheckEquals('100', ARow.Values['value'].Value);
   finally
     AExporter.Free;
   end
@@ -331,14 +331,14 @@ begin
     CheckEquals('1', AItem.ChildNodes.FindNode('product_id').Text);
     CheckEquals('2', AItem.ChildNodes.FindNode('quantity').Text);
     CheckEquals('10', AItem.ChildNodes.FindNode('price').Text);
-    CheckEquals('20', AItem.ChildNodes.FindNode('total').Text);
+    CheckEquals('20', AItem.ChildNodes.FindNode('value').Text);
 
     AItem := ADetails.ChildNodes[1];
     CheckEquals('200', AItem.ChildNodes.FindNode('type').Text);
     CheckEquals('2', AItem.ChildNodes.FindNode('product_id').Text);
     CheckEquals('5', AItem.ChildNodes.FindNode('quantity').Text);
     CheckEquals('20', AItem.ChildNodes.FindNode('price').Text);
-    CheckEquals('100', AItem.ChildNodes.FindNode('total').Text);
+    CheckEquals('100', AItem.ChildNodes.FindNode('value').Text);
   finally
     AExporter.Free;
   end

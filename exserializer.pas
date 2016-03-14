@@ -308,6 +308,7 @@ function TexJsonSerializer.FormatData(ASession: TexSession; AMaster: TDataSet): 
 var
   I, J: Integer;
   AJson,
+  AAlias,
   AValue: String;
   ASame: Boolean;
   AQuery: TDataSet;
@@ -340,7 +341,8 @@ begin
         begin
           AColumn := ASession.Columns[J];
           AValue := ExtractColumnValue(AColumn, AQuery);
-          AJson := AJson + Format('"%s":"%s"', [AColumn.Name, AValue]) + ',';
+          AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
+          AJson := AJson + Format('"%s":"%s"', [AAlias, AValue]) + ',';
         end;
 
         for I := 0 to ASession.Sessions.Count - 1 do
@@ -425,6 +427,7 @@ function TexXmlSerializer.FormatData(ASession: TexSession; AMaster: TDataSet): S
 var
   I, J: Integer;
   AXml,
+  AAlias,
   AValue: String;
   ASame: Boolean;
   AQuery: TDataSet;
@@ -453,8 +456,9 @@ begin
       for J := 0 to ASession.Columns.Count -1 do
       begin
         AColumn := ASession.Columns[J];
+        AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
         AValue := ExtractColumnValue(AColumn, AQuery);
-        AXml := AXml + EncodeTag(AColumn.Name, AValue);
+        AXml := AXml + EncodeTag(AAlias, AValue);
       end;
 
       for I := 0 to ASession.Sessions.Count - 1 do

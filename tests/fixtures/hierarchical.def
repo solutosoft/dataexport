@@ -38,6 +38,7 @@ object TexExporter
               Name = 'price'              
             end
             item
+              Alias = 'value' 
               Name = 'total'              
             end>
           Sessions = <>

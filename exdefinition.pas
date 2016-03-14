@@ -122,8 +122,10 @@ type
 
   TexColumn = class(TexDictionary)
   private
+    FAlias: String;
     FDictionary: String;
   published
+    property Alias: String read FAlias write FAlias;
     property Dictionary: String read FDictionary write FDictionary;
   end;
 
