@@ -278,6 +278,7 @@ end;
 procedure TexExporter.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
 begin
   RegisterTexValueClass_C(x);
+  RegisterSysUtilsLibrary_C(x);
 
   if (Assigned(FOnScriptCompImport)) then
     FOnScriptCompImport(Sender, x);
@@ -286,6 +287,7 @@ end;
 procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
 begin
   RegisterTexValueClass_R(x);
+  RegisterSysUtilsLibrary_R(se);
 
   if (Assigned(FOnScriptExecImport)) then
     FOnScriptExecImport(Sender, se, x);
