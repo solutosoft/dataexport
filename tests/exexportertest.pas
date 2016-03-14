@@ -281,6 +281,7 @@ begin
     AData := TJSONArray(TJSONObject(AJson).Values['invoices']);
     ARow := TJSONObject(AData.Items[0]);
 
+    CheckEquals('1', ARow.Values['objectId'].Value);
     CheckEquals('100', ARow.Values['type'].Value);
     CheckEquals('001', ARow.Values['number'].Value);
     CheckEquals('2015-11-10', ARow.Values['created_at'].Value);
@@ -290,6 +291,7 @@ begin
     CheckEquals(2, ADetails.Count);
 
     ARow := TJSONObject(ADetails.Items[0]);
+    CheckEquals('2', ARow.Values['objectId'].Value);
     CheckEquals('200', ARow.Values['type'].Value);
     CheckEquals('1', ARow.Values['product_id'].Value);
     CheckEquals('2', ARow.Values['quantity'].Value);
@@ -297,6 +299,7 @@ begin
     CheckEquals('20', ARow.Values['value'].Value);
 
     ARow := TJSONObject(ADetails.Items[1]);
+    CheckEquals('3', ARow.Values['objectId'].Value);
     CheckEquals('200', ARow.Values['type'].Value);
     CheckEquals('2', ARow.Values['product_id'].Value);
     CheckEquals('5', ARow.Values['quantity'].Value);
@@ -338,6 +341,7 @@ begin
     CheckEquals(2, ARoot.ChildNodes.Count);
     AItem := ARoot.ChildNodes[0];
 
+    CheckEquals('1', AItem.ChildNodes.FindNode('objectId').Text);
     CheckEquals('100', AItem.ChildNodes.FindNode('type').Text);
     CheckEquals('001', AItem.ChildNodes.FindNode('number').Text);
     CheckEquals('2015-11-10', AItem.ChildNodes.FindNode('created_at').Text);
@@ -347,6 +351,7 @@ begin
     CheckEquals(2, ADetails.ChildNodes.Count);
 
     AItem := ADetails.ChildNodes[0];
+    CheckEquals('2', AItem.ChildNodes.FindNode('objectId').Text);
     CheckEquals('200', AItem.ChildNodes.FindNode('type').Text);
     CheckEquals('1', AItem.ChildNodes.FindNode('product_id').Text);
     CheckEquals('2', AItem.ChildNodes.FindNode('quantity').Text);
@@ -354,6 +359,7 @@ begin
     CheckEquals('20', AItem.ChildNodes.FindNode('value').Text);
 
     AItem := ADetails.ChildNodes[1];
+    CheckEquals('3', AItem.ChildNodes.FindNode('objectId').Text);
     CheckEquals('200', AItem.ChildNodes.FindNode('type').Text);
     CheckEquals('2', AItem.ChildNodes.FindNode('product_id').Text);
     CheckEquals('5', AItem.ChildNodes.FindNode('quantity').Text);

@@ -7,6 +7,7 @@ uses
   exClasses, exDefinition, exExporter;
 
 type
+  TexExporterAccess = class(TexExporter);
 
   { TexBaseSerializer }
 
@@ -93,8 +94,12 @@ end;
 
 procedure TexBaseSerializer.DoSerializeData(APackage: TexPackage; AData: WideString);
 begin
-  if (Assigned(OnSerializeData)) then
-    OnSerializeData(APackage, AData);
+  try
+    if (Assigned(OnSerializeData)) then
+      OnSerializeData(APackage, AData);
+  finally
+    TexExporterAccess(Exporter).FObjectCounter := 0;
+  end;
 end;
 
 procedure TexBaseSerializer.DoWork;

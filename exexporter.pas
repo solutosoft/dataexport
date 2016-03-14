@@ -101,6 +101,9 @@ type
     procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
     function ScriptEngineFindField(AFieldName: String): TexValue;
     function ScriptEngineFindParam(AParamName: String): TexValue;
+    function ScriptEngineGetObjectId: Integer;
+  protected
+    FObjectCounter: Integer;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -255,6 +258,7 @@ var
 begin
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TexValue;');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindParam, 'function FindParam(AParamName: String): TexValue;');
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineGetObjectId, 'function GetObjectId: Integer;');
 
   if (Assigned(FScriptArgs)) then
   begin
@@ -324,6 +328,12 @@ begin
   AParam := FParameters.FindByName(AParamName);
   if (AParam <> nil) then
     Result := TexValue.Create(AParam.Value);
+end;
+
+function TexExporter.ScriptEngineGetObjectId: Integer;
+begin
+  Inc(FObjectCounter);
+  Result := FObjectCounter;
 end;
 
 procedure TexExporter.SetDictionaries(AValue: TexDictionaryList);
@@ -417,6 +427,7 @@ begin
     if (Assigned(FOnWorkBegin)) then
       FOnWorkBegin(Self, Sessions.Count);
 
+    FObjectCounter := 0;
     ExecuteEvent(EXPORTER_BEFORE_EXEC);
 
     FSerializer.OnWork := FOnWork;

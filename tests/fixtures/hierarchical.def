@@ -4,7 +4,11 @@ object TexExporter
     item
       Name = 'invoices'
       Pipeline = 'invoices-pipeline'      
-      Columns = <      
+      Columns = <
+        item
+          Name = 'objectId'
+          Expression = 'Result := GetObjectId;'         
+        end       
         item
           Name = 'type'
           Dictionary = 'type'          
@@ -23,10 +27,14 @@ object TexExporter
         item
           Name = 'details'
           Pipeline = 'details-pipeline'
-          Columns = <      
+          Columns = < 
+            item
+              Name = 'objectId'
+              Expression = 'Result := GetObjectId;'         
+            end           
             item
               Name = 'type'
-              Expression = 'Result := 200'
+              Expression = 'Result := 200;'
             end
             item
               Name = 'product_id'              
