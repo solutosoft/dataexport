@@ -21,6 +21,7 @@ type
     FValue: Variant;
     function GetRange: TVariantDynArray;
     function CheckIsNull(AValue: Variant): Boolean;
+    function CastData(AValue: Variant; AVarType: TVarType; ADefault: Variant): Variant;
   public
     constructor Create(AValue: Variant);
     function IsNull: Boolean;
@@ -315,6 +316,11 @@ uses
 
 { TexValue }
 
+constructor TexValue.Create(AValue: Variant);
+begin
+  FValue := AValue;
+end;
+
 function TexValue.CheckIsNull(AValue: Variant): Boolean;
 var
   I: Integer;
@@ -342,11 +348,6 @@ begin
   end;
 end;
 
-constructor TexValue.Create(AValue: Variant);
-begin
-  FValue := AValue;
-end;
-
 function TexValue.GetRange: TVariantDynArray;
 var
   AValue: Variant;
@@ -357,6 +358,14 @@ begin
     raise EInvalidCast.Create('Invalid range format');
 
   Result := [AValue[0], AValue[1]];
+end;
+
+function TexValue.CastData(AValue: Variant; AVarType: TVarType; ADefault: Variant): Variant;
+begin
+  if (VarIsClear(AValue)) then
+    Result := ADefault;
+
+  Result := VarAsType(AValue, AVarType);
 end;
 
 function TexValue.IsNull: Boolean;
@@ -371,37 +380,37 @@ end;
 
 function TexValue.AsString: String;
 begin
-  Result := VarToStrDef(AsVariant, '');
+  Result := CastData(AsVariant, varString, '');
 end;
 
 function TexValue.AsDateTime: TDateTime;
 begin
-  Result := VarAsType(AsVariant, varDate);
+  Result := CastData(AsVariant, varDate, 0);
 end;
 
 function TexValue.AsFloat: Extended;
 begin
-  Result := StrToFloatDef(AsString, 0);
+  Result := CastData(AsVariant, varDouble, 0);
 end;
 
 function TexValue.AsBoolean: Boolean;
 begin
-  Result := StrToBoolDef(AsString, False);
+  Result := CastData(AsVariant, varBoolean, False);
 end;
 
 function TexValue.AsInteger: Integer;
 begin
-  Result := StrToIntDef(AsString, 0);
+  Result := CastData(AsVariant, varInteger, 0);
 end;
 
 function TexValue.AsDateBegin: TDateTime;
 begin
-  Result := GetRange[0];
+  Result := CastData(GetRange[0], varDate, 0);
 end;
 
 function TexValue.AsDateEnd: TDateTime;
 begin
-  Result := GetRange[1];
+  Result := CastData(GetRange[0], varDate, 0);
 end;
 
 function TexValue.AsArray: TVariantDynArray;
