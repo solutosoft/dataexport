@@ -31,9 +31,9 @@ type
     function AsFloat: Extended;
     function AsBoolean: Boolean;
     function AsArray: TVariantDynArray;
-    function AsDateTime: TDateTime;
-    function AsDateBegin: TDateTime;
-    function AsDateEnd: TDateTime;
+    function AsDateTime: Double;
+    function AsDateBegin: Double;
+    function AsDateEnd: Double;
   end;
 
   { TexOptions }
@@ -383,7 +383,7 @@ begin
   Result := CastData(AsVariant, varString, '');
 end;
 
-function TexValue.AsDateTime: TDateTime;
+function TexValue.AsDateTime: Double;
 begin
   Result := CastData(AsVariant, varDate, 0);
 end;
@@ -403,12 +403,12 @@ begin
   Result := CastData(AsVariant, varInteger, 0);
 end;
 
-function TexValue.AsDateBegin: TDateTime;
+function TexValue.AsDateBegin: Double;
 begin
   Result := CastData(GetRange[0], varDate, 0);
 end;
 
-function TexValue.AsDateEnd: TDateTime;
+function TexValue.AsDateEnd: Double;
 begin
   Result := CastData(GetRange[0], varDate, 0);
 end;

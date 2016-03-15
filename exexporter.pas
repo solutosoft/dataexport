@@ -319,19 +319,21 @@ end;
 
 function TexExporter.ScriptEngineFindField(AFieldName: String): TexValue;
 begin
-  Result := nil;
   if (Assigned(FCurrentDataSet)) then
-    Result := TexValue.Create(FCurrentDataSet.FieldByName(AFieldName).Value);
+    Result := TexValue.Create(FCurrentDataSet.FieldByName(AFieldName).Value)
+  else
+    Result := TexValue.Create(Null);
 end;
 
 function TexExporter.ScriptEngineFindParam(AParamName: String): TexValue;
 var
   AParam: TexParameter;
 begin
-  Result := TexValue.Create(Null);
   AParam := FParameters.FindByName(AParamName);
   if (AParam <> nil) then
-    Result := TexValue.Create(AParam.Value);
+    Result := TexValue.Create(AParam.Value)
+  else
+    Result := TexValue.Create(Null);
 end;
 
 function TexExporter.ScriptEngineGetObjectId: Integer;

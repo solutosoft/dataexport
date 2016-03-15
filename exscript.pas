@@ -131,10 +131,10 @@ begin
     RegisterMethod('Function AsInteger : Integer');
     RegisterMethod('Function AsFloat : Extended');
     RegisterMethod('Function AsBoolean : Boolean');
-    RegisterMethod('Function AsDateTime : TDateTime');
+    RegisterMethod('Function AsDateTime : Double');
     RegisterMethod('Function AsArray : TVariantDynArray');
-    RegisterMethod('Function AsDateBegin : TDateTime');
-    RegisterMethod('Function AsDateEnd : TDateTime');
+    RegisterMethod('Function AsDateBegin : Double');
+    RegisterMethod('Function AsDateEnd : Double');
   end;
 end;
 
