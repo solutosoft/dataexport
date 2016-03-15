@@ -140,7 +140,7 @@ type
 implementation
 
 uses
-  exScript, exSerializer;
+  exSerializer, exScript, uPSC_dateutils, uPSR_dateutils;
 
 
 function PrepareScript(AExpression: String): TStrings;
@@ -279,6 +279,7 @@ procedure TexExporter.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompil
 begin
   RegisterTexValueClass_C(x);
   RegisterSysUtilsLibrary_C(x);
+  RegisterDatetimeLibrary_C(x);
 
   if (Assigned(FOnScriptCompImport)) then
     FOnScriptCompImport(Sender, x);
@@ -288,6 +289,7 @@ procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TP
 begin
   RegisterTexValueClass_R(x);
   RegisterSysUtilsLibrary_R(se);
+  RegisterDateTimeLibrary_R(se);
 
   if (Assigned(FOnScriptExecImport)) then
     FOnScriptExecImport(Sender, se, x);
