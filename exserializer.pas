@@ -18,6 +18,7 @@ type
     function FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
     function ExtractColumnValue(AColumn: TexColumn; ADataSet: TDataSet): String;
     function BeforeSerialize(AData: String; ASession: TexSession): String;
+    function ExecuteEvent(AEvent: TexVariable; AArgs: TexScriptArgs = nil): Variant;
   end;
 
   { TexColumnSerializer }
@@ -113,6 +114,7 @@ var
   APackage: TexPackage;
   AOwner: TexSession;
   ASessionName: String;
+  AArgs: TexScriptArgs;
 begin
   AOwner := TexSessionList(ASession.Collection).GetOwner as TexSession;
 
@@ -132,10 +134,25 @@ begin
     {$ENDIF}
       Result := AResultMap[APackage.Name]
     else begin
-      Result := TStringList.Create;
-      AResultMap.Add(APackage.Name, Result);
+      AArgs := TexScriptArgs.Create;
+      try
+        AArgs.Add(TexScriptVar.Create('AParams', APackage.Options));
+        ExecuteEvent(APackage.Events.FindByName(PACKAGE_BEFORE_EXEC), AArgs);
+
+        Result := TStringList.Create;
+        AResultMap.Add(APackage.Name, Result);
+      finally
+        AArgs.Free;
+      end;
     end;
   end;
+end;
+
+function TexBaseSerializer.ExecuteEvent(AEvent: TexVariable; AArgs: TexScriptArgs): Variant;
+begin
+  Result := Unassigned;
+  if (AEvent <> nil) and (Trim(AEvent.Expression) <> '') then
+    Result := Exporter.ExecuteExpression(AEvent.Expression, AArgs);
 end;
 
 function TexBaseSerializer.ExtractColumnValue(AColumn: TexColumn; ADataSet: TDataSet): String;
@@ -186,11 +203,7 @@ begin
   begin
     AArgs := TexScriptArgs.Create;
     try
-      {$IFDEF FPC}
-      AArgs['value'] := AValue;
-      {$ELSE}
-      AArgs.AddOrSetValue('value', AValue);
-      {$ENDIF}
+      AArgs.Add(TexScriptVar.Create('value', AValue));
       Result := Exporter.ExecuteExpression(AExpression, AArgs);
     finally
       AArgs.Free;
@@ -219,11 +232,7 @@ var
 begin
   AArgs := TexScriptArgs.Create;
   try
-    {$IFDEF FPC}
-    AArgs['Value'] := AData;
-    {$ELSE}
-    AArgs.AddOrSetValue('Value', AData);
-    {$ENDIF}
+    AArgs.Add(TexScriptVar.Create('Value', AData));
     AEventResult := Exporter.ExecuteEvent(EXPORTER_BEFORE_SERIALIZE, AArgs);
     if (AEventResult <> Unassigned) then
       Result := AEventResult

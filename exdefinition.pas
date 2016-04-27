@@ -350,14 +350,17 @@ end;
 
 function TexValue.GetRange: TVariantDynArray;
 var
+  I: Integer;
   AValue: Variant;
 begin
+  SetLength(Result, 2);
   AValue := AsVariant;
 
   if (not VarIsArray(AValue)) or (VarArrayHighBound(AValue, 1) <> 1) then
     raise EInvalidCast.Create('Invalid range format');
 
-  Result := [AValue[0], AValue[1]];
+  for I := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
+    Result[I] := AValue[I];
 end;
 
 function TexValue.CastData(AValue: Variant; AVarType: TVarType; ADefault: Variant): Variant;

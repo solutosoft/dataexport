@@ -4,13 +4,15 @@ interface
 
 uses
   SysUtils, uPSRuntime, uPSCompiler {$IFDEF FPC}, LCLIntf {$ELSE}, Windows {$ENDIF},
-  exDefinition;
+  exDefinition, exOptions;
 
 procedure RegisterSysUtilsLibrary_R(S: TPSExec);
 procedure RegisterTexValueClass_R(S: TPSRuntimeClassImporter);
+procedure RegisterTexOptionsClass_R(S: TPSRuntimeClassImporter);
 
 procedure RegisterSysUtilsLibrary_C(S: TPSPascalCompiler);
 procedure RegisterTexValueClass_C(S: TPSPascalCompiler);
+procedure RegisterTexOptionsClass_C(S: TPSPascalCompiler);
 
 implementation
 
@@ -102,6 +104,20 @@ begin
   end;
 end;
 
+procedure RegisterTexOptionsClass_R(S: TPSRuntimeClassImporter);
+begin
+  with S.Add(TexOptions) do
+  begin
+    RegisterConstructor(@TexOptions.Create, 'Create');
+    RegisterMethod(@TexOptions.GetAsString, 'GetAsString');
+    RegisterMethod(@TexOptions.GetAsInteger, 'GetAsInteger');
+    RegisterMethod(@TexOptions.GetAsFloat, 'GetAsFloat');
+    RegisterMethod(@TexOptions.GetAsBoolean, 'GetAsBoolean');
+  end;
+  S.Add(TexHttpOptions);
+  S.Add(TexFileOptions);
+end;
+
 procedure RegisterSysUtilsLibrary_C(S: TPSPascalCompiler);
 begin
   S.AddDelphiFunction('function FormatFloat(Const Format : String; Value : Extended) : String;');
@@ -136,6 +152,21 @@ begin
     RegisterMethod('Function AsDateBegin : Double');
     RegisterMethod('Function AsDateEnd : Double');
   end;
+end;
+
+procedure RegisterTexOptionsClass_C(S: TPSPascalCompiler);
+begin
+  with S.AddClassN(S.FindClass('TStringList'), 'TexOptions') do
+  begin
+    RegisterMethod('Constructor Create');
+    RegisterMethod('Function GetAsString( AName : String; ADefault : String) : String');
+    RegisterMethod('Function GetAsInteger( AName : String; ADefault : Integer) : Integer');
+    RegisterMethod('Function GetAsFloat( AName : String; ADefault : Double) : Double');
+    RegisterMethod('Function GetAsBoolean( AName : String; ADefault : Boolean) : Boolean');
+  end;
+
+  S.AddClassN(S.FindClass('TexOptions'),'TexHttpOptions');
+  S.AddClassN(S.FindClass('TexOptions'),'TexFileOptions');
 end;
 
 end.

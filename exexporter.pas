@@ -25,10 +25,27 @@ const
 type
   TexExporter = class;
   TexResutMap = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, TStrings>;
-  TexScriptArgs = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, Variant>;
 
   TexWorkBeginEvent = procedure(Sender: TObject; SessionCount: Integer) of object;
   TexSerializeDataEvent = procedure(Sender: TexPackage; AData: WideString) of object;
+
+  { TexScriptVar }
+
+  TexScriptVar = class(TPersistent)
+  private
+    FName: String;
+    FValue: Variant;
+    FData: TObject;
+  public
+    constructor Create(AName: String; AValue: Variant); overload;
+    constructor Create(AName: String; AData: TObject); overload;
+  published
+    property Name: String read FName;
+    property Data: TObject read FData;
+    property Value: Variant read FValue;
+  end;
+
+  TexScriptArgs = {$IFDEF FPC} specialize TFPGObjectList {$ELSE} TObjectList {$ENDIF}<TexScriptVar>;
 
   { TexSerializer }
 
@@ -140,7 +157,8 @@ type
 implementation
 
 uses
-  exSerializer, exScript, uPSC_dateutils, uPSR_dateutils;
+  exSerializer, exScript, uPSC_dateutils, uPSR_dateutils, uPSR_classes, uPSC_classes,
+  uPSC_std, uPSR_std;
 
 
 function PrepareScript(AExpression: String): TStrings;
@@ -166,6 +184,19 @@ begin
     Result.Add('end;');
 end;
 
+{ TexScriptVar }
+
+constructor TexScriptVar.Create(AName: String; AValue: Variant);
+begin
+  FName := AName;
+  FValue := AValue;
+end;
+
+constructor TexScriptVar.Create(AName: String; AData: TObject);
+begin
+  Create(AName, Null);
+  FData := AData;
+end;
 
 { TexSerializer }
 
@@ -251,10 +282,7 @@ end;
 
 procedure TexExporter.ScriptEngineCompile(Sender: TPSScript);
 var
-  {$IFDEF FPC}
-  I: Integer;
-  {$ENDIF}
-  AKey: String;
+  AVar: TexScriptVar;
 begin
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TexValue;');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindParam, 'function FindParam(AParamName: String): TexValue;');
@@ -262,22 +290,24 @@ begin
 
   if (Assigned(FScriptArgs)) then
   begin
-    {$IFDEF FPC}
-    for I := 0 to FScriptArgs.Count -1 do
+    for AVar in FScriptArgs do
     begin
-      AKey := FScriptArgs.Keys[I];
-    {$ELSE}
-    for AKey in FScriptArgs.Keys do
-    begin
-    {$ENDIF}
-      Sender.AddRegisteredVariable(AKey, 'Variant');
+      if (Assigned(AVar.Data)) then
+        Sender.AddRegisteredVariable(AVar.Name, AVar.Data.ClassName)
+      else
+        Sender.AddRegisteredVariable(AVar.Name, 'Variant');
     end;
   end;
 end;
 
 procedure TexExporter.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
 begin
+  SIRegister_Std(x);
+  SIRegister_Classes(x, True);
+
   RegisterTexValueClass_C(x);
+  RegisterTexOptionsClass_C(x);
+
   RegisterSysUtilsLibrary_C(x);
   RegisterDatetimeLibrary_C(x);
 
@@ -287,7 +317,12 @@ end;
 
 procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
 begin
+  RIRegister_Std(x);
+  RIRegister_Classes(x, True);
+
   RegisterTexValueClass_R(x);
+  RegisterTexOptionsClass_R(x);
+
   RegisterSysUtilsLibrary_R(se);
   RegisterDateTimeLibrary_R(se);
 
@@ -297,22 +332,16 @@ end;
 
 procedure TexExporter.ScriptEngineExecute(Sender: TPSScript);
 var
-  {$IFDEF FPC}
-  I: Integer;
-  {$ENDIF}
-  AKey: String;
+  AVar: TexScriptVar;
 begin
   if (Assigned(FScriptArgs)) then
   begin
-    {$IFDEF FPC}
-    for I := 0 to FScriptArgs.Count -1 do
+    for AVar in FScriptArgs do
     begin
-      AKey := FScriptArgs.Keys[I];
-    {$ELSE}
-    for AKey in FScriptArgs.Keys do
-    begin
-    {$ENDIF}
-      PPSVariantVariant(FScript.GetVariable(AKey))^.Data := FScriptArgs[AKey];
+      if (Assigned(AVar.Data)) then
+        FScript.SetVarToInstance(AVar.Name, AVar.Data)
+      else
+        PPSVariantVariant(FScript.GetVariable(AVar.Name))^.Data := AVar.Value;
     end;
   end;
 end;
