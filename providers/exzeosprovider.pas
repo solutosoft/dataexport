@@ -49,7 +49,10 @@ begin
         AField := AMaster.FindField(AParam.Name);
 
       if (AField <> nil) then
-        AParam.Value := AField.Value
+      begin
+        AParam.DataType := AField.DataType;
+        AParam.Value := AField.Value;
+      end
       else begin
         AValue := Exporter.ExtractParamValue(AParam.Name);
         if (not VarIsEmpty(AValue)) then
