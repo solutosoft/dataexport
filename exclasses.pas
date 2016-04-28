@@ -8,7 +8,7 @@ uses
 type
   TexEditorType = (
     edtText, edtPassword, edtInteger, edtCurrency, edtBoolean, edtDate, edtDateTime, edtTime,
-    edtFile, edtDirectory, edtLookup, edtCombobox, edtCheckbox, edtRangeDate
+    edtFile, edtDirectory, edtLookup, edtCombobox, edtCheckListBox, edtRangeDate
   );
 
   { TexRegisteredClassItem }

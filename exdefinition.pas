@@ -364,11 +364,21 @@ begin
 end;
 
 function TexValue.CastData(AValue: Variant; AVarType: TVarType; ADefault: Variant): Variant;
+var
+  I: Integer;
 begin
-  if (VarIsClear(AValue)) then
-    Result := ADefault;
+  if (VarIsArray(AValue)) then
+  begin
+    for I := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
+      AValue[I] := VarAsType(AValue[I], AVarType);
 
-  Result := VarAsType(AValue, AVarType);
+    Result := AValue;
+  end
+  else begin
+    if (VarIsClear(AValue)) then
+      Result := ADefault;
+    Result := VarAsType(AValue, AVarType);
+  end;
 end;
 
 function TexValue.IsNull: Boolean;
@@ -418,7 +428,8 @@ end;
 
 function TexValue.AsArray: TVariantDynArray;
 var
-  I: Integer;
+  I,
+  AHigh: Integer;
   AValue: Variant;
 begin
   AValue := AsVariant;
@@ -426,8 +437,10 @@ begin
 
   if (VarIsArray(AValue)) then
   begin
-    SetLength(Result, VarArrayDimCount(AValue));
-    for I := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
+    AHigh := VarArrayHighBound(AValue, 1);
+    SetLength(Result, AHigh + 1);
+
+    for I := VarArrayLowBound(AValue, 1) to AHigh  do
       Result[I] := AValue[I];
   end;
 end;

@@ -137,7 +137,8 @@ end;
 
 procedure RegisterTexValueClass_C(S: TPSPascalCompiler);
 begin
-  //with RegClassS(CL,'TObject', 'TexValue') do
+  S.AddTypeS('TVariantDynArray', 'array of Variant');
+
   with S.AddClassN(S.FindClass('TObject'), 'TexValue') do
   begin
     RegisterMethod('Constructor Create( AValue : Variant)');

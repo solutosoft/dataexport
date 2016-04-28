@@ -116,6 +116,8 @@ type
     procedure ScriptEngineExecute(Sender: TPSScript);
     procedure ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
     procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
+    procedure ScriptEngineSetSessionVisible(ASessionName: String; AVisible: Boolean);
+    procedure ScriptEngineSetSessionVisibleAll(AVisible: Boolean);
     function ScriptEngineFindField(AFieldName: String): TexValue;
     function ScriptEngineFindParam(AParamName: String): TexValue;
     function ScriptEngineGetObjectId: Integer;
@@ -284,6 +286,8 @@ procedure TexExporter.ScriptEngineCompile(Sender: TPSScript);
 var
   AVar: TexScriptVar;
 begin
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineSetSessionVisible, 'procedure SetSessionVisible(ASessionName: String; AVisible: Boolean);');
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineSetSessionVisibleAll, 'procedure SetSessionVisibleAll(AVisible: Boolean);');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TexValue;');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindParam, 'function FindParam(AParamName: String): TexValue;');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineGetObjectId, 'function GetObjectId: Integer;');
@@ -344,6 +348,23 @@ begin
         PPSVariantVariant(FScript.GetVariable(AVar.Name))^.Data := AVar.Value;
     end;
   end;
+end;
+
+procedure TexExporter.ScriptEngineSetSessionVisible(ASessionName: String; AVisible: Boolean);
+var
+  ASession: TexSession;
+begin
+  ASession := FSessions.FindByName(ASessionName);
+  if (ASession <> nil) then
+    ASession.Visible := AVisible;
+end;
+
+procedure TexExporter.ScriptEngineSetSessionVisibleAll(AVisible: Boolean);
+var
+  I: Integer;
+begin
+  for I := 0 to FSessions.Count -1 do
+    FSessions[I].Visible := AVisible;
 end;
 
 function TexExporter.ScriptEngineFindField(AFieldName: String): TexValue;
