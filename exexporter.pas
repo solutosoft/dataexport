@@ -118,6 +118,7 @@ type
     procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
     procedure ScriptEngineSetSessionVisible(ASessionName: String; AVisible: Boolean);
     procedure ScriptEngineSetSessionVisibleAll(AVisible: Boolean);
+    function ScriptEngineRecNo: Integer;
     function ScriptEngineFindField(AFieldName: String): TexValue;
     function ScriptEngineFindParam(AParamName: String): TexValue;
     function ScriptEngineGetObjectId: Integer;
@@ -286,6 +287,7 @@ procedure TexExporter.ScriptEngineCompile(Sender: TPSScript);
 var
   AVar: TexScriptVar;
 begin
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineRecNo, 'function RecNo: Integer;');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineSetSessionVisible, 'procedure SetSessionVisible(ASessionName: String; AVisible: Boolean);');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineSetSessionVisibleAll, 'procedure SetSessionVisibleAll(AVisible: Boolean);');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TexValue;');
@@ -390,6 +392,11 @@ function TexExporter.ScriptEngineGetObjectId: Integer;
 begin
   Inc(FObjectCounter);
   Result := FObjectCounter;
+end;
+
+function TexExporter.ScriptEngineRecNo: Integer;
+begin
+  Result := FCurrentDataSet.RecNo;
 end;
 
 procedure TexExporter.SetDictionaries(AValue: TexDictionaryList);
