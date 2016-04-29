@@ -4,7 +4,7 @@ interface
 
 uses
   Classes, SysUtils, Variants, DB,
-  {$IFDEF FPC}fgl, RegExpr, {$ELSE} Generics.Collections, RegularExpressions, {$ENDIF}
+  {$IFDEF FPC}fgl, RegExpr, md5, {$ELSE} Generics.Collections, RegularExpressions, Hash, {$ENDIF}
   uPSComponent, uPSCompiler, uPSRuntime, exDefinition;
 
 const
@@ -46,6 +46,7 @@ type
   end;
 
   TexScriptArgs = {$IFDEF FPC} specialize TFPGObjectList {$ELSE} TObjectList {$ENDIF}<TexScriptVar>;
+  TexScriptCache = {$IFDEF FPC} specialize TFPGMap {$ELSE} TDictionary {$ENDIF}<String, String>;
 
   { TexSerializer }
 
@@ -92,6 +93,7 @@ type
     FDictionaries: TexDictionaryList;
     FScript: TPSScript;
     FScriptArgs: TexScriptArgs;
+    FScriptCache: TexScriptCache;
     FSerializerClass: TexSerializerClass;
     FVariables: TexVariableList;
     FOnWorkBegin: TexWorkBeginEvent;
@@ -220,6 +222,7 @@ begin
   FScript.OnCompImport := {$IFDEF FPC}@{$ENDIF}ScriptEngineCompImport;
   FScript.OnExecImport := {$IFDEF FPC}@{$ENDIF}ScriptEngineExecImport;
 
+  FScriptCache := TexScriptCache.Create;
   FSessions := TexSessionList.Create(nil);
   FDictionaries := TexDictionaryList.Create;
   FEvents := TexVariableList.Create;
@@ -231,6 +234,7 @@ end;
 
 destructor TexExporter.Destroy;
 begin
+  FScriptCache.Free;
   FSessions.Free;
   FDictionaries.Free;
   FEvents.Free;
@@ -470,13 +474,30 @@ begin
 end;
 
 function TexExporter.ExecuteExpression(AScript: String; AArgs: TexScriptArgs): Variant;
+var
+  AHash: String;
+  ACompiled: AnsiString;
+  AContaisKey: Boolean;
 begin
   FScriptArgs := AArgs;
-  FScript.Script.Assign(PrepareScript(AScript));
-  if (FScript.Compile) then
-    Result := FScript.ExecuteFunction([], SCRIPT_FUNCEVAL_EXEC)
-  else
-    raise Exception.Create(FScript.CompilerErrorToStr(0));
+  AHash := {$IFDEF FPC} MD5Print(MD5String(AScript)) {$ELSE} THashMD5.GetHashString(AScript) {$ENDIF};
+  AContaisKey := {$IFDEF FPC} FScriptCache.IndexOf(AHash) <> -1 {$ELSE} FScriptCache.ContainsKey(AHash) {$ENDIF};
+
+  if (AContaisKey) then
+    FScript.Exec.LoadData(FScriptCache[AHash])
+  else begin
+    FScript.Script.Assign(PrepareScript(AScript));
+    if (FScript.Compile) then
+    begin
+      if (not FScript.Compile) then
+        raise Exception.Create(FScript.CompilerErrorToStr(0))
+      else begin
+        FScript.GetCompiled(ACompiled);
+        FScriptCache.Add(AHash, ACompiled);
+      end;
+    end;
+  end;
+  Result := FScript.ExecuteFunction([], SCRIPT_FUNCEVAL_EXEC);
 end;
 
 function TexExporter.Execute: TexResutMap;
