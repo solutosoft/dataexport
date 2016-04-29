@@ -141,17 +141,17 @@ begin
 
   with S.AddClassN(S.FindClass('TObject'), 'TexValue') do
   begin
-    RegisterMethod('Constructor Create( AValue : Variant)');
+    RegisterMethod('Constructor Create(AValue : Variant)');
     RegisterMethod('Function IsNull : Boolean');
     RegisterMethod('Function AsVariant : Variant');
-    RegisterMethod('Function AsString : String');
-    RegisterMethod('Function AsInteger : Integer');
-    RegisterMethod('Function AsFloat : Extended');
-    RegisterMethod('Function AsBoolean : Boolean');
-    RegisterMethod('Function AsDateTime : Double');
+    RegisterMethod('Function AsString : Variant');
+    RegisterMethod('Function AsInteger : Variant');
+    RegisterMethod('Function AsFloat : Variant');
+    RegisterMethod('Function AsBoolean : Variant');
+    RegisterMethod('Function AsDateTime : Variant');
+    RegisterMethod('Function AsDateBegin : Variant');
+    RegisterMethod('Function AsDateEnd : Variant');
     RegisterMethod('Function AsArray : TVariantDynArray');
-    RegisterMethod('Function AsDateBegin : Double');
-    RegisterMethod('Function AsDateEnd : Double');
   end;
 end;
 

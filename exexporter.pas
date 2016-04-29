@@ -311,11 +311,11 @@ begin
   SIRegister_Std(x);
   SIRegister_Classes(x, True);
 
-  RegisterTexValueClass_C(x);
-  RegisterTexOptionsClass_C(x);
-
   RegisterSysUtilsLibrary_C(x);
   RegisterDatetimeLibrary_C(x);
+
+  RegisterTexValueClass_C(x);
+  RegisterTexOptionsClass_C(x);
 
   if (Assigned(FOnScriptCompImport)) then
     FOnScriptCompImport(Sender, x);
@@ -326,11 +326,11 @@ begin
   RIRegister_Std(x);
   RIRegister_Classes(x, True);
 
-  RegisterTexValueClass_R(x);
-  RegisterTexOptionsClass_R(x);
-
   RegisterSysUtilsLibrary_R(se);
   RegisterDateTimeLibrary_R(se);
+
+  RegisterTexValueClass_R(x);
+  RegisterTexOptionsClass_R(x);
 
   if (Assigned(FOnScriptExecImport)) then
     FOnScriptExecImport(Sender, se, x);

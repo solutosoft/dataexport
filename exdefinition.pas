@@ -26,14 +26,14 @@ type
     constructor Create(AValue: Variant);
     function IsNull: Boolean;
     function AsVariant: Variant;
-    function AsString: String;
-    function AsInteger: Integer;
-    function AsFloat: Extended;
-    function AsBoolean: Boolean;
+    function AsString: Variant;
+    function AsInteger: Variant;
+    function AsFloat: Variant;
+    function AsBoolean: Variant;
     function AsArray: TVariantDynArray;
-    function AsDateTime: Double;
-    function AsDateBegin: Double;
-    function AsDateEnd: Double;
+    function AsDateTime: Variant;
+    function AsDateBegin: Variant;
+    function AsDateEnd: Variant;
   end;
 
   { TexOptions }
@@ -391,39 +391,39 @@ begin
   Result := FValue;
 end;
 
-function TexValue.AsString: String;
+function TexValue.AsString: Variant;
 begin
   Result := CastData(AsVariant, varString, '');
 end;
 
-function TexValue.AsDateTime: Double;
+function TexValue.AsDateTime: Variant;
 begin
   Result := CastData(AsVariant, varDate, 0);
 end;
 
-function TexValue.AsFloat: Extended;
+function TexValue.AsFloat: Variant;
 begin
   Result := CastData(AsVariant, varDouble, 0);
 end;
 
-function TexValue.AsBoolean: Boolean;
+function TexValue.AsBoolean: Variant;
 begin
   Result := CastData(AsVariant, varBoolean, False);
 end;
 
-function TexValue.AsInteger: Integer;
+function TexValue.AsInteger: Variant;
 begin
   Result := CastData(AsVariant, varInteger, 0);
 end;
 
-function TexValue.AsDateBegin: Double;
+function TexValue.AsDateBegin: Variant;
 begin
   Result := CastData(GetRange[0], varDate, 0);
 end;
 
-function TexValue.AsDateEnd: Double;
+function TexValue.AsDateEnd: Variant;
 begin
-  Result := CastData(GetRange[0], varDate, 0);
+  Result := CastData(GetRange[1], varDate, 0);
 end;
 
 function TexValue.AsArray: TVariantDynArray;
