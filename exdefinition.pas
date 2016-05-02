@@ -243,8 +243,9 @@ type
   public
     constructor Create(AOwner: TexSession);
     function GetOwner: TPersistent; override;
-    function FindByName(AName: String): TexSession; reintroduce;
     function Add: TexSession;
+    function FindByName(AName: String): TexSession; reintroduce;
+    procedure Toggle(AVisible: Boolean);
     property Items[Index: Integer]: TexSession read GetItem write SetItem; default;
   end;
 
@@ -744,8 +745,39 @@ begin
 end;
 
 function TexSessionList.FindByName(AName: String): TexSession;
+var
+  AItem: TCollectionItem;
+  ASession: TexSession;
 begin
-  Result := TexSession(inherited FindByName(AName));
+  Result := nil;
+  for AItem in Self do
+  begin
+    ASession := AItem as TexSession;
+    Result := ASession.Sessions.FindByName(AName);
+
+    if (Result <> nil) then
+      Exit
+    else begin
+      if (SameText(ASession.Name, AName)) then
+      begin
+        Result := ASession;
+        Exit;
+      end;
+    end;
+  end;
+end;
+
+procedure TexSessionList.Toggle(AVisible: Boolean);
+var
+  I: Integer;
+  ASession: TexSession;
+begin
+  for I := 0 to Self.Count -1 do
+  begin
+    ASession := Self.Items[I] as TexSession;
+    ASession.Visible := AVisible;
+    ASession.Sessions.Toggle(AVisible);
+  end;
 end;
 
 function TexSessionList.Add: TexSession;

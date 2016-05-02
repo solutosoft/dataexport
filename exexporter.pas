@@ -366,11 +366,8 @@ begin
 end;
 
 procedure TexExporter.ScriptEngineSetSessionVisibleAll(AVisible: Boolean);
-var
-  I: Integer;
 begin
-  for I := 0 to FSessions.Count -1 do
-    FSessions[I].Visible := AVisible;
+  FSessions.Toggle(AVisible);
 end;
 
 function TexExporter.ScriptEngineFindField(AFieldName: String): TexValue;
@@ -506,6 +503,7 @@ begin
     raise Exception.Create('The serializer property must be set');
 
   Result := TexResutMap.Create;
+  FScriptCache.Clear;
   FProvider.OpenConnection;
   try
     if (Assigned(FOnWorkBegin)) then
