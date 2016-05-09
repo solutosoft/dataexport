@@ -315,9 +315,6 @@ begin
   SIRegister_Std(x);
   SIRegister_Classes(x, True);
 
-  RegisterSysUtilsLibrary_C(x);
-  RegisterDatetimeLibrary_C(x);
-
   RegisterTexValueClass_C(x);
   RegisterTexOptionsClass_C(x);
 
@@ -329,9 +326,6 @@ procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TP
 begin
   RIRegister_Std(x);
   RIRegister_Classes(x, True);
-
-  RegisterSysUtilsLibrary_R(se);
-  RegisterDateTimeLibrary_R(se);
 
   RegisterTexValueClass_R(x);
   RegisterTexOptionsClass_R(x);

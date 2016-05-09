@@ -3,9 +3,9 @@ unit exExporterTest;
 interface
 
 uses
-  Forms, Classes, SysUtils, IOUtils, JSON, RegularExpressions, xmldom, XMLIntf, XMLDoc, TestFrameWork, TestExtensions,
-  GUITesting, GuiTestRunner, exExporter, exZeosProvider, exSerializer, exDefinition, ZConnection, ZSqlProcessor,
-  ZScriptParser, uPSRuntime, uPSCompiler;
+  Windows, Forms, Classes, SysUtils, IOUtils, JSON, RegularExpressions, xmldom, XMLIntf, XMLDoc, TestFrameWork,
+  TestExtensions, GUITesting, GuiTestRunner, exExporter, exZeosProvider, exSerializer, exDefinition, ZConnection,
+  ZSqlProcessor, ZScriptParser, uPSRuntime, uPSCompiler;
 
 type
   { TexExporterTest }
@@ -35,6 +35,30 @@ implementation
 uses
   uPSC_dateutils, uPSR_dateutils, uPSR_DB, uPSC_DB, exScript;
 
+
+function RemoveMask(AText: string): String;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(AText) do
+  begin
+    if (IsCharAlphaNumeric(AText[I])) then
+      Result := Result + AText[I];
+  end;
+end;
+
+procedure RegisterExtraLibrary_C(S: TPSPascalCompiler);
+begin
+  S.AddDelphiFunction('function FormatFloat(Const Format : String; Value : Extended) : String;');
+  S.AddDelphiFunction('function RemoveMask(AText: string): String;');
+end;
+
+procedure RegisterExtraLibrary_R(S: TPSExec);
+begin
+  S.RegisterDelphiFunction(@FormatFloat, 'FORMATFLOAT', cdRegister);
+  S.RegisterDelphiFunction(@RemoveMask, 'REMOVEMASK', cdRegister);
+end;
 
 procedure TexExporterTest.AfterConstruction;
 begin
@@ -93,13 +117,13 @@ end;
 procedure TexExporterTest.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
 begin
   RegisterDatetimeLibrary_C(x);
-  RegisterSysUtilsLibrary_C(x);
+  RegisterExtraLibrary_C(x);
 end;
 
 procedure TexExporterTest.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
 begin
   RegisterDateTimeLibrary_R(se);
-  RegisterSysUtilsLibrary_R(se);
+  RegisterExtraLibrary_R(se);
 end;
 
 procedure TexExporterTest.TestStore;
