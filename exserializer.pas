@@ -159,7 +159,6 @@ function TexBaseSerializer.ExtractColumnValue(AColumn: TexColumn; ADataSet: TDat
 var
   ASize: Integer;
   AComplete: Char;
-  AExpression: String;
   AAlign: TexAlignment;
   AField: TField;
   ADictionary: TexDictionary;
@@ -172,12 +171,22 @@ begin
   AComplete := AColumn.Complete;
   ASize := AColumn.Size;
   AAlign := AColumn.Align;
-  AExpression := AColumn.Expression;
 
   if (AField <> nil) then
   begin
     Result := AField.AsString;
     AValue := AField.Value;
+  end;
+
+  if (AColumn.Expression <> '') then
+  begin
+    AArgs := TexScriptArgs.Create;
+    try
+      AArgs.Add(TexScriptVar.Create('value', AValue));
+      AValue := Exporter.ExecuteExpression(AColumn.Expression, AArgs);
+    finally
+      AArgs.Free;
+    end;
   end;
 
   if (AColumn.Dictionary <> '') then
@@ -194,21 +203,21 @@ begin
       if (AAlign = altNone) then
          AAlign := ADictionary.Align;
 
-      if (AExpression = '') then
-         AExpression := ADictionary.Expression;
+      if (ADictionary.Expression <> '') then
+      begin
+        AArgs := TexScriptArgs.Create;
+        try
+          AArgs.Add(TexScriptVar.Create('value', AValue));
+          AValue := Exporter.ExecuteExpression(ADictionary.Expression, AArgs);
+        finally
+          AArgs.Free;
+        end;
+      end;
     end;
   end;
 
-  if (AExpression <> '') then
-  begin
-    AArgs := TexScriptArgs.Create;
-    try
-      AArgs.Add(TexScriptVar.Create('value', AValue));
-      Result := Exporter.ExecuteExpression(AExpression, AArgs);
-    finally
-      AArgs.Free;
-    end;
-  end;
+  if (AColumn.Expression <> '') or ((ADictionary <> nil) and (ADictionary.Expression <> '')) then
+    Result := VarToStrDef(AValue, '');
 
   if (ASize <> 0) then
   begin
