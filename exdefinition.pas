@@ -376,8 +376,8 @@ begin
     Result := AValue;
   end
   else begin
-    if (VarIsClear(AValue)) then
-      Result := ADefault;
+    if (VarIsClear(AValue) or VarIsNull(AValue)) then
+      AValue := ADefault;
     Result := VarAsType(AValue, AVarType);
   end;
 end;
