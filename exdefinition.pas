@@ -367,6 +367,7 @@ end;
 function TexValue.CastData(AValue: Variant; AVarType: TVarType; ADefault: Variant): Variant;
 var
   I: Integer;
+  AText: String;
 begin
   if (VarIsArray(AValue)) then
   begin
@@ -378,7 +379,25 @@ begin
   else begin
     if (VarIsClear(AValue) or VarIsNull(AValue)) then
       AValue := ADefault;
-    Result := VarAsType(AValue, AVarType);
+
+    if (AVarType = varString) then
+    begin
+      case VarType(AValue) of
+        varDouble:
+          Result := FloatToStr(AValue);
+        varCurrency:
+          Result := CurrToStr(AValue);
+        varDate:
+        begin
+          DateTimeToString(AText, FormatSettings.ShortDateFormat, AValue);
+          Result := AText;
+        end
+        else
+          Result := VarAsType(AValue, AVarType);
+      end;
+    end
+    else
+      Result := VarAsType(AValue, AVarType);
   end;
 end;
 
