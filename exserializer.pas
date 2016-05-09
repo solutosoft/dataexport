@@ -308,11 +308,14 @@ begin
   for I := 0 to ASessions.Count - 1 do
   begin
     ASession := ASessions[I];
-    AData := FindData(ASession, AResult);
-    AData.Add(FormatData(ASession, AMaster));
+    if (ASession.Visible) then
+    begin
+      AData := FindData(ASession, AResult);
+      AData.Add(FormatData(ASession, AMaster));
 
-    if (ASessions.Owner = nil) then
-      DoWork;
+      if (ASessions.Owner = nil) then
+        DoWork;
+    end;
   end;
 end;
 
