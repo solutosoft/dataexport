@@ -260,10 +260,12 @@ var
   ALength: Integer;
   ARow,
   AValue: String;
+  ASame: Boolean;
   AData: TStrings;
   AQuery: TDataSet;
   ASession: TexSession;
   APipeline: TexPipeline;
+  AOwner: TexSession;
 begin
   for I := 0 to ASessions.Count -1 do
   begin
@@ -273,6 +275,14 @@ begin
       AData := FindData(ASession, AResult);
       APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
       AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+      AOwner := ASession.Collection.Owner as TexSession;
+      ASame := (AOwner <> nil) and (SameText(ASession.Pipeline, AOwner.Pipeline));
+
+      if (ASame) then
+        AQuery := AMaster
+      else
+        AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+
       try
         AQuery.Open;
         while (not AQuery.EOF) do
@@ -297,10 +307,14 @@ begin
           if (ASessions.Owner = nil) then
             DoWork;
 
+          if (ASame) then
+            Break;
+
           AQuery.Next;
         end;
       finally
-        AQuery.Free;
+        if (not ASame) then
+          AQuery.Free;
       end;
     end;
   end;
