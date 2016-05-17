@@ -210,13 +210,14 @@ begin
      CheckEquals(3, AData.Count);
 
      ALine := AData[0];
-     CheckEquals(39, Length(ALine));
+     CheckEquals(59, Length(ALine));
      CheckEquals('010', Copy(ALine, 1, 3));
      CheckEquals('Administra', Copy(ALine, 4, 10));
      CheckEquals('Root ', Copy(ALine, 14, 5));
      CheckEquals('20/04/1983', Copy(ALine, 19, 10));
      CheckEquals('00153000', Copy(ALine, 29, 8));
      CheckEquals('Yes', Copy(ALine, 37, 3));
+     CheckEquals('Administrator - Root', Copy(ALine, 40, 20));
 
      CheckTrue(AResult.ContainsKey('products.txt'));
      AData := AResult['products.txt'];
@@ -305,7 +306,7 @@ begin
     AData := TJSONArray(TJSONObject(AJson).Values['invoices']);
     ARow := TJSONObject(AData.Items[0]);
 
-    CheckEquals('1', ARow.Values['objectId'].Value);
+    CheckEquals('1', ARow.Values['id'].Value);
     CheckEquals('100', ARow.Values['type'].Value);
     CheckEquals('001', ARow.Values['number'].Value);
     CheckEquals('2015-11-10', ARow.Values['created_at'].Value);
@@ -315,7 +316,7 @@ begin
     CheckEquals(2, ADetails.Count);
 
     ARow := TJSONObject(ADetails.Items[0]);
-    CheckEquals('2', ARow.Values['objectId'].Value);
+    CheckEquals('2', ARow.Values['id'].Value);
     CheckEquals('200', ARow.Values['type'].Value);
     CheckEquals('1', ARow.Values['product_id'].Value);
     CheckEquals('2', ARow.Values['quantity'].Value);
@@ -323,7 +324,7 @@ begin
     CheckEquals('20', ARow.Values['value'].Value);
 
     ARow := TJSONObject(ADetails.Items[1]);
-    CheckEquals('3', ARow.Values['objectId'].Value);
+    CheckEquals('3', ARow.Values['id'].Value);
     CheckEquals('200', ARow.Values['type'].Value);
     CheckEquals('2', ARow.Values['product_id'].Value);
     CheckEquals('5', ARow.Values['quantity'].Value);
@@ -365,7 +366,7 @@ begin
     CheckEquals(2, ARoot.ChildNodes.Count);
     AItem := ARoot.ChildNodes[0];
 
-    CheckEquals('1', AItem.ChildNodes.FindNode('objectId').Text);
+    CheckEquals('1', AItem.ChildNodes.FindNode('id').Text);
     CheckEquals('100', AItem.ChildNodes.FindNode('type').Text);
     CheckEquals('001', AItem.ChildNodes.FindNode('number').Text);
     CheckEquals('2015-11-10', AItem.ChildNodes.FindNode('created_at').Text);
@@ -375,7 +376,7 @@ begin
     CheckEquals(2, ADetails.ChildNodes.Count);
 
     AItem := ADetails.ChildNodes[0];
-    CheckEquals('2', AItem.ChildNodes.FindNode('objectId').Text);
+    CheckEquals('2', AItem.ChildNodes.FindNode('id').Text);
     CheckEquals('200', AItem.ChildNodes.FindNode('type').Text);
     CheckEquals('1', AItem.ChildNodes.FindNode('product_id').Text);
     CheckEquals('2', AItem.ChildNodes.FindNode('quantity').Text);
@@ -383,7 +384,7 @@ begin
     CheckEquals('20', AItem.ChildNodes.FindNode('value').Text);
 
     AItem := ADetails.ChildNodes[1];
-    CheckEquals('3', AItem.ChildNodes.FindNode('objectId').Text);
+    CheckEquals('3', AItem.ChildNodes.FindNode('id').Text);
     CheckEquals('200', AItem.ChildNodes.FindNode('type').Text);
     CheckEquals('2', AItem.ChildNodes.FindNode('product_id').Text);
     CheckEquals('5', AItem.ChildNodes.FindNode('quantity').Text);

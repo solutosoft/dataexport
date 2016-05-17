@@ -6,8 +6,8 @@ object TexExporter
       Pipeline = 'invoices-pipeline'      
       Columns = <
         item
-          Name = 'objectId'
-          Expression = 'Result := GetObjectId;'         
+          Name = 'id'
+          Expression = 'Result := GetId;'         
         end       
         item
           Name = 'type'
@@ -29,8 +29,8 @@ object TexExporter
           Pipeline = 'details-pipeline'
           Columns = < 
             item
-              Name = 'objectId'
-              Expression = 'Result := GetObjectId;'         
+              Name = 'id'
+              Expression = 'Result := GetId;'         
             end           
             item
               Name = 'type'
@@ -60,7 +60,7 @@ object TexExporter
             end
             item
               Name = 'lastName'              
-            end>
+            end>            
         end>      
     end>
   Dictionaries = <      

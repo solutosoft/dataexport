@@ -33,7 +33,7 @@ object TexExporter
               Expression = 'Result := ''020'';'                   
             end
             item
-              Name = 'product_id'                    
+              Name = 'product_id'                            
             end
             item
               Name = 'quantity'              

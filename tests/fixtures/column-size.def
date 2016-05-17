@@ -30,6 +30,10 @@ object TexExporter
         item
           Name = 'active'          
           Dictionary = 'boolean'          
+        end
+        item
+          Name = 'macro'              
+          Expression = 'Result := EvaluateMacro(''[firstName] - [lastName]'');'
         end>
       Sessions = <>
     end

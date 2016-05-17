@@ -11,7 +11,8 @@ const
   SCRIPT_PROGRAM = 'program exEvalutator;';
   SCRIPT_FUNCEVAL_DECL = 'function exEvaluate: Variant;';
   SCRIPT_FUNCEVAL_EXEC = 'exEvaluate';
-  SCRIPT_VAR_REGEX = '^\s*var\s+';
+  SCRIPT_REGEX_VAR = '^\s*var\s+';
+  SCRIPT_REGEX_MACRO = '\[(\w+)\]';
 
   EXPORTER_BEFORE_SERIALIZE = 'function BeforeSerialize: String';
   EXPORTER_BEFORE_EXEC = 'procedure BeforeExecute';
@@ -120,10 +121,11 @@ type
     procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
     procedure ScriptEngineSetSessionVisible(ASessionName: String; AVisible: Boolean);
     procedure ScriptEngineSetSessionVisibleAll(AVisible: Boolean);
+    function ScriptEngineEvaluateMacro(AMacro: String): String;
     function ScriptEngineRecNo: Integer;
     function ScriptEngineFindField(AFieldName: String): TexValue;
     function ScriptEngineFindParam(AParamName: String): TexValue;
-    function ScriptEngineGetObjectId: Integer;
+    function ScriptEngineGetId: Integer;
   protected
     FObjectCounter: Integer;
   public
@@ -172,9 +174,9 @@ var
 begin
   Result := TStringList.Create;
   {$IFDEF FPC}
-  AVar := ExecRegExpr(SCRIPT_VAR_REGEX, AExpression);
+  AVar := ExecRegExpr(SCRIPT_REGEX_VAR, AExpression);
   {$ELSE}
-  AVar := TRegEx.IsMatch(AExpression, SCRIPT_VAR_REGEX);
+  AVar := TRegEx.IsMatch(AExpression, SCRIPT_REGEX_VAR);
   {$ENDIF}
 
   Result.Add(SCRIPT_PROGRAM);
@@ -296,7 +298,8 @@ begin
   Sender.AddMethod(Self, @TexExporter.ScriptEngineSetSessionVisibleAll, 'procedure SetSessionVisibleAll(AVisible: Boolean);');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TexValue;');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindParam, 'function FindParam(AParamName: String): TexValue;');
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineGetObjectId, 'function GetObjectId: Integer;');
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineGetId, 'function GetId: Integer;');
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineEvaluateMacro, 'function EvaluateMacro(AMacro: String): String;');
 
   if (Assigned(FScriptArgs)) then
   begin
@@ -320,6 +323,23 @@ begin
 
   if (Assigned(FOnScriptCompImport)) then
     FOnScriptCompImport(Sender, x);
+end;
+
+function TexExporter.ScriptEngineEvaluateMacro(AMacro: String): String;
+var
+  AName: String;
+  AMatch: TMatch;
+begin
+  Result := AMacro;
+  if (FCurrentDataSet <> nil) then
+  begin
+    for AMatch in TRegEx.Matches(Result, SCRIPT_REGEX_MACRO) do
+    begin
+      AName := AMatch.Groups[1].Value;
+      Result := Result.Replace(AMatch.Groups[0].Value, FCurrentDataSet.FieldByName(AName).AsString,
+        [rfReplaceAll, rfIgnoreCase]);
+    end;
+  end;
 end;
 
 procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TPSRuntimeClassImporter);
@@ -383,7 +403,7 @@ begin
     Result := TexValue.Create(Null);
 end;
 
-function TexExporter.ScriptEngineGetObjectId: Integer;
+function TexExporter.ScriptEngineGetId: Integer;
 begin
   Inc(FObjectCounter);
   Result := FObjectCounter;
