@@ -210,14 +210,15 @@ begin
      CheckEquals(3, AData.Count);
 
      ALine := AData[0];
-     CheckEquals(59, Length(ALine));
+     CheckEquals(58, Length(ALine));
      CheckEquals('010', Copy(ALine, 1, 3));
-     CheckEquals('Administra', Copy(ALine, 4, 10));
+     CheckEquals('Christophe', Copy(ALine, 4, 10));
      CheckEquals('Root ', Copy(ALine, 14, 5));
      CheckEquals('20/04/1983', Copy(ALine, 19, 10));
      CheckEquals('00153000', Copy(ALine, 29, 8));
      CheckEquals('Yes', Copy(ALine, 37, 3));
-     CheckEquals('Administrator - Root', Copy(ALine, 40, 20));
+     CheckEquals('Christopher - Root', Copy(ALine, 40, 18));
+     CheckEquals('1', Copy(ALine, 58, 1));
 
      CheckTrue(AResult.ContainsKey('products.txt'));
      AData := AResult['products.txt'];

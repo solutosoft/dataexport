@@ -34,6 +34,10 @@ object TexExporter
         item
           Name = 'macro'              
           Expression = 'Result := EvaluateMacro(''[firstName] - [lastName]'');'
+        end
+        item
+          Name = 'count'              
+          Expression = 'Result := ExecSQLScalar(''select count(id) from invoices where id = :id'', [FindField(''id'').AsInteger]);'
         end>
       Sessions = <>
     end
@@ -67,6 +71,15 @@ object TexExporter
       Expression = 'if (Value = 1) then Result := ''Yes'' else Result := ''No'';'
       Size = 3
     end>  
+  Events = <    
+    item
+      Name = 'procedure BeforeExecute'
+      Expression = 'ExecSQL(''update persons set firstName = :name where id = :id'', [''Christopher'', 1]);'
+    end
+    item
+      Name = 'procedure AfterExecute'
+      Expression = 'ExecSQL(''update persons set firstName = :name where id = :id'', [''Administrator'', 1]);'
+    end>
   SerializerClassName = 'TexColumnSerializer'   
   Packages = <    
     item

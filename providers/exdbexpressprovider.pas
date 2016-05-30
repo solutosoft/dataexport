@@ -12,9 +12,11 @@ type
   private
     FConnection: TSQLConnection;
   public
-    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
     procedure OpenConnection; override;
     procedure CloseConnection; override;
+    procedure ExecSQL(ASQL: String; const AParams: array of Variant); override;
+    function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; override;
+    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
   published
     property Connection: TSQLConnection read FConnection write FConnection;
   end;
@@ -37,12 +39,47 @@ begin
   FConnection.Close;
 end;
 
+procedure TexDBExpressProvider.ExecSQL(ASQL: String; const AParams: array of Variant);
+var
+  AQuery: TSQLQuery;
+begin
+  AQuery := TSQLQuery.Create(nil);
+  try
+    AQuery.SQLConnection := FConnection;
+    AQuery.SQL.Text := ASQL;
+    AssignParamValues(AQuery.Params, AParams);
+    AQuery.ExecSQL;
+  finally
+    AQuery.Free;
+  end;
+end;
+
+function TexDBExpressProvider.ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;
+var
+  AQuery: TSQLQuery;
+begin
+  Result := Unassigned;
+  AQuery := TSQLQuery.Create(nil);
+  try
+    AQuery.SQLConnection := FConnection;
+    AQuery.SQL.Text := ASQL;
+    AssignParamValues(AQuery.Params, AParams);
+    AQuery.Open;
+
+    if (AQuery.FieldCount > 0) and (not AQuery.IsEmpty) then
+      Result := AQuery.Fields[0].Value;
+  finally
+    AQuery.Free;
+  end;
+end;
+
 function TexDBExpressProvider.CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet;
 var
   I: Integer;
   AParam: TParam;
   AField: TField;
   AValue: Variant;
+  AType: TFieldType;
 begin
   Result := TSQLQuery.Create(Self);
   with (TSQLQuery(Result)) do
@@ -67,22 +104,12 @@ begin
         AValue := Exporter.ExtractParamValue(AParam.Name);
         if (not VarIsEmpty(AValue)) then
         begin
-          case (VarType(AValue)) of
-            varsmallint, varinteger, varsingle, varshortint, varword, varlongword, varint64:
-              AParam.AsInteger := AValue;
-            vardouble:
-              AParam.AsFloat := AValue;
-            varcurrency:
-              AParam.Value := AValue;
-            vardate:
-              AParam.AsDateTime := AValue;
-            varboolean:
-              AParam.AsBoolean := AValue;
-            varstring, varustring :
-              AParam.AsString := AValue;
-            else
-              AParam.Value := AValue;
-          end;
+          AType := VarTypeToDataType(VarType(AValue));
+
+          if (AType <> ftUnknown) then
+            AParam.DataType := AType;
+
+           AParam.Value := AValue;
         end;
       end;
     end;

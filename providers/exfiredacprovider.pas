@@ -12,10 +12,14 @@ type
   TexFireDACProvider = class(TexProvider)
   private
     FConnection: TFDConnection;
+  protected
+    procedure AssignParamValues(AParams: TFDParams; const AValues: array of Variant);
   public
-    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
     procedure OpenConnection; override;
     procedure CloseConnection; override;
+    procedure ExecSQL(ASQL: String; const AParams: array of Variant); override;
+    function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; override;
+    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
   published
     property Connection: TFDConnection read FConnection write FConnection;
   end;
@@ -32,10 +36,60 @@ begin
   FConnection.Open;
 end;
 
+procedure TexFireDACProvider.AssignParamValues(AParams: TFDParams; const AValues: array of Variant);
+var
+  I: Integer;
+  AType: TFieldType;
+begin
+  for I := Low(AValues) to High(AValues) do
+  begin
+    AType := VarTypeToDataType(VarType(AValues[I]));
+
+    if (AType <> ftUnknown) then
+      AParams[I].DataType := AType;
+
+    AParams[I].Value := AValues[I];
+  end;
+end;
+
 procedure TexFireDACProvider.CloseConnection;
 begin
   inherited;
   FConnection.Close;
+end;
+
+procedure TexFireDACProvider.ExecSQL(ASQL: String; const AParams: array of Variant);
+var
+  AQuery: TFDQuery;
+begin
+  AQuery := TFDQuery.Create(nil);
+  try
+    AQuery.Connection := FConnection;
+    AQuery.SQL.Text := ASQL;
+    AssignParamValues(AQuery.Params, AParams);
+    AQuery.ExecSQL;
+  finally
+    AQuery.Free;
+  end;
+end;
+
+function TexFireDACProvider.ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;
+var
+  AQuery: TFDQuery;
+begin
+  Result := Unassigned;
+  AQuery := TFDQuery.Create(nil);
+  try
+    AQuery.Connection := FConnection;
+    AQuery.SQL.Text := ASQL;
+    AssignParamValues(AQuery.Params, AParams);
+    AQuery.Open;
+
+    if (AQuery.FieldCount > 0) and (not AQuery.IsEmpty) then
+      Result := AQuery.Fields[0].Value;
+  finally
+    AQuery.Free;
+  end;
 end;
 
 function TexFireDACProvider.CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet;
@@ -44,9 +98,10 @@ var
   AParam: TFDParam;
   AField: TField;
   AValue: Variant;
+  AType: TFieldType;
 begin
   Result := TFDQuery.Create(Self);
-   with (TFDQuery(Result)) do
+  with (TFDQuery(Result)) do
   begin
     SQL.Text := ASQL;
     Connection := FConnection;
@@ -68,22 +123,12 @@ begin
         AValue := Exporter.ExtractParamValue(AParam.Name);
         if (not VarIsEmpty(AValue)) then
         begin
-          case (VarType(AValue)) of
-            varsmallint, varinteger, varsingle, varshortint, varword, varlongword, varint64:
-              AParam.AsInteger := AValue;
-            vardouble:
-              AParam.AsFloat := AValue;
-            varcurrency:
-              AParam.Value := AValue;
-            vardate:
-              AParam.AsDateTime := AValue;
-            varboolean:
-              AParam.AsBoolean := AValue;
-            varstring, varustring :
-              AParam.AsString := AValue;
-            else
-              AParam.Value := AValue;
-          end;
+          AType := VarTypeToDataType(VarType(AValue));
+
+          if (AType <> ftUnknown) then
+            AParam.DataType := AType;
+
+           AParam.Value := AValue;
         end;
       end;
     end;

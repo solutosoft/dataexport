@@ -14,9 +14,11 @@ type
     FConnection: TDSProviderConnection;
     FProviderName: String;
   public
-    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
     procedure OpenConnection; override;
     procedure CloseConnection; override;
+    procedure ExecSQL(ASQL: String; const AParams: array of Variant); override;
+    function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; override;
+    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
   published
     property Connection: TDSProviderConnection read FConnection write FConnection;
     property ProviderName: String read FProviderName write FProviderName;
@@ -40,12 +42,46 @@ begin
   FConnection.Close;
 end;
 
+procedure TexDataSnapProvider.ExecSQL(ASQL: String; const AParams: array of Variant);
+var
+  AQuery: TClientDataSet;
+begin
+  AQuery := TClientDataSet.Create(nil);
+  try
+    AQuery.RemoteServer := FConnection;
+    AQuery.CommandText := ASQL;
+    AssignParamValues(AQuery.Params, AParams);
+    AQuery.Execute;
+  finally
+    AQuery.Free;
+  end;
+end;
+
+function TexDataSnapProvider.ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;
+var
+  AQuery: TClientDataSet;
+begin
+  AQuery := TClientDataSet.Create(nil);
+  try
+    AQuery.RemoteServer := FConnection;
+    AQuery.CommandText := ASQL;
+    AssignParamValues(AQuery.Params, AParams);
+    AQuery.Open;
+
+    if (AQuery.FieldCount > 0) and (not AQuery.IsEmpty) then
+      Result := AQuery.Fields[0].Value;
+  finally
+    AQuery.Free;
+  end;
+end;
+
 function TexDataSnapProvider.CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet;
 var
   I: Integer;
   AParam: TParam;
   AField: TField;
   AValue: Variant;
+  AType: TFieldType;
 begin
   Result := TClientDataSet.Create(Self);
   with (TClientDataSet(Result)) do
@@ -71,22 +107,12 @@ begin
         AValue := Exporter.ExtractParamValue(AParam.Name);
         if (not VarIsEmpty(AValue)) then
         begin
-          case (VarType(AValue)) of
-            varsmallint, varinteger, varsingle, varshortint, varword, varlongword, varint64:
-              AParam.AsInteger := AValue;
-            vardouble:
-              AParam.AsFloat := AValue;
-            varcurrency:
-              AParam.Value := AValue;
-            vardate:
-              AParam.AsDateTime := AValue;
-            varboolean:
-              AParam.AsBoolean := AValue;
-            varstring, varustring :
-              AParam.AsString := AValue;
-            else
-              AParam.Value := AValue;
-          end;
+          AType := VarTypeToDataType(VarType(AValue));
+
+          if (AType <> ftUnknown) then
+            AParam.DataType := AType;
+
+          AParam.Value := AValue;
         end;
       end;
     end;

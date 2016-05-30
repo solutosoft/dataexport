@@ -71,9 +71,13 @@ type
   TexProvider = class(TComponent)
   private
     FExporter: TexExporter;
+  protected
+    procedure AssignParamValues(AParams: TParams; const AValues: array of Variant);
   public
     procedure OpenConnection; virtual; abstract;
     procedure CloseConnection; virtual; abstract;
+    procedure ExecSQL(ASQL: String; const AParams: array of Variant); virtual; abstract;
+    function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; virtual; abstract;
     function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; virtual; abstract;
     property Exporter: TexExporter read FExporter write FExporter;
   end;
@@ -121,11 +125,14 @@ type
     procedure ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompiler);
     procedure ScriptEngineSetSessionVisible(ASessionName: String; AVisible: Boolean);
     procedure ScriptEngineSetSessionVisibleAll(AVisible: Boolean);
+    procedure ScriptEngineExecSQL(ASQL: String; const AParams: array of Variant);
+    function ScriptEngineExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;
     function ScriptEngineEvaluateMacro(AMacro: String): String;
     function ScriptEngineRecNo: Integer;
     function ScriptEngineFindField(AFieldName: String): TexValue;
     function ScriptEngineFindParam(AParamName: String): TexValue;
     function ScriptEngineGetId: Integer;
+
   protected
     FObjectCounter: Integer;
   public
@@ -210,6 +217,24 @@ end;
 constructor TexSerializer.Create(AExporter: TexExporter);
 begin
   FExporter := AExporter;
+end;
+
+{ TexProvider }
+
+procedure TexProvider.AssignParamValues(AParams: TParams; const AValues: array of Variant);
+var
+  I: Integer;
+  AType: TFieldType;
+begin
+  for I := Low(AValues) to High(AValues) do
+  begin
+    AType := VarTypeToDataType(VarType(AValues[I]));
+
+    if (AType <> ftUnknown) then
+      AParams[I].DataType := AType;
+
+    AParams[I].Value := AValues[I];
+  end;
 end;
 
 { TexExporter }
@@ -300,6 +325,8 @@ begin
   Sender.AddMethod(Self, @TexExporter.ScriptEngineFindParam, 'function FindParam(AParamName: String): TexValue;');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineGetId, 'function GetId: Integer;');
   Sender.AddMethod(Self, @TexExporter.ScriptEngineEvaluateMacro, 'function EvaluateMacro(AMacro: String): String;');
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineExecSQL, 'procedure ExecSQL(ASQL: String; const AParams: array of Variant);');
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineExecSQLScalar, 'function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;');
 
   if (Assigned(FScriptArgs)) then
   begin
@@ -352,6 +379,16 @@ begin
 
   if (Assigned(FOnScriptExecImport)) then
     FOnScriptExecImport(Sender, se, x);
+end;
+
+procedure TexExporter.ScriptEngineExecSQL(ASQL: String; const AParams: array of Variant);
+begin
+  FProvider.ExecSQL(ASQL, AParams);
+end;
+
+function TexExporter.ScriptEngineExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;
+begin
+  Result := FProvider.ExecSQLScalar(ASQL, AParams);
 end;
 
 procedure TexExporter.ScriptEngineExecute(Sender: TPSScript);

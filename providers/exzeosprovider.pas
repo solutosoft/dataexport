@@ -3,7 +3,7 @@ unit exZeosProvider;
 interface
 
 uses
-  Classes, SysUtils, DB, Variants, ZConnection, ZDataset, exExporter;
+  Classes, SysUtils, DB, Variants, ZConnection, ZDataset, exClasses, exExporter;
 
 type
 
@@ -13,10 +13,11 @@ type
   private
     FConnection: TZConnection;
   public
-    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
     procedure OpenConnection; override;
     procedure CloseConnection; override;
-
+    procedure ExecSQL(ASQL: String; const AParams: array of Variant); override;
+    function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; override;
+    function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
   published
     property Connection: TZConnection read FConnection write FConnection;
   end;
@@ -27,12 +28,23 @@ implementation
 
 { TexZeosProvider }
 
+procedure TexZeosProvider.OpenConnection;
+begin
+  FConnection.Connected := True;
+end;
+
+procedure TexZeosProvider.CloseConnection;
+begin
+  FConnection.Connected := False;
+end;
+
 function TexZeosProvider.CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet;
 var
   I: Integer;
   AField: TField;
   AParam: TParam;
   AValue: Variant;
+  AType: TFieldType;
 begin
   Result := TZQuery.Create(Self);
   with (TZQuery(Result)) do
@@ -57,36 +69,50 @@ begin
         AValue := Exporter.ExtractParamValue(AParam.Name);
         if (not VarIsEmpty(AValue)) then
         begin
-          case (VarType(AValue)) of
-            varsmallint, varinteger, varsingle, varshortint, varword, varlongword, varint64{$IFDEF FPC},varqword{$ENDIF}:
-              AParam.AsInteger := AValue;
-            vardouble{$IFDEF FPC}, vardecimal{$ENDIF}:
-              AParam.AsFloat := AValue;
-            varcurrency:
-              AParam.Value := AValue;
-            vardate:
-              AParam.AsDateTime := AValue;
-            varboolean:
-              AParam.AsBoolean := AValue;
-            varstring, varustring :
-              AParam.AsString := AValue;
-            else
-              AParam.Value := AValue;
-          end;
+          AType := VarTypeToDataType(VarType(AValue));
+
+          if (AType <> ftUnknown) then
+            AParam.DataType := AType;
+
+           AParam.Value := AValue;
         end;
       end;
     end;
   end;
 end;
 
-procedure TexZeosProvider.OpenConnection;
+procedure TexZeosProvider.ExecSQL(ASQL: String; const AParams: array of Variant);
+var
+  AQuery: TZQuery;
 begin
-  FConnection.Connected := True;
+  AQuery := TZQuery.Create(nil);
+  try
+    AQuery.Connection := FConnection;
+    AQuery.SQL.Text := ASQL;
+    AssignParamValues(AQuery.Params, AParams);
+    AQuery.ExecSQL;
+  finally
+    AQuery.Free;
+  end;
 end;
 
-procedure TexZeosProvider.CloseConnection;
+function TexZeosProvider.ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;
+var
+  AQuery: TZQuery;
 begin
-  FConnection.Connected := False;
+  Result := Unassigned;
+  AQuery := TZQuery.Create(nil);
+  try
+    AQuery.Connection := FConnection;
+    AQuery.SQL.Text := ASQL;
+    AssignParamValues(AQuery.Params, AParams);
+    AQuery.Open;
+
+    if (AQuery.FieldCount > 0) and (not AQuery.IsEmpty) then
+      Result := AQuery.Fields[0].Value;
+  finally
+    AQuery.Free;
+  end;
 end;
 
 procedure Register;
