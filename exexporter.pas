@@ -126,7 +126,7 @@ type
     procedure ScriptEngineSetSessionVisible(ASessionName: String; AVisible: Boolean);
     procedure ScriptEngineSetSessionVisibleAll(AVisible: Boolean);
     procedure ScriptEngineExecSQL(ASQL: String; const AParams: array of Variant);
-    function ScriptEngineExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;
+    function ScriptEngineExecSQLScalar(ASQL: String; const AParams: array of Variant; AType: TexDataType = datNone): Variant;
     function ScriptEngineEvaluateMacro(AMacro: String): String;
     function ScriptEngineRecNo: Integer;
     function ScriptEngineFindField(AFieldName: String): TexValue;
@@ -318,15 +318,32 @@ procedure TexExporter.ScriptEngineCompile(Sender: TPSScript);
 var
   AVar: TexScriptVar;
 begin
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineRecNo, 'function RecNo: Integer;');
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineSetSessionVisible, 'procedure SetSessionVisible(ASessionName: String; AVisible: Boolean);');
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineSetSessionVisibleAll, 'procedure SetSessionVisibleAll(AVisible: Boolean);');
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField, 'function FindField(AFieldName: String): TexValue;');
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineFindParam, 'function FindParam(AParamName: String): TexValue;');
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineGetId, 'function GetId: Integer;');
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineEvaluateMacro, 'function EvaluateMacro(AMacro: String): String;');
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineExecSQL, 'procedure ExecSQL(ASQL: String; const AParams: array of Variant);');
-  Sender.AddMethod(Self, @TexExporter.ScriptEngineExecSQLScalar, 'function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;');
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineRecNo,
+    'function RecNo: Integer;');
+
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineSetSessionVisible,
+    'procedure SetSessionVisible(ASessionName: String; AVisible: Boolean);');
+
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineSetSessionVisibleAll,
+    'procedure SetSessionVisibleAll(AVisible: Boolean);');
+
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineFindField,
+    'function FindField(AFieldName: String): TexValue;');
+
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineFindParam,
+    'function FindParam(AParamName: String): TexValue;');
+
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineGetId,
+    'function GetId: Integer;');
+
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineEvaluateMacro,
+    'function EvaluateMacro(AMacro: String): String;');
+
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineExecSQL,
+    'procedure ExecSQL(ASQL: String; const AParams: array of Variant);');
+
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineExecSQLScalar,
+    'function ExecSQLScalar(ASQL: String; const AParams: array of Variant; AType: TexDataType): Variant;');
 
   if (Assigned(FScriptArgs)) then
   begin
@@ -386,9 +403,26 @@ begin
   FProvider.ExecSQL(ASQL, AParams);
 end;
 
-function TexExporter.ScriptEngineExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant;
+function TexExporter.ScriptEngineExecSQLScalar(ASQL: String; const AParams: array of Variant;
+  AType: TexDataType = datNone): Variant;
+var
+  AValue: TexValue;
 begin
-  Result := FProvider.ExecSQLScalar(ASQL, AParams);
+  AValue := TexValue.Create(FProvider.ExecSQLScalar(ASQL, AParams));
+  case AType of
+    datNone:
+      Result := AValue.AsVariant;
+    datText:
+      Result := AValue.AsString;
+    datInteger:
+      Result := AValue.AsInteger;
+    datDateTime:
+      Result := AValue.AsDateTime;
+    datBoolean:
+      Result := AValue.AsBoolean;
+    datFloat, datCurrency:
+      Result := AValue.AsFloat;
+  end;
 end;
 
 procedure TexExporter.ScriptEngineExecute(Sender: TPSScript);

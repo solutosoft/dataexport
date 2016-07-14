@@ -16,6 +16,7 @@ implementation
 
 procedure RegisterTexValueClass_R(S: TPSRuntimeClassImporter);
 begin
+
   with S.Add(TexValue) do
   begin
     RegisterConstructor(@TexValue.Create, 'Create');
@@ -49,6 +50,7 @@ end;
 procedure RegisterTexValueClass_C(S: TPSPascalCompiler);
 begin
   S.AddTypeS('TVariantDynArray', 'array of Variant');
+  S.AddTypeS('TexDataType', '(datNone, datText, datInteger, datDateTime, datBoolean, datFloat, datCurrency)');
 
   with S.AddClassN(S.FindClass('TObject'), 'TexValue') do
   begin

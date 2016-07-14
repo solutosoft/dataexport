@@ -37,7 +37,7 @@ object TexExporter
         end
         item
           Name = 'count'              
-          Expression = 'Result := ExecSQLScalar(''select count(id) from invoices where id = :id'', [FindField(''id'').AsInteger]);'
+          Expression = 'Result := ExecSQLScalar(''select count(id) from invoices where id = :id'', [FindField(''id'').AsInteger], datInteger);'
         end>
       Sessions = <>
     end
