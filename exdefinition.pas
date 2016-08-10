@@ -335,15 +335,12 @@ begin
       Result := Trim(AValue) = ''
     else if (VarIsArray(AValue)) then
     begin
-      Result := VarArrayHighBound(AValue, 1) = -1;
-      if (not Result) then
+      Result := True;
+      for I := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
       begin
-        for I := VarArrayLowBound(AValue, 1) to VarArrayHighBound(AValue, 1) do
-        begin
-          Result := CheckIsNull(AValue[I]);
-          if (Result) then
-            Exit;
-        end;
+        Result := CheckIsNull(AValue[I]);
+        if (not Result) then
+          Exit;
       end;
     end;
   end;
