@@ -13,6 +13,13 @@ type
     constructor Create; override;
   end;
 
+  { TexFTPOptions }
+
+  TexFTPOptions = class(TexOptions)
+  public
+    constructor Create; override;
+  end;
+
   { TexFileOptions }
 
   TexHttpOptions = class(TexOptions)
@@ -23,6 +30,7 @@ type
 const
   sexSFileOptions = 'File';
   sexSHttpOptions = 'Http';
+  sexSFTPOptions = 'FTP';
 
 var
   FRegisteredOptions: TexRegisteredClasses;
@@ -44,6 +52,19 @@ constructor TexFileOptions.Create;
 begin
   inherited Create;
   RegisterOption('FileName', edtFile);
+end;
+
+{ TexFTPOptions }
+
+constructor TexFTPOptions.Create;
+begin
+  inherited;
+  RegisterOption('FileName', edtFile);
+  RegisterOption('Host', edtText);
+  RegisterOption('Password', edtText);
+  RegisterOption('Port', edtInteger);
+  RegisterOption('RemoteDir', edtText);
+  RegisterOption('Username', edtText);
 end;
 
 { TexHttpOptions }

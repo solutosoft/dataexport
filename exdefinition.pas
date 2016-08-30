@@ -931,6 +931,7 @@ end;
 initialization
   GetRegisteredOptions.RegisterClass(sexSFileOptions, TexFileOptions);
   GetRegisteredOptions.RegisterClass(sexSHttpOptions, TexHttpOptions);
+  GetRegisteredOptions.RegisterClass(sexSFTPOptions, TexFTPOptions);
 
 end.
 
