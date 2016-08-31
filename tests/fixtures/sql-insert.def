@@ -1,0 +1,62 @@
+object TexExporter
+  Description = 'Orders data exportt'
+  Sessions = <  
+    item
+      Name = 'invoices_table'
+      Pipeline = 'invoices-pipeline'      
+      Columns = <                
+        item
+          Name = 'number'                        
+        end
+        item
+          Name = 'created_at'
+          Expression = 'Result := FormatDateTime(''yyyy-mm-dd'', Value);'
+          Quoted = True
+        end        
+        item
+          Name = 'description'
+          Quoted = True       
+        end> 
+      Sessions = <
+        item
+          Name = 'details_table'
+          Pipeline = 'details-pipeline'
+          Columns = <                         
+            item
+              Name = 'product_id'              
+            end
+            item
+              Name = 'quantity'              
+            end
+            item
+              Name = 'price'              
+            end
+            item
+              Alias = 'value' 
+              Name = 'total'        
+            end>
+          Sessions = <>
+        end>      
+    end>
+  SerializerClassName = 'TexSQLInsertSerializer'    
+  Packages = <    
+    item
+      Name = 'invoices.sql'
+      Sessions.Strings = (
+        'invoices_table'          
+      )    
+    end> 
+  Pipelines = <
+    item
+      Name = 'invoices-pipeline'
+      SQL.Strings = (
+	      'select * from invoices'
+	    )
+    end
+    item
+      Name = 'details-pipeline'
+      SQL.Strings = (
+	      'select * from invoice_details where invoice_id = :id'
+	    )
+    end> 
+end

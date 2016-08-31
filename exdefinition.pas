@@ -97,12 +97,14 @@ type
   private
     FAlign: TexAlignment;
     FComplete: Char;
+    FQuoted: Boolean;
     FSize: Integer;
   public
     constructor Create(ACollection: TCollection); override;
   published
     property Align: TexAlignment read FAlign write FAlign default altNone;
     property Complete: Char read FComplete write FComplete default VK_CHAR_SPACE;
+    property Quoted: Boolean read FQuoted write FQuoted default false;
     property Size: Integer read FSize write FSize default 0;
   end;
 
@@ -932,6 +934,7 @@ initialization
   GetRegisteredOptions.RegisterClass(sexSFileOptions, TexFileOptions);
   GetRegisteredOptions.RegisterClass(sexSHttpOptions, TexHttpOptions);
   GetRegisteredOptions.RegisterClass(sexSFTPOptions, TexFTPOptions);
+  GetRegisteredOptions.RegisterClass(sexSDatabaseOptions, TexDatabaseOptions);
 
 end.
 

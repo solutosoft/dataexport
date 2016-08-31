@@ -72,10 +72,16 @@ type
     property ItemTag: String read FItemTag write FItemTag;
   end;
 
+  TexSQLInsertSerializer = class(TexBaseSerializer)
+  public
+    procedure Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap); override;
+  end;
+
 const
   sexSColumnSerializer = 'Column';
   sexSJsonSerializer = 'JSON';
   sexSXMLSerializer = 'XML';
+  sexSSQLInsertSerializer = 'SQLInsert';
 
 var
   FRegisteredSerializers: TexRegisteredClasses;
@@ -125,7 +131,7 @@ begin
 
   APackage := Exporter.Packages.FindBySession(ASessionName);
   if (APackage = nil) and (AOwner = nil) then
-     raise Exception.CreateFmt('The session "%s" does not have a file associated', [ASession.Name])
+     raise Exception.CreateFmt('The session "%s" does not have a package associated', [ASession.Name])
   else begin
     {$IFDEF FPC}
     if (AResultMap.IndexOf(APackage.Name) <> -1) then
@@ -164,6 +170,7 @@ var
   ADictionary: TexDictionary;
   AArgs: TexScriptArgs;
   AValue: Variant;
+  AQuoted: Boolean;
 begin
   AValue := Null;
   AField := ADataSet.FindField(AColumn.Name);
@@ -171,6 +178,7 @@ begin
   AComplete := AColumn.Complete;
   ASize := AColumn.Size;
   AAlign := AColumn.Align;
+  AQuoted := AColumn.Quoted;
 
   if (AField <> nil) then
   begin
@@ -203,6 +211,9 @@ begin
       if (AAlign = altNone) then
          AAlign := ADictionary.Align;
 
+      if (ADictionary.Quoted) then
+        AQuoted := ADictionary.Quoted;
+
       if (ADictionary.Expression <> '') then
       begin
         AArgs := TexScriptArgs.Create;
@@ -232,6 +243,9 @@ begin
       end;
     end;
   end;
+
+  if (AQuoted) then
+    Result := QuotedStr(Result);
 end;
 
 function TexBaseSerializer.BeforeSerialize(AData: String; ASession: TexSession): String;
@@ -274,7 +288,7 @@ begin
     begin
       AData := FindData(ASession, AResult);
       APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
-      AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+
       AOwner := ASession.Collection.Owner as TexSession;
       ASame := (AOwner <> nil) and (SameText(ASession.Pipeline, AOwner.Pipeline));
 
@@ -529,10 +543,81 @@ begin
 end;
 
 
+{ TexSQLInsertSerializer }
+
+procedure TexSQLInsertSerializer.Serialize(ASessions: TexSessionList; AMaster: TDataSet; AResult: TexResutMap);
+const
+  Delimiter = ',';
+var
+  I, J: Integer;
+  AValues,
+  AColumns,
+  AValue: String;
+  ASame: Boolean;
+  AData: TStrings;
+  AQuery: TDataSet;
+  ASession: TexSession;
+  APipeline: TexPipeline;
+  AOwner: TexSession;
+begin
+  for I := 0 to ASessions.Count -1 do
+  begin
+    ASession := ASessions[I];
+    if (ASession.Visible) then
+    begin
+      AData := FindData(ASession, AResult);
+      APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
+      AOwner := ASession.Collection.Owner as TexSession;
+      ASame := (AOwner <> nil) and (SameText(ASession.Pipeline, AOwner.Pipeline));
+
+      if (ASame) then
+        AQuery := AMaster
+      else
+        AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+
+      try
+        AQuery.Open;
+        while (not AQuery.EOF) do
+        begin
+          AValues := '';
+          AColumns := '';
+          Exporter.CurrentDataSet := AQuery;
+
+          for J := 0 to ASession.Columns.Count -1 do
+          begin
+            AValue := ExtractColumnValue(ASession.Columns[J], AQuery);
+            AValues := AValues + AValue + Delimiter;
+            AColumns := AColumns + ASession.Columns[J].Name + Delimiter;
+          end;
+
+          Delete(AValues, Length(AValues), 1);
+          Delete(AColumns, Length(AColumns), 1);
+
+          AValues := BeforeSerialize(AValues, ASession);
+          AData.Add(Format('insert into %s (%s) values (%s);', [ASession.Name, AColumns, AValues]));
+          Serialize(ASession.Sessions, AQuery, AResult);
+
+          if (ASessions.Owner = nil) then
+            DoWork;
+
+          if (ASame) then
+            Break;
+
+          AQuery.Next;
+        end;
+      finally
+        if (not ASame) then
+          AQuery.Free;
+      end;
+    end;
+  end;
+end;
+
 initialization
   GetRegisteredSerializers.RegisterClass(sexSColumnSerializer, TexColumnSerializer);
   GetRegisteredSerializers.RegisterClass(sexSJsonSerializer, TexJsonSerializer);
   GetRegisteredSerializers.RegisterClass(sexSXMLSerializer, TexXmlSerializer);
+  GetRegisteredSerializers.RegisterClass(sexSSQLInsertSerializer, TexSQLInsertSerializer);
 
 end.
 

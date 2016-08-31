@@ -28,6 +28,7 @@ type
     procedure TestColumnDelimiter;
     procedure TestJson;
     procedure TestXml;
+    procedure TestSQLInsert;
   end;
 
 implementation
@@ -394,6 +395,36 @@ begin
   finally
     AExporter.Free;
   end
+end;
+
+procedure TexExporterTest.TestSQLInsert;
+var
+  AExporter: TexExporter;
+  AResult: TexResutMap;
+  AData: TStrings;
+  ALine,
+  AExpected: String;
+begin
+  AExporter := CreateExporter('sql-insert.def');
+  try
+    AResult := AExporter.Execute;
+    CheckEquals(1, AResult.Count);
+    CheckTrue(AResult.ContainsKey('invoices.sql'));
+
+    AData := AResult['invoices.sql'];
+
+    AExpected := Format('insert into invoices_table (number,created_at,description) values (%s,%s,%s);',[
+      '001', QuotedStr('2015-11-10'), QuotedStr('The first order')
+    ]);
+
+    ALine := AData[0];
+    CheckEquals(AExpected, ALine);
+
+    ALine := AData[1];
+    CheckEquals('insert into details_table (product_id,quantity,price,total) values (1,2,10,20);', ALine);
+  finally
+    AExporter.Free;
+  end;
 end;
 
 initialization

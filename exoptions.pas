@@ -27,10 +27,18 @@ type
     constructor Create; override;
   end;
 
+  { TexDatabaseOptions }
+
+  TexDatabaseOptions = class(TexOptions)
+  public
+    constructor Create; override;
+  end;
+
 const
   sexSFileOptions = 'File';
   sexSHttpOptions = 'Http';
   sexSFTPOptions = 'FTP';
+  sexSDatabaseOptions = 'Database';
 
 var
   FRegisteredOptions: TexRegisteredClasses;
@@ -84,6 +92,19 @@ begin
   RegisterOption('ProxyServer', edtText);
   RegisterOption('ProxyUsername', edtText);
   RegisterOption('Url', edtText);
+  RegisterOption('Username', edtText);
+end;
+
+{ TexDatabaseOptions }
+
+constructor TexDatabaseOptions.Create;
+begin
+  inherited;
+  RegisterOption('Database', edtText);
+  RegisterOption('Driver', edtText);
+  RegisterOption('Server', edtText);
+  RegisterOption('Password', edtText);
+  RegisterOption('Port', edtInteger);
   RegisterOption('Username', edtText);
 end;
 
