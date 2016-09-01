@@ -43,8 +43,10 @@ begin
     RegisterMethod(@TexOptions.GetAsFloat, 'GetAsFloat');
     RegisterMethod(@TexOptions.GetAsBoolean, 'GetAsBoolean');
   end;
-  S.Add(TexHttpOptions);
   S.Add(TexFileOptions);
+  S.Add(TexFTPOptions);
+  S.Add(TexHttpOptions);
+  S.Add(TexDatabaseOptions);
 end;
 
 procedure RegisterTexValueClass_C(S: TPSPascalCompiler);
@@ -81,6 +83,8 @@ begin
 
   S.AddClassN(S.FindClass('TexOptions'),'TexHttpOptions');
   S.AddClassN(S.FindClass('TexOptions'),'TexFileOptions');
+  S.AddClassN(S.FindClass('TexOptions'),'TexFTPOptions');
+  S.AddClassN(S.FindClass('TexOptions'),'TexDatabaseOptions');
 end;
 
 end.
