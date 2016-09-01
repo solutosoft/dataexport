@@ -6,7 +6,7 @@ object TexExporter
       Pipeline = 'invoices-pipeline'      
       Columns = <                
         item
-          Name = 'number'                        
+          Name = 'number'          
         end
         item
           Name = 'created_at'

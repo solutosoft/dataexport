@@ -421,7 +421,7 @@ begin
     CheckEquals(AExpected, ALine);
 
     ALine := AData[1];
-    CheckEquals('insert into details_table (product_id,quantity,price,total) values (1,2,10,20);', ALine);
+    CheckEquals('insert into details_table (product_id,quantity,price,value) values (1,2,10,20);', ALine);
   finally
     AExporter.Free;
   end;

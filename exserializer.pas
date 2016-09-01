@@ -552,9 +552,11 @@ var
   I, J: Integer;
   AValues,
   AColumns,
+  AAlias,
   AValue: String;
   ASame: Boolean;
   AData: TStrings;
+  AColumn: TexColumn;
   AQuery: TDataSet;
   ASession: TexSession;
   APipeline: TexPipeline;
@@ -585,9 +587,11 @@ begin
 
           for J := 0 to ASession.Columns.Count -1 do
           begin
-            AValue := ExtractColumnValue(ASession.Columns[J], AQuery);
+            AColumn := ASession.Columns[J];
+            AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
+            AValue := ExtractColumnValue(AColumn, AQuery);
             AValues := AValues + AValue + Delimiter;
-            AColumns := AColumns + ASession.Columns[J].Name + Delimiter;
+            AColumns := AColumns + AAlias + Delimiter;
           end;
 
           Delete(AValues, Length(AValues), 1);
