@@ -106,6 +106,7 @@ begin
   RegisterOption('Password', edtText);
   RegisterOption('Port', edtInteger);
   RegisterOption('Username', edtText);
+  RegisterOption('EmptyBefore', edtBoolean);
 end;
 
 end.
