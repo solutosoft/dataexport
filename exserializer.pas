@@ -170,7 +170,6 @@ var
   ADictionary: TexDictionary;
   AArgs: TexScriptArgs;
   AValue: Variant;
-  AQuoted: Boolean;
 begin
   AValue := Null;
   AField := ADataSet.FindField(AColumn.Name);
@@ -178,7 +177,6 @@ begin
   AComplete := AColumn.Complete;
   ASize := AColumn.Size;
   AAlign := AColumn.Align;
-  AQuoted := AColumn.Quoted;
 
   if (AField <> nil) then
   begin
@@ -211,9 +209,6 @@ begin
       if (AAlign = altNone) then
          AAlign := ADictionary.Align;
 
-      if (ADictionary.Quoted) then
-        AQuoted := ADictionary.Quoted;
-
       if (ADictionary.Expression <> '') then
       begin
         AArgs := TexScriptArgs.Create;
@@ -243,9 +238,6 @@ begin
       end;
     end;
   end;
-
-  if (AQuoted) then
-    Result := QuotedStr(Result);
 end;
 
 function TexBaseSerializer.BeforeSerialize(AData: String; ASession: TexSession): String;

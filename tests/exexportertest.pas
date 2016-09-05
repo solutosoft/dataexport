@@ -47,18 +47,21 @@ begin
     if (IsCharAlphaNumeric(AText[I])) then
       Result := Result + AText[I];
   end;
+
 end;
 
 procedure RegisterExtraLibrary_C(S: TPSPascalCompiler);
 begin
   S.AddDelphiFunction('function FormatFloat(Const Format : String; Value : Extended) : String;');
   S.AddDelphiFunction('function RemoveMask(AText: string): String;');
+  S.AddDelphiFunction('function QuotedStr(const S: string): string;');
 end;
 
 procedure RegisterExtraLibrary_R(S: TPSExec);
 begin
   S.RegisterDelphiFunction(@FormatFloat, 'FORMATFLOAT', cdRegister);
   S.RegisterDelphiFunction(@RemoveMask, 'REMOVEMASK', cdRegister);
+  S.RegisterDelphiFunction(@QuotedStr, 'QUOTEDSTR', cdRegister);
 end;
 
 procedure TexExporterTest.AfterConstruction;

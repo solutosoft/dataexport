@@ -11,11 +11,11 @@ object TexExporter
         item
           Name = 'created_at'
           Expression = 'Result := FormatDateTime(''yyyy-mm-dd'', Value);'
-          Quoted = True
+          Dictionary = 'quoted'
         end        
         item
           Name = 'description'
-          Quoted = True       
+          Dictionary = 'quoted'
         end> 
       Sessions = <
         item
@@ -38,6 +38,11 @@ object TexExporter
           Sessions = <>
         end>      
     end>
+  Dictionaries = <  
+    item
+      Name = 'quoted'            
+      Expression = 'Result := QuotedStr(Value);'      
+    end>    
   SerializerClassName = 'TexSQLInsertSerializer'    
   Packages = <    
     item
