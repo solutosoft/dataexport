@@ -102,6 +102,7 @@ begin
   inherited;
   RegisterOption('Database', edtText);
   RegisterOption('Driver', edtText);
+  RegisterOption('Schema', edtText);
   RegisterOption('Server', edtText);
   RegisterOption('Password', edtText);
   RegisterOption('Port', edtInteger);
