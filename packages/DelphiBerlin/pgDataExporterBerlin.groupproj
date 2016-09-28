@@ -1,0 +1,84 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{19B57A5D-740F-4562-A6F4-A9759C4CEA0B}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="DataExporter.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="ZeosProvider.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="FireDACProvider.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="DBExpressProvider.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="DataSnapProvider.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="DataExporter">
+        <MSBuild Projects="DataExporter.dproj"/>
+    </Target>
+    <Target Name="DataExporter:Clean">
+        <MSBuild Projects="DataExporter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DataExporter:Make">
+        <MSBuild Projects="DataExporter.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ZeosProvider">
+        <MSBuild Projects="ZeosProvider.dproj"/>
+    </Target>
+    <Target Name="ZeosProvider:Clean">
+        <MSBuild Projects="ZeosProvider.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ZeosProvider:Make">
+        <MSBuild Projects="ZeosProvider.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="FireDACProvider">
+        <MSBuild Projects="FireDACProvider.dproj"/>
+    </Target>
+    <Target Name="FireDACProvider:Clean">
+        <MSBuild Projects="FireDACProvider.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="FireDACProvider:Make">
+        <MSBuild Projects="FireDACProvider.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DBExpressProvider">
+        <MSBuild Projects="DBExpressProvider.dproj"/>
+    </Target>
+    <Target Name="DBExpressProvider:Clean">
+        <MSBuild Projects="DBExpressProvider.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DBExpressProvider:Make">
+        <MSBuild Projects="DBExpressProvider.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DataSnapProvider">
+        <MSBuild Projects="DataSnapProvider.dproj"/>
+    </Target>
+    <Target Name="DataSnapProvider:Clean">
+        <MSBuild Projects="DataSnapProvider.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DataSnapProvider:Make">
+        <MSBuild Projects="DataSnapProvider.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="DataExporter;ZeosProvider;FireDACProvider;DBExpressProvider;DataSnapProvider"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="DataExporter:Clean;ZeosProvider:Clean;FireDACProvider:Clean;DBExpressProvider:Clean;DataSnapProvider:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="DataExporter:Make;ZeosProvider:Make;FireDACProvider:Make;DBExpressProvider:Make;DataSnapProvider:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
