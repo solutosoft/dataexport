@@ -374,7 +374,7 @@ begin
     Result := AValue;
   end
   else begin
-    if (VarIsClear(AValue) or VarIsNull(AValue)) then
+    if (VarIsClear(AValue) or VarIsNull(AValue) or (VarIsStr(AValue) and (AValue = ''))) then
       AValue := ADefault;
 
     if (AVarType = varString) then
@@ -466,6 +466,7 @@ end;
 
 constructor TexOptions.Create;
 begin
+  inherited Create;
   FEditors := TexEditorList.Create;
 end;
 
