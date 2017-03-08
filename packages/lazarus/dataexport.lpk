@@ -9,39 +9,39 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\..;..\..\scripts;..\..\editors"/>
+        <OtherUnitFiles Value="..\..\editors;..\..\sources"/>
         <UnitOutputDirectory Value="..\..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Version Major="1"/>
     <Files Count="9">
       <Item1>
-        <Filename Value="..\..\excomponentreg.pas"/>
+        <Filename Value="..\..\sources\excomponentreg.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="exComponentReg"/>
       </Item1>
       <Item2>
-        <Filename Value="..\..\exdefinition.pas"/>
+        <Filename Value="..\..\sources\exdefinition.pas"/>
         <UnitName Value="exDefinition"/>
       </Item2>
       <Item3>
-        <Filename Value="..\..\exexporter.pas"/>
+        <Filename Value="..\..\sources\exexporter.pas"/>
         <UnitName Value="exExporter"/>
       </Item3>
       <Item4>
-        <Filename Value="..\..\exserializer.pas"/>
+        <Filename Value="..\..\sources\exserializer.pas"/>
         <UnitName Value="exSerializer"/>
       </Item4>
       <Item5>
-        <Filename Value="..\..\exclasses.pas"/>
+        <Filename Value="..\..\sources\exclasses.pas"/>
         <UnitName Value="exClasses"/>
       </Item5>
       <Item6>
-        <Filename Value="..\..\exoptions.pas"/>
+        <Filename Value="..\..\sources\exoptions.pas"/>
         <UnitName Value="exOptions"/>
       </Item6>
       <Item7>
-        <Filename Value="..\..\exscript.pas"/>
+        <Filename Value="..\..\sources\exscript.pas"/>
         <UnitName Value="exscript"/>
       </Item7>
       <Item8>

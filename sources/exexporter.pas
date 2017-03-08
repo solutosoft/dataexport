@@ -4,7 +4,7 @@ interface
 
 uses
   Classes, SysUtils, Variants, DB,
-  {$IFDEF FPC}fgl, RegExpr, md5, {$ELSE} Generics.Collections, RegularExpressions, Hash, {$ENDIF}
+  {$IFDEF FPC}fgl, RegExpr, md5, {$ELSE} Generics.Collections, RegularExpressions, Hash,{$ENDIF}
   uPSComponent, uPSCompiler, uPSRuntime, exDefinition;
 
 const
@@ -168,6 +168,10 @@ type
     property OnWorkEnd: TNotifyEvent read FOnWorkEnd write FOnWorkEnd;
   end;
 
+{$IFDEF FPC}
+function VarTypeToDataType(VarType: Integer): TFieldType;
+{$ENDIF}
+
 implementation
 
 uses
@@ -197,6 +201,38 @@ begin
   if (not AVar) then
     Result.Add('end;');
 end;
+
+{$IFDEF FPC}
+function VarTypeToDataType(VarType: Integer): TFieldType;
+begin
+  case VarType of
+    varSmallint, varShortInt, varByte:
+      Result := ftSmallInt;
+    varWord: Result := ftWord;
+    varInteger: Result := ftInteger;
+    varCurrency: Result := ftBCD;
+    varLongWord, varSingle:
+      Result := ftLargeint;
+    varDouble: Result := ftFloat;
+    varDate: Result := ftDateTime;
+    varBoolean: Result := ftBoolean;
+    varString: Result := ftString;
+    varUString, varOleStr: Result := ftWideString;
+    varInt64: Result := ftLargeInt;
+  else
+    {if VarType = varSQLTimeStamp then
+      Result := ftTimeStamp
+    else if VarType = varSQLTimeStampOffset then
+      Result := ftTimeStampOffset
+    else if VarType = varFMTBcd then
+      Result := ftFMTBcd}
+    if ((VarType and varArray) = varArray) and ((VarType and varTypeMask) = varByte) then
+      Result := ftBlob
+    else
+      Result := ftUnknown;
+  end;
+end;
+{$ENDIF}
 
 { TexScriptVar }
 
@@ -372,17 +408,37 @@ end;
 function TexExporter.ScriptEngineEvaluateMacro(AMacro: String): String;
 var
   AName: String;
+  {$IFDEF FPC}
+  ARegExpr: TRegExpr;
+  {$ELSE}
   AMatch: TMatch;
+  {$ENDIF}
 begin
   Result := AMacro;
   if (FCurrentDataSet <> nil) then
   begin
+    {$IFDEF FPC}
+    ARegExpr := TRegExpr.Create(SCRIPT_REGEX_MACRO);
+    try
+      if (ARegExpr.Exec(Result)) then
+      begin
+        repeat
+          AName := ARegExpr.Match[1];
+          Result := StringReplace(Result, ARegExpr.Match[0], FCurrentDataSet.FieldByName(AName).AsString,
+            [rfIgnoreCase, rfReplaceAll]);
+        until (not ARegExpr.ExecNext);
+      end;
+    finally
+      ARegExpr.Free;
+    end;
+    {$ELSE}
     for AMatch in TRegEx.Matches(Result, SCRIPT_REGEX_MACRO) do
     begin
       AName := AMatch.Groups[1].Value;
       Result := Result.Replace(AMatch.Groups[0].Value, FCurrentDataSet.FieldByName(AName).AsString,
         [rfReplaceAll, rfIgnoreCase]);
     end;
+    {$ENDIF}
   end;
 end;
 
