@@ -30,6 +30,14 @@ type
   TexWorkBeginEvent = procedure(Sender: TObject; SessionCount: Integer) of object;
   TexSerializeDataEvent = procedure(Sender: TexPackage; AData: WideString) of object;
 
+  EScriptException = class(Exception)
+  private
+    FScript: string;
+  published
+    property Script: string read FScript write FScript;
+    constructor Create(const Msg: string; AScript: String);
+  end;
+
   { TexScriptVar }
 
   TexScriptVar = class(TPersistent)
@@ -233,6 +241,14 @@ begin
   end;
 end;
 {$ENDIF}
+
+{ EScriptException }
+
+constructor EScriptException.Create(const Msg: string; AScript: String);
+begin
+  inherited Create(Msg);
+  FScript := AScript;
+end;
 
 { TexScriptVar }
 
@@ -635,7 +651,13 @@ begin
       end;
     end;
   end;
-  Result := FScript.ExecuteFunction([], SCRIPT_FUNCEVAL_EXEC);
+
+  try
+    Result := FScript.ExecuteFunction([], SCRIPT_FUNCEVAL_EXEC);
+  except
+    on E: Exception do
+      raise EScriptException.Create(E.Message, AScript);
+  end;
 end;
 
 function TexExporter.Execute: TexResutMap;
