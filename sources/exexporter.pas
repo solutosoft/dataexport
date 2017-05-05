@@ -33,9 +33,10 @@ type
   EScriptException = class(Exception)
   private
     FScript: string;
+  public
+    constructor Create(const Msg: string; AScript: String);
   published
     property Script: string read FScript write FScript;
-    constructor Create(const Msg: string; AScript: String);
   end;
 
   { TexScriptVar }
@@ -115,6 +116,7 @@ type
     FOnSerializeData: TexSerializeDataEvent;
     FOnScriptExecImport: TPSOnExecImportEvent;
     FOnScriptCompImport: TPSOnCompImportEvent;
+    FProperties: TStrings;
     function GetSerializerClassName: String;
     procedure SetSerializerClassName(const Value: String);
     procedure SetPackages(AValue: TexPackageList);
@@ -122,6 +124,7 @@ type
     procedure SetEvents(AValue: TexVariableList);
     procedure SetParameters(AValue: TexParameterList);
     procedure SetPipelines(AValue: TexPipelineList);
+    procedure SetProperties(const AValue: TStrings);
     procedure SetProvider(AValue: TexProvider);
     procedure SetSerializer(AValue: TexSerializer);
     procedure SetSessions(AValue: TexSessionList);
@@ -140,7 +143,6 @@ type
     function ScriptEngineFindField(AFieldName: String): TexValue;
     function ScriptEngineFindParam(AParamName: String): TexValue;
     function ScriptEngineGetId: Integer;
-
   protected
     FObjectCounter: Integer;
   public
@@ -163,6 +165,7 @@ type
     property Packages: TexPackageList read FPackages write SetPackages;
     property Parameters: TexParameterList read FParameters write SetParameters;
     property Pipelines: TexPipelineList read FPipelines write SetPipelines;
+    property Properties: TStrings read FProperties write SetProperties;
     property Provider: TexProvider read FProvider write SetProvider;
     property Sessions: TexSessionList read FSessions write SetSessions;
     property Variables: TexVariableList read FVariables write SetVariables;
@@ -308,6 +311,7 @@ begin
   FPipelines := TexPipelineList.Create;
   FParameters := TexParameterList.Create;
   FPackages := TexPackageList.Create;
+  FProperties := TStringList.Create;
   FVariables := TexVariableList.Create;
 end;
 
@@ -575,6 +579,11 @@ end;
 procedure TexExporter.SetPipelines(AValue: TexPipelineList);
 begin
   FPipelines.Assign(AValue);
+end;
+
+procedure TexExporter.SetProperties(const AValue: TStrings);
+begin
+  FProperties.Assign(AValue);
 end;
 
 procedure TexExporter.SetProvider(AValue: TexProvider);

@@ -4,7 +4,7 @@ unit exComponentReg;
 interface
 
 uses
-  Classes, SysUtils,{$IFNDEF LCL} DesignIntf, DesignEditors, {$ELSE} PropEdits, {$ENDIF}
+  Classes, SysUtils, {$IFNDEF LCL} DesignIntf, DesignEditors, StrEdit, {$ELSE} PropEdits, {$ENDIF}
   exClasses, exDefinition, exOptions, exExporter, exSerializer, exOptionsDlg, exComboItemsDlg;
 
 type
@@ -181,6 +181,9 @@ procedure Register;
 begin
   RegisterPropertyEditor(TypeInfo(string), TexExporter, 'SerializerClassName', nil);
   RegisterPropertyEditor(TypeInfo(TexSerializer), TexExporter, 'Serializer', TexSerializerProperty);
+  {$IFNDEF LCL}
+  RegisterPropertyEditor(TypeInfo(TStrings), TexExporter, 'Properties', TValueListProperty);
+  {$ENDIF}
 
   RegisterPropertyEditor(TypeInfo(string), TexPackage, 'PackageType', TexPackageTypeProperty);
   RegisterPropertyEditor(TypeInfo(TexOptions), TexPackage, 'Options', TexOptionsProperty);
@@ -191,4 +194,3 @@ begin
 end;
 
 end.
-
