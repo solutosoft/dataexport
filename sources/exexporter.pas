@@ -417,9 +417,8 @@ procedure TexExporter.ScriptEngineCompImport(Sender: TObject; x: TPSPascalCompil
 begin
   SIRegister_Std(x);
   SIRegister_Classes(x, True);
-
-  RegisterTexValueClass_C(x);
-  RegisterTexOptionsClass_C(x);
+  RegisterExtraClasses_C(x);
+  RegisterDateTimeLibrary_C(x);
 
   if (Assigned(FOnScriptCompImport)) then
     FOnScriptCompImport(Sender, x);
@@ -466,9 +465,8 @@ procedure TexExporter.ScriptEngineExecImport(Sender: TObject; se: TPSExec; x: TP
 begin
   RIRegister_Std(x);
   RIRegister_Classes(x, True);
-
-  RegisterTexValueClass_R(x);
-  RegisterTexOptionsClass_R(x);
+  RegisterExtraClasses_R(x, se);
+  RegisterDateTimeLibrary_R(se);
 
   if (Assigned(FOnScriptExecImport)) then
     FOnScriptExecImport(Sender, se, x);

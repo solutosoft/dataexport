@@ -3,20 +3,80 @@ unit exscript;
 interface
 
 uses
-  SysUtils, uPSRuntime, uPSCompiler {$IFDEF FPC}, LCLIntf {$ELSE}, Windows {$ENDIF},
+  SysUtils, Variants, uPSRuntime, uPSCompiler {$IFDEF FPC}, LCLIntf, fpjson {$ELSE}, Windows, JSON {$ENDIF},
   exDefinition, exOptions;
 
-procedure RegisterTexValueClass_R(S: TPSRuntimeClassImporter);
-procedure RegisterTexOptionsClass_R(S: TPSRuntimeClassImporter);
+type
+  TexJSONData = class(TObject)
+  private
+    FJSON: {$IFDEF FPC} TJSONData{$ELSE}TJSONValue{$ENDIF};
+    FValue: TexValue;
+  public
+    constructor Create(AJSON: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF});
+    destructor Destroy;override;
+    function FindValue(APath: String): TexValue;
+  end;
 
-procedure RegisterTexValueClass_C(S: TPSPascalCompiler);
-procedure RegisterTexOptionsClass_C(S: TPSPascalCompiler);
+procedure RegisterExtraClasses_R(S: TPSRuntimeClassImporter; SE: TPSExec);
+procedure RegisterExtraClasses_C(S: TPSPascalCompiler);
 
 implementation
 
-procedure RegisterTexValueClass_R(S: TPSRuntimeClassImporter);
-begin
+{ Extra functions }
 
+procedure SetDateSeparator(ADateSeparator: Char);
+begin
+  FormatSettings.DateSeparator := ADateSeparator;
+end;
+
+procedure SetTimeSeparator(ATimeSeparator: Char);
+begin
+  FormatSettings.TimeSeparator := ATimeSeparator;
+end;
+
+procedure SetThousandSeparator(AThousandSeparator: Char);
+begin
+  FormatSettings.ThousandSeparator := AThousandSeparator;
+end;
+
+procedure SetDecimalSeparator(ADecimalSeparator: Char);
+begin
+  FormatSettings.DecimalSeparator := ADecimalSeparator;
+end;
+
+procedure SetLongDateFormat(ALongDateFormat: String);
+begin
+  FormatSettings.LongDateFormat := ALongDateFormat;
+end;
+
+procedure SetShortDateFormat(AShortDateFormat: String);
+begin
+  FormatSettings.ShortDateFormat := AShortDateFormat;
+end;
+
+procedure SetLongTimeFormat(ALongTimeFormat: String);
+begin
+  FormatSettings.LongTimeFormat := ALongTimeFormat;
+end;
+
+procedure SetShortTimeFormat(AShortTimeFormat: String);
+begin
+  FormatSettings.ShortTimeFormat := AShortTimeFormat;
+end;
+
+function GetJSONData(AData: String): TexJSONData;
+begin
+  {$IFDEF FPC}
+  Result := TexJSONData.Create(GetJSON(AData));
+  {$ELSE}
+  Result := TexJSONData.Create(TJSONObject.ParseJSONValue(AData));
+  {$ENDIF}
+end;
+
+{ Extra registrations }
+
+procedure RegisterExtraClasses_R(S: TPSRuntimeClassImporter; SE: TPSExec);
+begin
   with S.Add(TexValue) do
   begin
     RegisterConstructor(@TexValue.Create, 'Create');
@@ -31,10 +91,7 @@ begin
     RegisterMethod(@TexValue.AsDateEnd, 'AsDateEnd');
     RegisterMethod(@TexValue.AsArray, 'AsArray');
   end;
-end;
 
-procedure RegisterTexOptionsClass_R(S: TPSRuntimeClassImporter);
-begin
   with S.Add(TexOptions) do
   begin
     RegisterConstructor(@TexOptions.Create, 'Create');
@@ -47,13 +104,34 @@ begin
   S.Add(TexFTPOptions);
   S.Add(TexHttpOptions);
   S.Add(TexDatabaseOptions);
+
+  with S.Add(TexJSONData) do
+  begin
+    RegisterConstructor(@TexJSONData.Create, 'Create');
+    RegisterMethod(@TexJSONData.FindValue, 'FindValue');
+  end;
+
+  SE.RegisterDelphiFunction(@GetJSONData, 'GETJSONDATA', cdRegister);
+  SE.RegisterDelphiFunction(@FormatFloat, 'FORMATFLOAT', cdRegister);
+  SE.RegisterDelphiFunction(@FileExists, 'FILEEXISTS', cdRegister);
+  SE.RegisterDelphiFunction(@DirectoryExists, 'DIRECTORYEXISTS', cdRegister);
+  SE.RegisterDelphiFunction(@DeleteFile, 'DELETEFILE', cdRegister);
+  SE.RegisterDelphiFunction(@RenameFile, 'RENAMEFILE', cdRegister);
+  SE.RegisterDelphiFunction(@SetDateSeparator, 'SETDATESEPARATOR', cdRegister);
+  SE.RegisterDelphiFunction(@SetTimeSeparator, 'SETTIMESEPARATOR', cdRegister);
+  SE.RegisterDelphiFunction(@SetThousandSeparator, 'SETTHOUSANDSEPARATOR', cdRegister);
+  SE.RegisterDelphiFunction(@SetDecimalSeparator, 'SETDECIMALSEPARATOR', cdRegister);
+  SE.RegisterDelphiFunction(@SetLongDateFormat, 'SETLONGDATEFORMAT', cdRegister);
+  SE.RegisterDelphiFunction(@SetShortDateFormat, 'SETSHORTDATEFORMAT', cdRegister);
+  SE.RegisterDelphiFunction(@SetLongTimeFormat, 'SETLONGTIMEFORMAT', cdRegister);
+  SE.RegisterDelphiFunction(@SetShortTimeFormat, 'SETSHORTTIMEFORMAT', cdRegister);
+  SE.RegisterDelphiFunction(@QuotedStr, 'QUOTEDSTR', cdRegister);
 end;
 
-procedure RegisterTexValueClass_C(S: TPSPascalCompiler);
+procedure RegisterExtraClasses_C(S: TPSPascalCompiler);
 begin
   S.AddTypeS('TVariantDynArray', 'array of Variant');
   S.AddTypeS('TexDataType', '(datNone, datText, datInteger, datDateTime, datBoolean, datFloat, datCurrency)');
-
   with S.AddClassN(S.FindClass('TObject'), 'TexValue') do
   begin
     RegisterMethod('Constructor Create(AValue : Variant)');
@@ -68,10 +146,7 @@ begin
     RegisterMethod('Function AsDateEnd : Variant');
     RegisterMethod('Function AsArray : TVariantDynArray');
   end;
-end;
 
-procedure RegisterTexOptionsClass_C(S: TPSPascalCompiler);
-begin
   with S.AddClassN(S.FindClass('TStringList'), 'TexOptions') do
   begin
     RegisterMethod('Constructor Create');
@@ -80,11 +155,61 @@ begin
     RegisterMethod('Function GetAsFloat( AName : String; ADefault : Double) : Double');
     RegisterMethod('Function GetAsBoolean( AName : String; ADefault : Boolean) : Boolean');
   end;
-
   S.AddClassN(S.FindClass('TexOptions'),'TexHttpOptions');
   S.AddClassN(S.FindClass('TexOptions'),'TexFileOptions');
   S.AddClassN(S.FindClass('TexOptions'),'TexFTPOptions');
   S.AddClassN(S.FindClass('TexOptions'),'TexDatabaseOptions');
+
+  with S.AddClassN(S.FindClass('TObject'), 'TJSONData') do
+  begin
+    RegisterMethod('Constructor Create(AJSONValue: TJSONValue)');
+    RegisterMethod('Function FindValue(APath: String): TexValue');
+  end;
+
+  S.AddDelphiFunction('function FormatFloat(Const Format : String; Value : Extended) : String;');
+  S.AddDelphiFunction('function FileExists (Const FileName : String) : Boolean;');
+  S.AddDelphiFunction('function DirectoryExists (Const Directory : String) : Boolean;');
+  S.AddDelphiFunction('function DeleteFile (Const FileName : String) : Boolean;');
+  S.AddDelphiFunction('procedure SetDateSeparator(ADateSeparator: Char);');
+  S.AddDelphiFunction('procedure SetTimeSeparator(ATimeSeparator: Char);');
+  S.AddDelphiFunction('procedure SetThousandSeparator(AThousandSeparator: Char);');
+  S.AddDelphiFunction('procedure SetDecimalSeparator(ADecimalSeparator: Char);');
+  S.AddDelphiFunction('procedure SetLongDateFormat(ALongDateFormat: String);');
+  S.AddDelphiFunction('procedure SetShortDateFormat(AShortDateFormat: String);');
+  S.AddDelphiFunction('procedure SetLongTimeFormat(ALongTimeFormat: String);');
+  S.AddDelphiFunction('procedure SetShortTimeFormat(AShortTimeFormat: String);');
+  S.AddDelphiFunction('function QuotedStr(const S: string): string;');
+end;
+
+{ TexJSONData }
+
+constructor TexJSONData.Create(AJSON: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF});
+begin
+  FJSON := AJSON;
+  FValue := TexValue.Create(Null);
+end;
+
+destructor TexJSONData.Destroy;
+begin
+  FValue.Free;
+  inherited Destroy;
+end;
+
+function TexJSONData.FindValue(APath: String): TexValue;
+{$IFNDEF FPC}
+var
+  AData: String;
+{$ENDIF}
+begin
+  {$IFDEF FPC}
+  FValue := TexValue.Create(FJSON.FindPath(APath).AsString);
+  {$ELSE}
+  if (FJSON.TryGetValue(APath, AData)) then
+    FValue := TexValue.Create(AData)
+  else
+    FValue := TexValue.Create(Null);
+  {$ENDIF}
+  Result := FValue;
 end;
 
 end.
