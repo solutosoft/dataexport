@@ -35,7 +35,6 @@ type
     FScript: string;
   public
     constructor Create(const Msg: string; AScript: String);
-  published
     property Script: string read FScript write FScript;
   end;
 
