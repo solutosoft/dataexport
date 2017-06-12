@@ -162,7 +162,11 @@ begin
 
   with S.AddClassN(S.FindClass('TObject'), 'TJSONData') do
   begin
-    RegisterMethod('Constructor Create(AJSONValue: TJSONValue)');
+    {$IFDEF FPC}
+    RegisterMethod('Constructor Create(AJSON: TJSONData)');
+    {$ELSE}
+    RegisterMethod('Constructor Create(AJSON: TJSONValue)');
+    {$ENDIF}
     RegisterMethod('Function FindValue(APath: String): TexValue');
   end;
 
