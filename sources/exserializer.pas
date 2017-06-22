@@ -419,10 +419,12 @@ begin
       if (not ASame) then
         Result := Format('[%s]', [Result]);
 
+      AAlias := IfThen(Trim(ASession.Alias) <> '', ASession.Alias, ASession.Name);
+
       if (AOwner <> nil) then
-        Result := Format('"%s":%s', [ASession.Name, Result])
+        Result := Format('"%s":%s', [AAlias, Result])
       else if (not Self.HideRootKeys) then
-        Result := Format('{"%s":%s}', [ASession.Name, Result]);
+        Result := Format('{"%s":%s}', [AAlias, Result]);
     finally
       if (not ASame) then
         AQuery.Free;
@@ -589,8 +591,9 @@ begin
           Delete(AValues, Length(AValues), 1);
           Delete(AColumns, Length(AColumns), 1);
 
+          AAlias := IfThen(Trim(ASession.Alias) <> '', ASession.Alias, ASession.Name);
           AValues := BeforeSerialize(AValues, ASession);
-          AData.Add(Format('insert into %s (%s) values (%s);', [ASession.Name, AColumns, AValues]));
+          AData.Add(Format('insert into %s (%s) values (%s);', [AAlias, AColumns, AValues]));
           Serialize(ASession.Sessions, AQuery, AResult);
 
           if (ASessions.Owner = nil) then
