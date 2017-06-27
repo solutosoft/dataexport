@@ -73,6 +73,30 @@ begin
   {$ENDIF}
 end;
 
+function RemoveMask(AStr: string): String;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(AStr) do
+  begin
+    if (IsCharAlphaNumeric(AStr[I])) then
+      Result := Result + AStr[I];
+  end;
+end;
+
+function StringReplace(ASource, AOldPattern, ANewPattern: String; AIgnoreCase: Boolean): String;
+var
+  AFlags: TReplaceFlags;
+begin
+  AFlags := [rfReplaceAll];
+
+  if (AIgnoreCase) then
+    AFlags := AFlags + [rfIgnoreCase];
+
+  Result := SysUtils.StringReplace(ASource, AOldPattern, ANewPattern, AFlags);
+end;
+
 { Extra registrations }
 
 procedure RegisterExtraClasses_R(S: TPSRuntimeClassImporter; SE: TPSExec);
@@ -126,6 +150,8 @@ begin
   SE.RegisterDelphiFunction(@SetLongTimeFormat, 'SETLONGTIMEFORMAT', cdRegister);
   SE.RegisterDelphiFunction(@SetShortTimeFormat, 'SETSHORTTIMEFORMAT', cdRegister);
   SE.RegisterDelphiFunction(@QuotedStr, 'QUOTEDSTR', cdRegister);
+  SE.RegisterDelphiFunction(@RemoveMask, 'REMOVEMASK', cdRegister);
+  SE.RegisterDelphiFunction(@StringReplace, 'STRINGREPLACE', cdRegister);
 end;
 
 procedure RegisterExtraClasses_C(S: TPSPascalCompiler);
@@ -183,6 +209,8 @@ begin
   S.AddDelphiFunction('procedure SetLongTimeFormat(ALongTimeFormat: String);');
   S.AddDelphiFunction('procedure SetShortTimeFormat(AShortTimeFormat: String);');
   S.AddDelphiFunction('function QuotedStr(const S: string): string;');
+  S.AddDelphiFunction('function RemoveMask(const S: string): string;');
+  S.AddDelphiFunction('function StringReplace(ASource, AOldPattern, ANewPattern: String; AIgnoreCase: Boolean): String;');
 end;
 
 { TexJSONData }
