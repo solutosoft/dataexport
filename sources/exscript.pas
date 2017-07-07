@@ -233,14 +233,19 @@ var
   AData: String;
 {$ENDIF}
 begin
-  {$IFDEF FPC}
-  FValue := TexValue.Create(FJSON.FindPath(APath).AsString);
-  {$ELSE}
-  if (FJSON.TryGetValue(APath, AData)) then
-    FValue := TexValue.Create(AData)
-  else
+  try
+    {$IFDEF FPC}
+    FValue := TexValue.Create(FJSON.FindPath(APath).AsString);
+    {$ELSE}
+    if (FJSON.TryGetValue(APath, AData)) then
+      FValue := TexValue.Create(AData)
+    else
+      FValue := TexValue.Create(Null);
+    {$ENDIF}
+  except
     FValue := TexValue.Create(Null);
-  {$ENDIF}
+  end;
+
   Result := FValue;
 end;
 
