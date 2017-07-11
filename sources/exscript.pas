@@ -12,7 +12,7 @@ type
     FJSON: {$IFDEF FPC} TJSONData{$ELSE}TJSONValue{$ENDIF};
     FValue: TexValue;
   public
-    constructor Create(AJSON: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF});
+    constructor Create(AData: String);
     destructor Destroy;override;
     function FindValue(APath: String): TexValue;
   end;
@@ -66,11 +66,7 @@ end;
 
 function GetJSONData(AData: String): TexJSONData;
 begin
-  {$IFDEF FPC}
-  Result := TexJSONData.Create(GetJSON(AData));
-  {$ELSE}
-  Result := TexJSONData.Create(TJSONObject.ParseJSONValue(AData));
-  {$ENDIF}
+  Result := TexJSONData.Create(AData);
 end;
 
 function RemoveMask(AStr: string): String;
@@ -186,13 +182,9 @@ begin
   S.AddClassN(S.FindClass('TexOptions'),'TexFTPOptions');
   S.AddClassN(S.FindClass('TexOptions'),'TexDatabaseOptions');
 
-  with S.AddClassN(S.FindClass('TObject'), 'TJSONData') do
+  with S.AddClassN(S.FindClass('TObject'), 'TexJSONData') do
   begin
-    {$IFDEF FPC}
-    RegisterMethod('Constructor Create(AJSON: TJSONData)');
-    {$ELSE}
-    RegisterMethod('Constructor Create(AJSON: TJSONValue)');
-    {$ENDIF}
+    RegisterMethod('Constructor Create(AData: String)');
     RegisterMethod('Function FindValue(APath: String): TexValue');
   end;
 
@@ -211,13 +203,18 @@ begin
   S.AddDelphiFunction('function QuotedStr(const S: string): string;');
   S.AddDelphiFunction('function RemoveMask(const S: string): string;');
   S.AddDelphiFunction('function StringReplace(ASource, AOldPattern, ANewPattern: String; AIgnoreCase: Boolean): String;');
+  S.AddDelphiFunction('function GetJSONData(AData: String): TexJSONData;');
 end;
 
 { TexJSONData }
 
-constructor TexJSONData.Create(AJSON: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF});
+constructor TexJSONData.Create(AData: String);
 begin
-  FJSON := AJSON;
+  {$IFDEF FPC}
+  FJSON := GetJSON(AData);
+  {$ELSE}
+  FJSON := TJSONObject.ParseJSONValue(AData);
+  {$ENDIF}
   FValue := TexValue.Create(Null);
 end;
 
