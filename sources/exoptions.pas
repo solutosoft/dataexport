@@ -60,6 +60,7 @@ constructor TexFileOptions.Create;
 begin
   inherited Create;
   RegisterOption('FileName', edtFile);
+  RegisterOption('Encoding', edtText);
 end;
 
 { TexFTPOptions }
