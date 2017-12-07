@@ -723,7 +723,7 @@ procedure TexExporter.LoadFromFile(const AFileName: String);
 var
   AStream: TFileStream;
 begin
-  AStream := TFileStream.Create(AFileName, fmOpenRead);
+  AStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyNone);
   try
     LoadFromStream(AStream);
   finally
