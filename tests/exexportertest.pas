@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Forms, Classes, SysUtils, IOUtils, JSON, RegularExpressions, xmldom, XMLIntf, XMLDoc, TestFrameWork,
-  TestExtensions, GUITesting, GuiTestRunner, exExporter, exZeosProvider, exSerializer, exDefinition, ZConnection,
+  TestExtensions, GUITesting, GuiTestRunner, exExporter, exZeosDriver, exSerializer, exDefinition, ZConnection,
   ZSqlProcessor, ZScriptParser, uPSRuntime, uPSCompiler;
 
 type
@@ -13,7 +13,7 @@ type
   TexExporterTest = class(TTestCase)
   private
     FFixtureDir: String;
-    FProvider: TexZeosProvider;
+    FDriver: TexZeosDriver;
     FConnection: TZConnection;
     procedure PrepareDatabase;
     function CreateExporter(AFileName: String): TexExporter;
@@ -76,8 +76,8 @@ begin
   FConnection.Protocol := 'sqlite-3';
   FConnection.Database := TPath.Combine(ExtractFilePath(Application.ExeName), 'export-test.db');
 
-  FProvider := TexZeosProvider.Create(nil);
-  FProvider.Connection := FConnection;
+  FDriver := TexZeosDriver.Create(nil);
+  FDriver.Connection := FConnection;
 
   PrepareDatabase;
 end;
@@ -85,7 +85,7 @@ end;
 destructor TexExporterTest.Destroy;
 begin
   FConnection.Free;
-  FProvider.Free;
+  FDriver.Free;
   inherited Destroy;
 end;
 
@@ -113,7 +113,7 @@ function TexExporterTest.CreateExporter(AFileName: String): TexExporter;
 begin
   Result := TexExporter.Create(nil);
   Result.LoadFromFile(TPath.Combine(FFixtureDir,  AFileName));
-  Result.Provider := FProvider;
+  Result.Driver := FDriver;
   Result.OnScriptCompImport := ScriptEngineCompImport;
   Result.OnScriptExecImport := ScriptEngineExecImport;
 end;
@@ -141,7 +141,7 @@ begin
   try
     AExporter.SerializerClass := TexXmlSerializer;
 
-    with (AExporter.Pipelines.Add) do
+    with (AExporter.Providers.Add) do
     begin
       Name := 'persons-pipeline';
       SQL.Text := 'select * from persons';
@@ -163,7 +163,7 @@ begin
     with(ASession) do
     begin
       Name := 'persons';
-      Pipeline := 'persons-pipeline';
+      Provider := 'persons-provider';
     end;
 
     with (ASession.Columns.Add) do
@@ -187,7 +187,7 @@ begin
     AExporter.LoadFromFile(AFileName);
 
     CheckTrue(AExporter.Serializer <> nil);
-    CheckEquals(1, AExporter.Pipelines.Count);
+    CheckEquals(1, AExporter.Providers.Count);
     CheckEquals(1, AExporter.Dictionaries.Count);
     CheckEquals(1, AExporter.Parameters.Count);
     CheckEquals(1, AExporter.Sessions.Count);

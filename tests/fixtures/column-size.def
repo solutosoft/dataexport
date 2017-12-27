@@ -3,7 +3,7 @@ object TexExporter
   Sessions = <  
     item
       Name = 'persons'
-      Pipeline = 'person-pipeline'      
+      provider = 'person-provider'      
       Columns = <      
         item
           Name = 'id'
@@ -43,7 +43,7 @@ object TexExporter
     end
     item
       Name = 'products'
-      Pipeline = 'product-pipeline'      
+      provider = 'product-provider'      
       Columns = <      
         item
           Align = altRight
@@ -94,15 +94,15 @@ object TexExporter
         'products'          
       )
     end> 
-  Pipelines = <
+  Providers = <
     item
-      Name = 'person-pipeline'
+      Name = 'person-provider'
       SQL.Strings = (
 	      'select * from persons'
 	    )
     end
     item
-      Name = 'product-pipeline'
+      Name = 'product-provider'
       SQL.Strings = (
 	      'select * from products'
 	    )

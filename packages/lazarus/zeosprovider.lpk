@@ -8,16 +8,15 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\..\providers"/>
+        <OtherUnitFiles Value="..\..\providers;..\..\drivers"/>
         <UnitOutputDirectory Value="..\..\lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
     </CompilerOptions>
     <Version Major="1"/>
     <Files Count="1">
       <Item1>
-        <Filename Value="..\..\providers\exzeosprovider.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="exZeosProvider"/>
+        <Filename Value="..\..\drivers\exzeosdriver.pas"/>
+        <UnitName Value="exzeosdriver"/>
       </Item1>
     </Files>
     <RequiredPkgs Count="3">

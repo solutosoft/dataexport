@@ -3,7 +3,7 @@ object TexExporter
   Sessions = <  
     item
       Name = 'invoices_table'
-      Pipeline = 'invoices-pipeline'      
+      provider = 'invoices-provider'      
       Columns = <                
         item
           Name = 'number'          
@@ -20,7 +20,7 @@ object TexExporter
       Sessions = <
         item
           Name = 'details_table'
-          Pipeline = 'details-pipeline'
+          provider = 'details-provider'
           Columns = <                         
             item
               Name = 'product_id'              
@@ -51,15 +51,15 @@ object TexExporter
         'invoices_table'          
       )    
     end> 
-  Pipelines = <
+  Providers = <
     item
-      Name = 'invoices-pipeline'
+      Name = 'invoices-provider'
       SQL.Strings = (
 	      'select * from invoices'
 	    )
     end
     item
-      Name = 'details-pipeline'
+      Name = 'details-provider'
       SQL.Strings = (
 	      'select * from invoice_details where invoice_id = :id'
 	    )

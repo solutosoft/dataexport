@@ -6,16 +6,16 @@
         <Projects Include="DataExporter.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="FireDACProvider.dproj">
+        <Projects Include="FireDACDriver.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="DataSnapProvider.dproj">
+        <Projects Include="DataSnapDriver.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="DBExpressProvider.dproj">
+        <Projects Include="DBExpressDriver.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="ZeosProvider.dproj">
+        <Projects Include="ZeosDriver.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -35,50 +35,50 @@
     <Target Name="DataExporter:Make">
         <MSBuild Projects="DataExporter.dproj" Targets="Make"/>
     </Target>
-    <Target Name="FireDACProvider">
-        <MSBuild Projects="FireDACProvider.dproj"/>
+    <Target Name="FireDACDriver">
+        <MSBuild Projects="FireDACDriver.dproj"/>
     </Target>
-    <Target Name="FireDACProvider:Clean">
-        <MSBuild Projects="FireDACProvider.dproj" Targets="Clean"/>
+    <Target Name="FireDACDriver:Clean">
+        <MSBuild Projects="FireDACDriver.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="FireDACProvider:Make">
-        <MSBuild Projects="FireDACProvider.dproj" Targets="Make"/>
+    <Target Name="FireDACDriver:Make">
+        <MSBuild Projects="FireDACDriver.dproj" Targets="Make"/>
     </Target>
-    <Target Name="DataSnapProvider">
-        <MSBuild Projects="DataSnapProvider.dproj"/>
+    <Target Name="DataSnapDriver">
+        <MSBuild Projects="DataSnapDriver.dproj"/>
     </Target>
-    <Target Name="DataSnapProvider:Clean">
-        <MSBuild Projects="DataSnapProvider.dproj" Targets="Clean"/>
+    <Target Name="DataSnapDriver:Clean">
+        <MSBuild Projects="DataSnapDriver.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="DataSnapProvider:Make">
-        <MSBuild Projects="DataSnapProvider.dproj" Targets="Make"/>
+    <Target Name="DataSnapDriver:Make">
+        <MSBuild Projects="DataSnapDriver.dproj" Targets="Make"/>
     </Target>
-    <Target Name="DBExpressProvider">
-        <MSBuild Projects="DBExpressProvider.dproj"/>
+    <Target Name="DBExpressDriver">
+        <MSBuild Projects="DBExpressDriver.dproj"/>
     </Target>
-    <Target Name="DBExpressProvider:Clean">
-        <MSBuild Projects="DBExpressProvider.dproj" Targets="Clean"/>
+    <Target Name="DBExpressDriver:Clean">
+        <MSBuild Projects="DBExpressDriver.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="DBExpressProvider:Make">
-        <MSBuild Projects="DBExpressProvider.dproj" Targets="Make"/>
+    <Target Name="DBExpressDriver:Make">
+        <MSBuild Projects="DBExpressDriver.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ZeosProvider">
-        <MSBuild Projects="ZeosProvider.dproj"/>
+    <Target Name="ZeosDriver">
+        <MSBuild Projects="ZeosDriver.dproj"/>
     </Target>
-    <Target Name="ZeosProvider:Clean">
-        <MSBuild Projects="ZeosProvider.dproj" Targets="Clean"/>
+    <Target Name="ZeosDriver:Clean">
+        <MSBuild Projects="ZeosDriver.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="ZeosProvider:Make">
-        <MSBuild Projects="ZeosProvider.dproj" Targets="Make"/>
+    <Target Name="ZeosDriver:Make">
+        <MSBuild Projects="ZeosDriver.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="DataExporter;FireDACProvider;DataSnapProvider;DBExpressProvider;ZeosProvider"/>
+        <CallTarget Targets="DataExporter;FireDACDriver;DataSnapDriver;DBExpressDriver;ZeosDriver"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DataExporter:Clean;FireDACProvider:Clean;DataSnapProvider:Clean;DBExpressProvider:Clean;ZeosProvider:Clean"/>
+        <CallTarget Targets="DataExporter:Clean;FireDACDriver:Clean;DataSnapDriver:Clean;DBExpressDriver:Clean;ZeosDriver:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DataExporter:Make;FireDACProvider:Make;DataSnapProvider:Make;DBExpressProvider:Make;ZeosProvider:Make"/>
+        <CallTarget Targets="DataExporter:Make;FireDACDriver:Make;DataSnapDriver:Make;DBExpressDriver:Make;ZeosDriver:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

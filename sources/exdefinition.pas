@@ -206,9 +206,9 @@ type
     property Items[Index: Integer]: TexParameter read GetItem write SetItem; default;
   end;
 
-  { TexPipeline }
+  { TexProvider }
 
-  TexPipeline = class(TexElement)
+  TexProvider = class(TexElement)
   private
     FSQL: TStrings;
     procedure SetSQL(AValue: TStrings);
@@ -219,17 +219,17 @@ type
     property SQL: TStrings read FSQL write SetSQL;
   end;
 
-  { TexPipelineList }
+  { TexProviderList }
 
-  TexPipelineList = class(TexElementList)
+  TexProviderList = class(TexElementList)
   private
-    function GetItem(Index: Integer): TexPipeline;
-    procedure SetItem(Index: Integer; AValue: TexPipeline);
+    function GetItem(Index: Integer): TexProvider;
+    procedure SetItem(Index: Integer; AValue: TexProvider);
   public
     constructor Create;
-    function FindByName(AName: String): TexPipeline; reintroduce;
-    function Add: TexPipeline;
-    property Items[Index: Integer]: TexPipeline read GetItem write SetItem; default;
+    function FindByName(AName: String): TexProvider; reintroduce;
+    function Add: TexProvider;
+    property Items[Index: Integer]: TexProvider read GetItem write SetItem; default;
   end;
 
   { TexSessionList }
@@ -255,7 +255,7 @@ type
   private
     FAlias: String;
     FColumns: TexColumnList;
-    FPipeline: String;
+    FProvider: String;
     FRowCount: Integer;
     FSessions: TexSessionList;
     FVisible: Boolean;
@@ -268,7 +268,7 @@ type
   published
     property Alias: String read FAlias write FAlias;
     property Columns: TexColumnList read FColumns write SeTexColumns;
-    property Pipeline: String read FPipeline write FPipeline;
+    property Provider: String read FProvider write FProvider;
     property Sessions: TexSessionList read FSessions write SeTexSessions;
     property Visible: Boolean read FVisible write FVisible default True;
   end;
@@ -692,43 +692,43 @@ begin
   inherited SetItem(Index, AValue);
 end;
 
-{ TexPipeline }
+{ TexProvider }
 
-constructor TexPipeline.Create(ACollection: TCollection);
+constructor TexProvider.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FSQL := TStringList.Create;
 end;
 
-destructor TexPipeline.Destroy;
+destructor TexProvider.Destroy;
 begin
   FSQL.Free;
   inherited Destroy;
 end;
 
-{ TexPipelineList }
+{ TexProviderList }
 
-constructor TexPipelineList.Create;
+constructor TexProviderList.Create;
 begin
-  inherited Create(TexPipeline);
+  inherited Create(TexProvider);
 end;
 
-function TexPipelineList.FindByName(AName: String): TexPipeline;
+function TexProviderList.FindByName(AName: String): TexProvider;
 begin
-  Result := TexPipeline(inherited FindByName(AName));
+  Result := TexProvider(inherited FindByName(AName));
 end;
 
-function TexPipelineList.Add: TexPipeline;
+function TexProviderList.Add: TexProvider;
 begin
-  Result := TexPipeline(inherited Add);
+  Result := TexProvider(inherited Add);
 end;
 
-function TexPipelineList.GetItem(Index: Integer): TexPipeline;
+function TexProviderList.GetItem(Index: Integer): TexProvider;
 begin
-  Result := TexPipeline(inherited GetItem(Index));
+  Result := TexProvider(inherited GetItem(Index));
 end;
 
-procedure TexPipelineList.SetItem(Index: Integer; AValue: TexPipeline);
+procedure TexProviderList.SetItem(Index: Integer; AValue: TexProvider);
 begin
   inherited SetItem(Index, AValue);
 end;
@@ -824,7 +824,7 @@ begin
   FColumns.Assign(AValue);
 end;
 
-procedure TexPipeline.SetSQL(AValue: TStrings);
+procedure TexProvider.SetSQL(AValue: TStrings);
 begin
   FSQL.Assign(AValue);
 end;

@@ -270,7 +270,7 @@ var
   AData: TStrings;
   AQuery: TDataSet;
   ASession: TexSession;
-  APipeline: TexPipeline;
+  AProvider: TexProvider;
   AOwner: TexSession;
 begin
   for I := 0 to ASessions.Count -1 do
@@ -279,15 +279,15 @@ begin
     if (ASession.Visible) then
     begin
       AData := FindData(ASession, AResult);
-      APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
+      AProvider := Exporter.Providers.FindByName(ASession.Provider);
 
       AOwner := ASession.Collection.Owner as TexSession;
-      ASame := (AOwner <> nil) and (SameText(ASession.Pipeline, AOwner.Pipeline));
+      ASame := (AOwner <> nil) and (SameText(ASession.Provider, AOwner.Provider));
 
       if (ASame) then
         AQuery := AMaster
       else
-        AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+        AQuery := Exporter.Driver.CreateQuery(AProvider.SQL.Text, AMaster);
 
       try
         AQuery.Open;
@@ -360,7 +360,7 @@ var
   AQuery: TDataSet;
   AOwner: TexSession;
   AColumn: TexColumn;
-  APipeline: TexPipeline;
+  AProvider: TexProvider;
   AElements: TStringList;
   APackage: TexPackage;
 begin
@@ -368,13 +368,13 @@ begin
   AElements := TStringList.Create;
   try
     AOwner := ASession.Collection.Owner as TexSession;
-    APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
-    ASame := (AOwner <> nil) and (SameText(ASession.Pipeline, AOwner.Pipeline));
+    AProvider := Exporter.Providers.FindByName(ASession.Provider);
+    ASame := (AOwner <> nil) and (SameText(ASession.Provider, AOwner.Provider));
 
     if (ASame) then
       AQuery := AMaster
     else
-      AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+      AQuery := Exporter.Driver.CreateQuery(AProvider.SQL.Text, AMaster);
 
     try
       AQuery.Open;
@@ -481,18 +481,18 @@ var
   AQuery: TDataSet;
   AOwner: TexSession;
   AColumn: TexColumn;
-  APipeline: TexPipeline;
+  AProvider: TexProvider;
   APackage: TexPackage;
 begin
   Result := '';
   AOwner := ASession.Collection.Owner as TexSession;
-  APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
-  ASame := (AOwner <> nil) and (SameText(ASession.Pipeline, AOwner.Pipeline));
+  AProvider := Exporter.Providers.FindByName(ASession.Provider);
+  ASame := (AOwner <> nil) and (SameText(ASession.Provider, AOwner.Provider));
 
   if (ASame) then
     AQuery := AMaster
   else
-    AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+    AQuery := Exporter.Driver.CreateQuery(AProvider.SQL.Text, AMaster);
 
   try
     AQuery.Open;
@@ -553,7 +553,7 @@ var
   AColumn: TexColumn;
   AQuery: TDataSet;
   ASession: TexSession;
-  APipeline: TexPipeline;
+  AProvider: TexProvider;
   AOwner: TexSession;
 begin
   for I := 0 to ASessions.Count -1 do
@@ -562,14 +562,14 @@ begin
     if (ASession.Visible) then
     begin
       AData := FindData(ASession, AResult);
-      APipeline := Exporter.Pipelines.FindByName(ASession.Pipeline);
+      AProvider := Exporter.Providers.FindByName(ASession.Provider);
       AOwner := ASession.Collection.Owner as TexSession;
-      ASame := (AOwner <> nil) and (SameText(ASession.Pipeline, AOwner.Pipeline));
+      ASame := (AOwner <> nil) and (SameText(ASession.Provider, AOwner.Provider));
 
       if (ASame) then
         AQuery := AMaster
       else
-        AQuery := Exporter.Provider.CreateQuery(APipeline.SQL.Text, AMaster);
+        AQuery := Exporter.Driver.CreateQuery(AProvider.SQL.Text, AMaster);
 
       try
         AQuery.Open;

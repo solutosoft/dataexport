@@ -7,13 +7,12 @@ unit zeosprovider;
 interface
 
 uses
-  exZeosProvider, LazarusPackageIntf;
+  exzeosdriver, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
-  RegisterUnit('exZeosProvider', @exZeosProvider.Register);
 end;
 
 initialization
