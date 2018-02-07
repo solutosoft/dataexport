@@ -3,7 +3,8 @@ unit exSerializer;
 interface
 
 uses
-  Classes, SysUtils, DB, StrUtils, Variants, {$IFDEF FPC}fgl, {$ELSE} Generics.Collections, {$ENDIF}
+  Classes, SysUtils, DB, StrUtils, Variants,
+  {$IFDEF FPC}fgl, {$ELSE} Generics.Collections, RegularExpressions, {$ENDIF}
   exClasses, exDefinition, exExporter;
 
 type
@@ -386,7 +387,10 @@ begin
         for J := 0 to ASession.Columns.Count -1 do
         begin
           AColumn := ASession.Columns[J];
+
           AValue := ExtractColumnValue(AColumn, AQuery);
+          AValue := TRegEx.Replace(AValue, '\r\n', '\n');
+
           AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
           AJson := AJson + Format('"%s":"%s"', [AAlias, AValue]) + ',';
         end;
