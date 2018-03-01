@@ -122,9 +122,9 @@ type
     procedure SetDictionaries(AValue: TexDictionaryList);
     procedure SetEvents(AValue: TexVariableList);
     procedure SetParameters(AValue: TexParameterList);
-    procedure SetPipelines(AValue: TexProviderList);
+    procedure SetProviders(AValue: TexProviderList);
     procedure SetProperties(const AValue: TStrings);
-    procedure SetProvider(AValue: TexDriver);
+    procedure SetDriver(AValue: TexDriver);
     procedure SetSerializer(AValue: TexSerializer);
     procedure SetSessions(AValue: TexSessionList);
     procedure SetSerializerClass(const Value: TexSerializerClass);
@@ -163,9 +163,9 @@ type
     property Events: TexVariableList read FEvents write SetEvents;
     property Packages: TexPackageList read FPackages write SetPackages;
     property Parameters: TexParameterList read FParameters write SetParameters;
-    property Providers: TexProviderList read FProviders write SetPipelines;
+    property Providers: TexProviderList read FProviders write SetProviders;
     property Properties: TStrings read FProperties write SetProperties;
-    property Driver: TexDriver read FDriver write SetProvider;
+    property Driver: TexDriver read FDriver write SetDriver;
     property Sessions: TexSessionList read FSessions write SetSessions;
     property Variables: TexVariableList read FVariables write SetVariables;
     property SerializerClassName: String read GetSerializerClassName write SetSerializerClassName;
@@ -573,7 +573,7 @@ begin
   FParameters.Assign(AValue);
 end;
 
-procedure TexExporter.SetPipelines(AValue: TexProviderList);
+procedure TexExporter.SetProviders(AValue: TexProviderList);
 begin
   FProviders.Assign(AValue);
 end;
@@ -583,7 +583,7 @@ begin
   FProperties.Assign(AValue);
 end;
 
-procedure TexExporter.SetProvider(AValue: TexDriver);
+procedure TexExporter.SetDriver(AValue: TexDriver);
 begin
   FDriver := AValue;
   if (FDriver <> nil) then
