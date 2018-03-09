@@ -29,6 +29,7 @@ type
     procedure TestJson;
     procedure TestXml;
     procedure TestSQLInsert;
+    procedure TestSerializationError;
   end;
 
 implementation
@@ -425,6 +426,35 @@ begin
 
     ALine := AData[1];
     CheckEquals('insert into details_table (product_id,quantity,price,value) values (1,2,10,20);', ALine);
+  finally
+    AExporter.Free;
+  end;
+end;
+
+procedure TexExporterTest.TestSerializationError;
+var
+  AExporter: TexExporter;
+begin
+  AExporter := CreateExporter('error.def');
+  try
+    try
+      AExporter.Execute;
+    except
+      on E: ESerializeException do
+      begin
+        CheckEquals('TexColumnSerializer error', E.Message);
+        CheckTrue(E.OriginalException <> nil);
+        CheckEquals('EScriptException', E.OriginalException.ClassName);
+
+        CheckEquals(
+          '[{"id":"1"},'+
+          '{"firstName":"Administrator"},'+
+          '{"lastName":"Root"},'+
+          '{"birthDate":"20/04/1983"},'+
+          '{"salary":"1530"},'+
+          '{"active":"1"}]', E.Data);
+      end;
+    end;
   finally
     AExporter.Free;
   end;

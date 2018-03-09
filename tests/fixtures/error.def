@@ -1,0 +1,50 @@
+object TexExporter
+  Description = 'Exception data export'
+  Sessions = <  
+    item
+      Name = 'persons'
+      provider = 'person-provider'      
+      Columns = <        
+        item
+          Name = 'firstName'          
+          Size = 10          
+        end
+        item
+          Name = 'lastName'
+          Complete = #32
+          Size = 5          
+        end
+        item
+          Name = 'birthDate'          
+          Size = 10          
+        end
+        item
+          Name = 'salary'          
+          Dictionary = 'money'          
+        end>
+      Sessions = <>
+    end>
+  Dictionaries = <  
+    item
+      Name = 'money'      
+      Align = altRight
+      Complete = '0'
+      Expression = 'Result := FormatFloat(''#.00'', 10/0));'
+      Size = 8     
+    end>   
+  SerializerClassName = 'TexColumnSerializer'   
+  Packages = <    
+    item
+      Name = 'persons.txt'
+      Sessions.Strings = (
+        'persons'          
+      )
+    end> 
+  Providers = <
+    item
+      Name = 'person-provider'
+      SQL.Strings = (
+	      'select * from persons'
+	    )
+    end> 
+end

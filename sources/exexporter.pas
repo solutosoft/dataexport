@@ -38,6 +38,16 @@ type
     property Script: string read FScript write FScript;
   end;
 
+  ESerializeException = class(Exception)
+  private
+    FData: string;
+    FOriginalException: Exception;
+  public
+    constructor Create(const Msg: string; AData: String; AOriginalException: Exception);
+    property Data: string read FData write FData;
+    property OriginalException: Exception read FOriginalException;
+  end;
+
   { TexScriptVar }
 
   TexScriptVar = class(TPersistent)
@@ -251,6 +261,16 @@ begin
   inherited Create(Msg);
   FScript := AScript;
 end;
+
+{ ESerializeException }
+
+constructor ESerializeException.Create(const Msg: string; AData: String; AOriginalException: Exception);
+begin
+  inherited Create(Msg);
+  FData := AData;
+  FOriginalException := AOriginalException;
+end;
+
 
 { TexScriptVar }
 

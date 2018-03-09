@@ -16,6 +16,7 @@ type
   protected
     procedure DoWork;
     procedure DoSerializeData(APackage: TexPackage; AData: WideString);
+    function ExtractDataError(ADataSet: TDataSet): String;
     function FindData(ASession: TexSession; AResultMap: TexResutMap): TStrings;
     function ExtractColumnValue(AColumn: TexColumn; ADataSet: TDataSet): String;
     function BeforeSerialize(AData: String; ASession: TexSession): String;
@@ -173,6 +174,7 @@ var
   AValue: Variant;
 begin
   AValue := Null;
+  ADictionary := nil;
   AField := ADataSet.FindField(AColumn.Name);
 
   AComplete := AColumn.Complete;
@@ -241,6 +243,24 @@ begin
   end;
 end;
 
+function TexBaseSerializer.ExtractDataError(ADataSet: TDataSet): String;
+var
+  I: Integer;
+begin
+  Result := '';
+
+  for I := 0 to ADataSet.FieldCount -1 do
+  begin
+    Result := Result + Format('{"%s":"%s"},', [
+      ADataSet.Fields[I].FieldName,
+      ADataSet.Fields[I].AsString
+    ]);
+  end;
+
+  Delete(Result, Length(Result), 1);
+  Result := Format('[%s]', [Result]);
+end;
+
 function TexBaseSerializer.BeforeSerialize(AData: String; ASession: TexSession): String;
 var
   AArgs: TexScriptArgs;
@@ -295,27 +315,33 @@ begin
         while (not AQuery.EOF) do
         begin
           ARow := '';
-          Exporter.CurrentDataSet := AQuery;
 
-          for J := 0 to ASession.Columns.Count -1 do
-          begin
-            AValue := ExtractColumnValue(ASession.Columns[J], AQuery);
-            ARow := ARow + AValue + FDelimiter;
+          try
+            Exporter.CurrentDataSet := AQuery;
+
+            for J := 0 to ASession.Columns.Count -1 do
+            begin
+              AValue := ExtractColumnValue(ASession.Columns[J], AQuery);
+              ARow := ARow + AValue + FDelimiter;
+            end;
+
+            ALength := Length(ARow);
+            if (FDelimiter <> '') and (ALength > 0) then
+               Delete(ARow, ALength, 1);
+
+            ARow := BeforeSerialize(ARow, ASession);
+            AData.Add(ARow);
+            Serialize(ASession.Sessions, AQuery, AResult);
+
+            if (ASessions.Owner = nil) then
+              DoWork;
+
+            if (ASame) then
+              Break;
+          except
+            on E: Exception do
+              raise ESerializeException.Create('TexColumnSerializer error', ExtractDataError(AQuery), E);
           end;
-
-          ALength := Length(ARow);
-          if (FDelimiter <> '') and (ALength > 0) then
-             Delete(ARow, ALength, 1);
-
-          ARow := BeforeSerialize(ARow, ASession);
-          AData.Add(ARow);
-          Serialize(ASession.Sessions, AQuery, AResult);
-
-          if (ASessions.Owner = nil) then
-            DoWork;
-
-          if (ASame) then
-            Break;
 
           AQuery.Next;
         end;
@@ -383,35 +409,39 @@ begin
       begin
         AJson := '';
         Exporter.CurrentDataSet := AQuery;
+        try
+          for J := 0 to ASession.Columns.Count -1 do
+          begin
+            AColumn := ASession.Columns[J];
 
-        for J := 0 to ASession.Columns.Count -1 do
-        begin
-          AColumn := ASession.Columns[J];
+            AValue := ExtractColumnValue(AColumn, AQuery);
+            AValue := TRegEx.Replace(AValue, '\r\n', '\n');
 
-          AValue := ExtractColumnValue(AColumn, AQuery);
-          AValue := TRegEx.Replace(AValue, '\r\n', '\n');
+            AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
+            AJson := AJson + Format('"%s":"%s"', [AAlias, AValue]) + ',';
+          end;
 
-          AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
-          AJson := AJson + Format('"%s":"%s"', [AAlias, AValue]) + ',';
+          for I := 0 to ASession.Sessions.Count - 1 do
+            AJson := AJson + FormatData(ASession.Sessions[I], AQuery) + ',';
+
+          Delete(AJson, Length(AJson), 1);
+          AJson := Format('{%s}', [AJson]);
+          AElements.Add(AJson);
+
+          if (ASame) then
+            Break;
+
+          if (AOwner = nil) then
+          begin
+            APackage := Exporter.Packages.FindBySession(ASession.Name);
+            DoSerializeData(APackage, AJson);
+          end;
+
+          AQuery.Next;
+        except
+          on E: Exception do
+            raise ESerializeException.Create('TexJsonSerializer error', ExtractDataError(AQuery), E);
         end;
-
-        for I := 0 to ASession.Sessions.Count - 1 do
-          AJson := AJson + FormatData(ASession.Sessions[I], AQuery) + ',';
-
-        Delete(AJson, Length(AJson), 1);
-        AJson := Format('{%s}', [AJson]);
-        AElements.Add(AJson);
-
-        if (ASame) then
-          Break;
-
-        if (AOwner = nil) then
-        begin
-          APackage := Exporter.Packages.FindBySession(ASession.Name);
-          DoSerializeData(APackage, AJson);
-        end;
-
-        AQuery.Next;
       end;
 
       Result := '';
@@ -502,36 +532,41 @@ begin
     AQuery.Open;
     while (not AQuery.EOF) do
     begin
-      AXml := '';
-      Exporter.CurrentDataSet := AQuery;
+      try
+        AXml := '';
+        Exporter.CurrentDataSet := AQuery;
 
-      for J := 0 to ASession.Columns.Count -1 do
-      begin
-        AColumn := ASession.Columns[J];
-        AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
-        AValue := ExtractColumnValue(AColumn, AQuery);
-        AXml := AXml + EncodeTag(AAlias, AValue);
-      end;
+        for J := 0 to ASession.Columns.Count -1 do
+        begin
+          AColumn := ASession.Columns[J];
+          AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
+          AValue := ExtractColumnValue(AColumn, AQuery);
+          AXml := AXml + EncodeTag(AAlias, AValue);
+        end;
 
-      for I := 0 to ASession.Sessions.Count - 1 do
-        AXml := AXml + FormatData(ASession.Sessions[I], AQuery);
+        for I := 0 to ASession.Sessions.Count - 1 do
+          AXml := AXml + FormatData(ASession.Sessions[I], AQuery);
 
-      if (not ASame) then
-        AXml := EncodeTag(FItemTag, AXml)
-      else begin
+        if (not ASame) then
+          AXml := EncodeTag(FItemTag, AXml)
+        else begin
+          Result := Result + AXml;
+          Break;
+        end;
+
         Result := Result + AXml;
-        Break;
+
+        if (AOwner = nil) then
+        begin
+          APackage := Exporter.Packages.FindBySession(ASession.Name);
+          DoSerializeData(APackage, Result);
+        end;
+
+        AQuery.Next;
+      except
+        on E: Exception do
+          raise ESerializeException.Create('TexXmlSerializer error', ExtractDataError(AQuery), E);
       end;
-
-      Result := Result + AXml;
-
-      if (AOwner = nil) then
-      begin
-        APackage := Exporter.Packages.FindBySession(ASession.Name);
-        DoSerializeData(APackage, Result);
-      end;
-
-      AQuery.Next;
     end;
     Result := EncodeTag(ASession.Name, Result);
   finally
@@ -551,7 +586,8 @@ var
   AValues,
   AColumns,
   AAlias,
-  AValue: String;
+  AValue,
+  ACommand: String;
   ASame: Boolean;
   AData: TStrings;
   AColumn: TexColumn;
@@ -579,34 +615,41 @@ begin
         AQuery.Open;
         while (not AQuery.EOF) do
         begin
-          AValues := '';
-          AColumns := '';
-          Exporter.CurrentDataSet := AQuery;
+          try
+            AValues := '';
+            AColumns := '';
+            Exporter.CurrentDataSet := AQuery;
 
-          for J := 0 to ASession.Columns.Count -1 do
-          begin
-            AColumn := ASession.Columns[J];
-            AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
-            AValue := ExtractColumnValue(AColumn, AQuery);
-            AValues := AValues + AValue + Delimiter;
-            AColumns := AColumns + AAlias + Delimiter;
+            for J := 0 to ASession.Columns.Count -1 do
+            begin
+              AColumn := ASession.Columns[J];
+              AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
+              AValue := ExtractColumnValue(AColumn, AQuery);
+              AValues := AValues + AValue + Delimiter;
+              AColumns := AColumns + AAlias + Delimiter;
+            end;
+
+            Delete(AValues, Length(AValues), 1);
+            Delete(AColumns, Length(AColumns), 1);
+
+            AAlias := IfThen(Trim(ASession.Alias) <> '', ASession.Alias, ASession.Name);
+            AValues := BeforeSerialize(AValues, ASession);
+            ACommand := Format('insert into %s (%s) values (%s);', [AAlias, AColumns, AValues]);
+
+            AData.Add(ACommand);
+            Serialize(ASession.Sessions, AQuery, AResult);
+
+            if (ASessions.Owner = nil) then
+              DoWork;
+
+            if (ASame) then
+              Break;
+
+            AQuery.Next;
+          except
+            on E: Exception do
+              raise ESerializeException.Create('TexSQLInsertSerializer error', ExtractDataError(AQuery), E);
           end;
-
-          Delete(AValues, Length(AValues), 1);
-          Delete(AColumns, Length(AColumns), 1);
-
-          AAlias := IfThen(Trim(ASession.Alias) <> '', ASession.Alias, ASession.Name);
-          AValues := BeforeSerialize(AValues, ASession);
-          AData.Add(Format('insert into %s (%s) values (%s);', [AAlias, AColumns, AValues]));
-          Serialize(ASession.Sessions, AQuery, AResult);
-
-          if (ASessions.Owner = nil) then
-            DoWork;
-
-          if (ASame) then
-            Break;
-
-          AQuery.Next;
         end;
       finally
         if (not ASame) then
