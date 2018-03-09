@@ -66,10 +66,10 @@ object TexExporter
       Name = 'order-provider'
       SQL.Strings = (
         'select invoices.*,'
-        'persons.firstName,'
-        'persons.salary'
+        'people.firstName,'
+        'people.salary'
         'from invoices'
-        'join persons on (persons.id = invoices.person_id)'
+        'join people on (people.id = invoices.person_id)'
         'where invoices.created_at > :created_at'		
       )
     end

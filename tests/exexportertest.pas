@@ -144,8 +144,8 @@ begin
 
     with (AExporter.Providers.Add) do
     begin
-      Name := 'persons-pipeline';
-      SQL.Text := 'select * from persons';
+      Name := 'people-provider';
+      SQL.Text := 'select * from people';
     end;
 
     with (AExporter.Dictionaries.Add) do
@@ -163,8 +163,8 @@ begin
     ASession := AExporter.Sessions.Add;
     with(ASession) do
     begin
-      Name := 'persons';
-      Provider := 'persons-provider';
+      Name := 'people';
+      Provider := 'people-provider';
     end;
 
     with (ASession.Columns.Add) do
@@ -209,9 +209,9 @@ begin
   try
      AResult := AExporter.Execute;
      CheckEquals(2, AResult.Count);
-     CheckTrue(AResult.ContainsKey('persons.txt'));
+     CheckTrue(AResult.ContainsKey('people.txt'));
 
-     AData := AResult['persons.txt'];
+     AData := AResult['people.txt'];
      CheckEquals(3, AData.Count);
 
      ALine := AData[0];

@@ -53,7 +53,7 @@ INSERT INTO invoice_details (id, invoice_id, product_id, quantity, price, total)
 
 
 
-CREATE TABLE  persons (
+CREATE TABLE  people (
 
   id integer NOT NULL,
   
@@ -72,7 +72,7 @@ CREATE TABLE  persons (
 
 
 
-INSERT INTO persons (id, firstName, lastName, birthDate, salary, active) VALUES
+INSERT INTO people (id, firstName, lastName, birthDate, salary, active) VALUES
 
 (1, 'Administrator', 'Root', '1983-04-20 00:00:00', '1530.00', 1),
 

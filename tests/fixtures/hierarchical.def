@@ -76,9 +76,9 @@ object TexExporter
       )
     end
     item
-      Name = 'persons'
+      Name = 'people'
       Sessions.Strings = (
-        'persons'          
+        'people'          
       )
     end> 
   Providers = <
@@ -86,10 +86,10 @@ object TexExporter
       Name = 'invoices-provider'
       SQL.Strings = (
 	      'select invoices.*, '
-        'persons.firstName, '
-        'persons.lastName '
+        'people.firstName, '
+        'people.lastName '
         'from invoices '
-        'join persons on (persons.id = invoices.person_id)'
+        'join people on (people.id = invoices.person_id)'
 	    )
     end
     item
@@ -99,9 +99,9 @@ object TexExporter
 	    )
     end
     item
-      Name = 'persons-provider'
+      Name = 'people-provider'
       SQL.Strings = (
-	      'select * from persons'
+	      'select * from people'
 	    )
     end> 
 end

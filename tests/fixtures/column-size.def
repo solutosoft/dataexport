@@ -1,9 +1,9 @@
 object TexExporter
-  Description = 'Persons data export'
+  Description = 'People data export'
   Sessions = <  
     item
-      Name = 'persons'
-      provider = 'person-provider'      
+      Name = 'people'
+      provider = 'people-provider'      
       Columns = <      
         item
           Name = 'id'
@@ -74,18 +74,18 @@ object TexExporter
   Events = <    
     item
       Name = 'procedure BeforeExecute'
-      Expression = 'ExecSQL(''update persons set firstName = :name where id = :id'', [''Christopher'', 1]);'
+      Expression = 'ExecSQL(''update people set firstName = :name where id = :id'', [''Christopher'', 1]);'
     end
     item
       Name = 'procedure AfterExecute'
-      Expression = 'ExecSQL(''update persons set firstName = :name where id = :id'', [''Administrator'', 1]);'
+      Expression = 'ExecSQL(''update people set firstName = :name where id = :id'', [''Administrator'', 1]);'
     end>
   SerializerClassName = 'TexColumnSerializer'   
   Packages = <    
     item
-      Name = 'persons.txt'
+      Name = 'people.txt'
       Sessions.Strings = (
-        'persons'          
+        'people'          
       )
     end
     item
@@ -96,9 +96,9 @@ object TexExporter
     end> 
   Providers = <
     item
-      Name = 'person-provider'
+      Name = 'people-provider'
       SQL.Strings = (
-	      'select * from persons'
+	      'select * from people'
 	    )
     end
     item

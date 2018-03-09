@@ -2,8 +2,8 @@ object TexExporter
   Description = 'Exception data export'
   Sessions = <  
     item
-      Name = 'persons'
-      provider = 'person-provider'      
+      Name = 'people'
+      provider = 'people-provider'      
       Columns = <        
         item
           Name = 'firstName'          
@@ -35,16 +35,16 @@ object TexExporter
   SerializerClassName = 'TexColumnSerializer'   
   Packages = <    
     item
-      Name = 'persons.txt'
+      Name = 'people.txt'
       Sessions.Strings = (
-        'persons'          
+        'people'          
       )
     end> 
   Providers = <
     item
-      Name = 'person-provider'
+      Name = 'people-provider'
       SQL.Strings = (
-	      'select * from persons'
+	      'select * from people'
 	    )
     end> 
 end
