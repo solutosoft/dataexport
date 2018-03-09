@@ -447,12 +447,12 @@ begin
         CheckEquals('EScriptException', E.OriginalException.ClassName);
 
         CheckEquals(
-          '[{"id":"1"},'+
-          '{"firstName":"Administrator"},'+
-          '{"lastName":"Root"},'+
-          '{"birthDate":"20/04/1983"},'+
-          '{"salary":"1530"},'+
-          '{"active":"1"}]', E.Data);
+          '{"id":"1",'+
+          '"firstName":"Administrator",'+
+          '"lastName":"Root",'+
+          '"birthDate":"20/04/1983",'+
+          '"salary":"1530",'+
+          '"active":"1"}', E.Data);
       end;
     end;
   finally

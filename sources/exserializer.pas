@@ -251,14 +251,14 @@ begin
 
   for I := 0 to ADataSet.FieldCount -1 do
   begin
-    Result := Result + Format('{"%s":"%s"},', [
+    Result := Result + Format('"%s":"%s",', [
       ADataSet.Fields[I].FieldName,
       ADataSet.Fields[I].AsString
     ]);
   end;
 
   Delete(Result, Length(Result), 1);
-  Result := Format('[%s]', [Result]);
+  Result := Format('{%s}', [Result]);
 end;
 
 function TexBaseSerializer.BeforeSerialize(AData: String; ASession: TexSession): String;
