@@ -22,7 +22,10 @@ object TexExporter
         end        
         item
           Name = 'description'          
-        end> 
+        end
+		item
+          Name = 'notExists'              
+		end> 
       Sessions = <
         item
           Name = 'details'

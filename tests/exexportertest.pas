@@ -317,6 +317,7 @@ begin
     CheckEquals('001', ARow.Values['number'].Value);
     CheckEquals('2015-11-10', ARow.Values['created_at'].Value);
     CheckEquals('The first order', ARow.Values['description'].Value);
+    CheckEquals('', ARow.Values['notExists'].Value);
 
     ADetails := TJSONArray(ARow.Values['details']);
     CheckEquals(2, ADetails.Count);

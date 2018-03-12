@@ -173,6 +173,7 @@ var
   AArgs: TexScriptArgs;
   AValue: Variant;
 begin
+  Result := '';
   AValue := Null;
   ADictionary := nil;
   AField := ADataSet.FindField(AColumn.Name);
