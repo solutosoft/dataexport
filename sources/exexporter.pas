@@ -104,7 +104,8 @@ type
 
   TexExporter = class(TComponent)
   private
-    FCurrentDataSet: TDataSet;
+    FActiveDataSet: TDataSet;
+    FActiveSession: TexSession;
     FDriver: TexDriver;
     FPackages: TexPackageList;
     FDescription: String;
@@ -151,6 +152,7 @@ type
     function ScriptEngineRecNo: Integer;
     function ScriptEngineFindField(AFieldName: String): TexValue;
     function ScriptEngineFindParam(AParamName: String): TexValue;
+    function ScriptEngineGetActiveSession: String;
     function ScriptEngineGetId: Integer;
   protected
     FObjectCounter: Integer;
@@ -165,7 +167,8 @@ type
     procedure LoadFromFile(const AFileName: String);
     procedure SaveToStream(const AStream: TStream);
     procedure SaveToFile(const AFileName: string);
-    property CurrentDataSet: TDataSet read FCurrentDataSet write FCurrentDataSet;
+    property ActiveSession: TexSession read FActiveSession write FActiveSession;
+    property ActiveDataSet: TDataSet read FActiveDataSet write FActiveDataSet;
     property SerializerClass: TexSerializerClass read FSerializerClass write SetSerializerClass;
   published
     property Description: String read FDescription write FDescription;
@@ -420,6 +423,9 @@ begin
   Sender.AddMethod(Self, @TexExporter.ScriptEngineExecSQLScalar,
     'function ExecSQLScalar(ASQL: String; const AParams: array of Variant; AType: TexDataType): Variant;');
 
+  Sender.AddMethod(Self, @TexExporter.ScriptEngineGetActiveSession,
+    'function GetActiveSession: String');
+
   if (Assigned(FScriptArgs)) then
   begin
     for AVar in FScriptArgs do
@@ -453,7 +459,7 @@ var
   {$ENDIF}
 begin
   Result := AMacro;
-  if (FCurrentDataSet <> nil) then
+  if (FActiveDataSet <> nil) then
   begin
     {$IFDEF FPC}
     ARegExpr := TRegExpr.Create(SCRIPT_REGEX_MACRO);
@@ -473,7 +479,7 @@ begin
     for AMatch in TRegEx.Matches(Result, SCRIPT_REGEX_MACRO) do
     begin
       AName := AMatch.Groups[1].Value;
-      Result := Result.Replace(AMatch.Groups[0].Value, FCurrentDataSet.FieldByName(AName).AsString,
+      Result := Result.Replace(AMatch.Groups[0].Value, FActiveDataSet.FieldByName(AName).AsString,
         [rfReplaceAll, rfIgnoreCase]);
     end;
     {$ENDIF}
@@ -550,8 +556,8 @@ end;
 
 function TexExporter.ScriptEngineFindField(AFieldName: String): TexValue;
 begin
-  if (Assigned(FCurrentDataSet)) then
-    Result := TexValue.Create(FCurrentDataSet.FieldByName(AFieldName).Value)
+  if (Assigned(FActiveDataSet)) then
+    Result := TexValue.Create(FActiveDataSet.FieldByName(AFieldName).Value)
   else
     Result := TexValue.Create(Null);
 end;
@@ -567,6 +573,14 @@ begin
     Result := TexValue.Create(Null);
 end;
 
+function TexExporter.ScriptEngineGetActiveSession: String;
+begin
+  if FActiveSession <> nil then
+    Result := FActiveSession.Name
+  else
+    Result := '';
+end;
+
 function TexExporter.ScriptEngineGetId: Integer;
 begin
   Inc(FObjectCounter);
@@ -575,7 +589,7 @@ end;
 
 function TexExporter.ScriptEngineRecNo: Integer;
 begin
-  Result := FCurrentDataSet.RecNo;
+  Result := FActiveDataSet.RecNo;
 end;
 
 procedure TexExporter.SetDictionaries(AValue: TexDictionaryList);

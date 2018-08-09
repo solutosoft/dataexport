@@ -271,7 +271,7 @@ begin
   try
     AArgs.Add(TexScriptVar.Create('Value', AData));
     AEventResult := Exporter.ExecuteEvent(EXPORTER_BEFORE_SERIALIZE, AArgs);
-    if (AEventResult <> Unassigned) then
+    if (not VarIsClear(AEventResult)) then
       Result := AEventResult
     else
       Result := AData;
@@ -318,7 +318,8 @@ begin
           ARow := '';
 
           try
-            Exporter.CurrentDataSet := AQuery;
+            Exporter.ActiveDataSet := AQuery;
+            Exporter.ActiveSession := ASession;
 
             for J := 0 to ASession.Columns.Count -1 do
             begin
@@ -331,7 +332,9 @@ begin
                Delete(ARow, ALength, 1);
 
             ARow := BeforeSerialize(ARow, ASession);
-            AData.Add(ARow);
+            if (ARow <> '') then
+              AData.Add(ARow);
+
             Serialize(ASession.Sessions, AQuery, AResult);
 
             if (ASessions.Owner = nil) then
@@ -409,7 +412,8 @@ begin
       while (not AQuery.EOF) do
       begin
         AJson := '';
-        Exporter.CurrentDataSet := AQuery;
+        Exporter.ActiveDataSet := AQuery;
+        Exporter.ActiveSession := ASession;
         try
           for J := 0 to ASession.Columns.Count -1 do
           begin
@@ -535,7 +539,8 @@ begin
     begin
       try
         AXml := '';
-        Exporter.CurrentDataSet := AQuery;
+        Exporter.ActiveDataSet := AQuery;
+        Exporter.ActiveSession := ASession;
 
         for J := 0 to ASession.Columns.Count -1 do
         begin
@@ -619,7 +624,8 @@ begin
           try
             AValues := '';
             AColumns := '';
-            Exporter.CurrentDataSet := AQuery;
+            Exporter.ActiveDataSet := AQuery;
+            Exporter.ActiveSession := ASession;
 
             for J := 0 to ASession.Columns.Count -1 do
             begin
