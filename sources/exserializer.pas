@@ -102,10 +102,20 @@ end;
 { TexBaseSerializer }
 
 procedure TexBaseSerializer.DoSerializeData(APackage: TexPackage; AData: WideString);
+var
+  AArgs: TexScriptArgs;
 begin
   try
     if (Assigned(OnSerializeData)) then
       OnSerializeData(APackage, AData);
+
+    AArgs := TexScriptArgs.Create;
+    try
+      AArgs.Add(TexScriptVar.Create('AParams', APackage.Options));
+      ExecuteEvent(APackage.Events.FindByName(PACKAGE_AFTER_EXEC), AArgs);
+    finally
+      AArgs.Free;
+    end;
   finally
     TexExporterAccess(Exporter).FObjectCounter := 0;
   end;
