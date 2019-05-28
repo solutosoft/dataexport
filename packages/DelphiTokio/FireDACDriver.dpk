@@ -35,9 +35,12 @@ requires
   DataExporter,
   FireDAC,
   FireDACCommonDriver,
-  FireDACCommon;
+  FireDACCommon,
+  dsnap,
+  DbxCommonDriver;
 
 contains
   exfiredacdriver in '..\..\drivers\exfiredacdriver.pas';
 
 end.
+
