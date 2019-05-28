@@ -4,7 +4,7 @@ interface
 
 uses
   Classes, SysUtils, DB, StrUtils, Variants,
-  {$IFDEF FPC}fgl, {$ELSE} Generics.Collections, RegularExpressions, {$ENDIF}
+  {$IFDEF FPC}fgl, {$ELSE} Generics.Collections, RegularExpressions, System.JSON, {$ENDIF}
   exClasses, exDefinition, exExporter;
 
 type
@@ -420,10 +420,10 @@ begin
             AColumn := ASession.Columns[J];
 
             AValue := ExtractColumnValue(AColumn, AQuery);
-            AValue := TRegEx.Replace(AValue, '\r\n', '\n');
+            AValue := TJSONString.Create(AValue).ToJSON;
 
             AAlias := IfThen(Trim(AColumn.Alias) <> '', AColumn.Alias, AColumn.Name);
-            AJson := AJson + Format('"%s":"%s"', [AAlias, AValue]) + ',';
+            AJson := AJson + Format('"%s":%s', [AAlias, AValue]) + ',';
           end;
 
           for I := 0 to ASession.Sessions.Count - 1 do
