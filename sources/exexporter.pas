@@ -92,8 +92,6 @@ type
   protected
     procedure AssignParamValues(AParams: TParams; const AValues: array of Variant);
   public
-    procedure OpenConnection; virtual; abstract;
-    procedure CloseConnection; virtual; abstract;
     procedure ExecSQL(ASQL: String; const AParams: array of Variant); virtual; abstract;
     function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; virtual; abstract;
     function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; virtual; abstract;
@@ -707,25 +705,21 @@ begin
 
   Result := TexResutMap.Create;
   FScriptCache.Clear;
-  FDriver.OpenConnection;
-  try
-    if (Assigned(FOnWorkBegin)) then
-      FOnWorkBegin(Self, Sessions.Count);
 
-    FObjectCounter := 0;
-    ExecuteEvent(EXPORTER_BEFORE_EXEC);
+  if (Assigned(FOnWorkBegin)) then
+    FOnWorkBegin(Self, Sessions.Count);
 
-    FSerializer.OnWork := FOnWork;
-    FSerializer.OnSerializeData := FOnSerializeData;
-    FSerializer.Serialize(Sessions, nil, Result);
+  FObjectCounter := 0;
+  ExecuteEvent(EXPORTER_BEFORE_EXEC);
 
-    ExecuteEvent(EXPORTER_AFTER_EXEC);
+  FSerializer.OnWork := FOnWork;
+  FSerializer.OnSerializeData := FOnSerializeData;
+  FSerializer.Serialize(Sessions, nil, Result);
 
-    if (Assigned(FOnWorkEnd)) then
-      FOnWorkEnd(Self);
-  finally
-    FDriver.CloseConnection;
-  end;
+  ExecuteEvent(EXPORTER_AFTER_EXEC);
+
+  if (Assigned(FOnWorkEnd)) then
+    FOnWorkEnd(Self);
 end;
 
 function TexExporter.ExecuteEvent(AName: String; AArgs: TexScriptArgs = nil): Variant;

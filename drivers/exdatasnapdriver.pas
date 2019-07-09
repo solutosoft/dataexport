@@ -14,8 +14,6 @@ type
     FConnection: TDSProviderConnection;
     FProviderName: String;
   public
-    procedure OpenConnection; override;
-    procedure CloseConnection; override;
     procedure ExecSQL(ASQL: String; const AParams: array of Variant); override;
     function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; override;
     function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
@@ -29,18 +27,6 @@ procedure Register;
 implementation
 
 { TexDataSnapDriver }
-
-procedure TexDataSnapDriver.OpenConnection;
-begin
-  inherited;
-  FConnection.Open;
-end;
-
-procedure TexDataSnapDriver.CloseConnection;
-begin
-  inherited;
-  FConnection.Close;
-end;
 
 procedure TexDataSnapDriver.ExecSQL(ASQL: String; const AParams: array of Variant);
 var

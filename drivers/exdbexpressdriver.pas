@@ -12,8 +12,6 @@ type
   private
     FConnection: TSQLConnection;
   public
-    procedure OpenConnection; override;
-    procedure CloseConnection; override;
     procedure ExecSQL(ASQL: String; const AParams: array of Variant); override;
     function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; override;
     function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
@@ -26,18 +24,6 @@ procedure Register;
 implementation
 
 { TexDBExpressDriver }
-
-procedure TexDBExpressDriver.OpenConnection;
-begin
-  inherited;
-  FConnection.Open;
-end;
-
-procedure TexDBExpressDriver.CloseConnection;
-begin
-  inherited;
-  FConnection.Close;
-end;
 
 procedure TexDBExpressDriver.ExecSQL(ASQL: String; const AParams: array of Variant);
 var

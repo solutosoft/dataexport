@@ -13,8 +13,6 @@ type
   private
     FConnection: TZConnection;
   public
-    procedure OpenConnection; override;
-    procedure CloseConnection; override;
     procedure ExecSQL(ASQL: String; const AParams: array of Variant); override;
     function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; override;
     function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
@@ -27,16 +25,6 @@ procedure Register;
 implementation
 
 { TexZeosDriver }
-
-procedure TexZeosDriver.OpenConnection;
-begin
-  FConnection.Connected := True;
-end;
-
-procedure TexZeosDriver.CloseConnection;
-begin
-  FConnection.Connected := False;
-end;
 
 function TexZeosDriver.CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet;
 var

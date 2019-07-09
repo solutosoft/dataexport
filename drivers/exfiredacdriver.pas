@@ -31,8 +31,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure OpenConnection; override;
-    procedure CloseConnection; override;
     procedure ExecSQL(ASQL: String; const AParams: array of Variant); override;
     function ExecSQLScalar(ASQL: String; const AParams: array of Variant): Variant; override;
     function CreateQuery(ASQL: String; AMaster: TDataSet): TDataSet; override;
@@ -151,12 +149,6 @@ begin
   inherited Destroy;
 end;
 
-procedure TexFireDACDriver.OpenConnection;
-begin
-  inherited;
-  FConnection.Open;
-end;
-
 procedure TexFireDACDriver.ReadStream(AInput, AOutput: TStream);
 const
   BufSize = 4096;
@@ -201,12 +193,6 @@ begin
 
     AParams[I].Value := AValues[I];
   end;
-end;
-
-procedure TexFireDACDriver.CloseConnection;
-begin
-  inherited;
-  FConnection.Close;
 end;
 
 procedure TexFireDACDriver.ExecSQL(ASQL: String; const AParams: array of Variant);
