@@ -1,4 +1,4 @@
-package DataExporter;
+﻿package DclDataExporter;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -25,22 +25,19 @@ package DataExporter;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'Data Export Components'}
+{$DESCRIPTION 'DataExport Components - Design'}
 {$LIBSUFFIX 'D25'}
-{$RUNONLY}
 {$IMPLICITBUILD OFF}
 
 requires
   rtl,
+  designide,
   dbrtl,
-  PascalScript_Core_D25;
+  DataExporter;
 
 contains
-  exclasses in '..\..\sources\exclasses.pas',
-  exdefinition in '..\..\sources\exdefinition.pas',
-  exexporter in '..\..\sources\exexporter.pas',
-  exserializer in '..\..\sources\exserializer.pas',
-  exscript in '..\..\sources\exscript.pas',
-  exoptions in '..\..\sources\exoptions.pas';
+  excomponentreg in '..\..\sources\excomponentreg.pas',
+  excomboitemsdlg in '..\..\editors\excomboitemsdlg.pas' {ComboItemsDlg},
+  exoptionsdlg in '..\..\editors\exoptionsdlg.pas' {OptionsDlg};
 
 end.

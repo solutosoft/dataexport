@@ -18,6 +18,9 @@
         <Projects Include="ZeosDriver.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="DclDataExporter.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -71,14 +74,23 @@
     <Target Name="ZeosDriver:Make">
         <MSBuild Projects="ZeosDriver.dproj" Targets="Make"/>
     </Target>
+    <Target Name="DclDataExporter">
+        <MSBuild Projects="DclDataExporter.dproj"/>
+    </Target>
+    <Target Name="DclDataExporter:Clean">
+        <MSBuild Projects="DclDataExporter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DclDataExporter:Make">
+        <MSBuild Projects="DclDataExporter.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="DataExporter;FireDACDriver;DataSnapDriver;DBExpressDriver;ZeosDriver"/>
+        <CallTarget Targets="DataExporter;FireDACDriver;DataSnapDriver;DBExpressDriver;ZeosDriver;DclDataExporter"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DataExporter:Clean;FireDACDriver:Clean;DataSnapDriver:Clean;DBExpressDriver:Clean;ZeosDriver:Clean"/>
+        <CallTarget Targets="DataExporter:Clean;FireDACDriver:Clean;DataSnapDriver:Clean;DBExpressDriver:Clean;ZeosDriver:Clean;DclDataExporter:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DataExporter:Make;FireDACDriver:Make;DataSnapDriver:Make;DBExpressDriver:Make;ZeosDriver:Make"/>
+        <CallTarget Targets="DataExporter:Make;FireDACDriver:Make;DataSnapDriver:Make;DBExpressDriver:Make;ZeosDriver:Make;DclDataExporter:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
