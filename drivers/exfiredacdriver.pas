@@ -39,7 +39,6 @@ type
     property DataSnapOptions: TexFireDACDataSnapOptions read FDataSnapOptions write SetDataSnapOptions;
   end;
 
-procedure Register;
 
 implementation
 
@@ -285,11 +284,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure Register;
-begin
-  RegisterComponents('Data Export', [TexFireDACDriver]);
 end;
 
 end.

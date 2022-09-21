@@ -1,0 +1,96 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{19B57A5D-740F-4562-A6F4-A9759C4CEA0B}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="DataExporter.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="DataExporterFireDAC.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="DataExporterDataSnap.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="DclDataExporter.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="DclDataExporterDataSnap.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="DclDataExporterFireDAC.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="DataExporter">
+        <MSBuild Projects="DataExporter.dproj"/>
+    </Target>
+    <Target Name="DataExporter:Clean">
+        <MSBuild Projects="DataExporter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DataExporter:Make">
+        <MSBuild Projects="DataExporter.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DataExporterFireDAC">
+        <MSBuild Projects="DataExporterFireDAC.dproj"/>
+    </Target>
+    <Target Name="DataExporterFireDAC:Clean">
+        <MSBuild Projects="DataExporterFireDAC.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DataExporterFireDAC:Make">
+        <MSBuild Projects="DataExporterFireDAC.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DataExporterDataSnap">
+        <MSBuild Projects="DataExporterDataSnap.dproj"/>
+    </Target>
+    <Target Name="DataExporterDataSnap:Clean">
+        <MSBuild Projects="DataExporterDataSnap.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DataExporterDataSnap:Make">
+        <MSBuild Projects="DataExporterDataSnap.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DclDataExporter">
+        <MSBuild Projects="DclDataExporter.dproj"/>
+    </Target>
+    <Target Name="DclDataExporter:Clean">
+        <MSBuild Projects="DclDataExporter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DclDataExporter:Make">
+        <MSBuild Projects="DclDataExporter.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DclDataExporterDataSnap">
+        <MSBuild Projects="DclDataExporterDataSnap.dproj"/>
+    </Target>
+    <Target Name="DclDataExporterDataSnap:Clean">
+        <MSBuild Projects="DclDataExporterDataSnap.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DclDataExporterDataSnap:Make">
+        <MSBuild Projects="DclDataExporterDataSnap.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DclDataExporterFireDAC">
+        <MSBuild Projects="DclDataExporterFireDAC.dproj"/>
+    </Target>
+    <Target Name="DclDataExporterFireDAC:Clean">
+        <MSBuild Projects="DclDataExporterFireDAC.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DclDataExporterFireDAC:Make">
+        <MSBuild Projects="DclDataExporterFireDAC.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="DataExporter;DataExporterFireDAC;DataExporterDataSnap;DclDataExporter;DclDataExporterDataSnap;DclDataExporterFireDAC"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="DataExporter:Clean;DataExporterFireDAC:Clean;DataExporterDataSnap:Clean;DclDataExporter:Clean;DclDataExporterDataSnap:Clean;DclDataExporterFireDAC:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="DataExporter:Make;DataExporterFireDAC:Make;DataExporterDataSnap:Make;DclDataExporter:Make;DclDataExporterDataSnap:Make;DclDataExporterFireDAC:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

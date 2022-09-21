@@ -1,5 +1,8 @@
 /bin
 /lib
 /backup
-/__history
-/editors/__history
+__history
+*.identcache
+*.skincfg
+*.local
+*.stat
