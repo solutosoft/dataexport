@@ -22,8 +22,6 @@ type
     property ProviderName: String read FProviderName write FProviderName;
   end;
 
-procedure Register;
-
 implementation
 
 { TexDataSnapDriver }
@@ -103,11 +101,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure Register;
-begin
-  RegisterComponents('Data Export', [TexDataSnapDriver]);
 end;
 
 end.
