@@ -26,14 +26,14 @@ package DataExporter;
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Data Export Components'}
-{$LIBSUFFIX 'D25'}
+{$LIBSUFFIX AUTO}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
 
 requires
   rtl,
   dbrtl,
-  PascalScript_Core_D25;
+  PascalScript_Core;
 
 contains
   exclasses in '..\sources\exclasses.pas',
